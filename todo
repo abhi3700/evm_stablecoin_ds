@@ -1,0 +1,7 @@
++ add upgradeability scripts in unit testing & deployment
++ formulate the coins release per week
+	* in Excel file
+- create an external script to ensure release of coins per week
+	- Typescript
+- Feed protocol wallet address into the CF SC
+- Create a utility function called `getStatus`
