@@ -29,3 +29,6 @@ build
 cache
 artifacts
 typechain
+
+# opened files
+~$*
