@@ -13,7 +13,7 @@ import "hardhat-gas-reporter";
 import "solidity-coverage";
 
 import "@nomiclabs/hardhat-etherscan";
-import "./deployment/index";
+// TODO: import "./deployment/index";
 dotenvConfig({ path: resolve(__dirname, "./.env") });
 
 // import "./scripts/index";
