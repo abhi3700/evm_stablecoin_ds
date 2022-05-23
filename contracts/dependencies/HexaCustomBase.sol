@@ -7,7 +7,6 @@ import "./BaseMath.sol";
 import "../interfaces/IERC20.sol";
 import "../interfaces/IWhitelist.sol";
 
-
 contract HexaCustomBase is BaseMath {
     // using SafeMath for uint256;
 
@@ -70,7 +69,6 @@ contract HexaCustomBase is BaseMath {
         finalColls.amounts = sumAmounts;
     }
 
-
     // gets the sum of coll1 with tokens and amounts
     function _sumColls(
         newColls memory _coll1,
@@ -80,7 +78,6 @@ contract HexaCustomBase is BaseMath {
         newColls memory coll2 = newColls(tokens, amounts);
         return _sumColls(_coll1, coll2);
     }
-
 
     function _sumColls(
         address[] memory tokens1,
@@ -92,7 +89,6 @@ contract HexaCustomBase is BaseMath {
         return _sumColls(coll1, tokens2, amounts2);
     }
 
-
     // Function for summing colls when coll1 includes all the tokens in the whitelist
     // Used in active, default, stability, and surplus pools
     // assumes _coll1.tokens = all whitelisted tokens
@@ -100,27 +96,26 @@ contract HexaCustomBase is BaseMath {
         newColls memory _coll1,
         address[] memory _tokens,
         uint256[] memory _amounts
-    ) internal view returns (uint[] memory) {
-        uint[] memory sumAmounts = _getArrayCopy(_coll1.amounts);
+    ) internal view returns (uint256[] memory) {
+        uint256[] memory sumAmounts = _getArrayCopy(_coll1.amounts);
 
         uint256 coll1Len = _tokens.length;
         // assumes that sumAmounts length = whitelist tokens length.
         for (uint256 i; i < coll1Len; ++i) {
-            uint tokenIndex = whitelist.getIndex(_tokens[i]);
+            uint256 tokenIndex = whitelist.getIndex(_tokens[i]);
             sumAmounts[tokenIndex] += _amounts[i];
         }
 
         return sumAmounts;
     }
 
-
     // Function for summing colls when one list is all tokens. Used in active, default, stability, and surplus pools
-    function _leftSubColls(newColls memory _coll1, address[] memory _subTokens, uint[] memory _subAmounts)
-        internal
-        view
-        returns (uint[] memory)
-    {
-        uint[] memory diffAmounts = _getArrayCopy(_coll1.amounts);
+    function _leftSubColls(
+        newColls memory _coll1,
+        address[] memory _subTokens,
+        uint256[] memory _subAmounts
+    ) internal view returns (uint256[] memory) {
+        uint256[] memory diffAmounts = _getArrayCopy(_coll1.amounts);
 
         //assumes that coll1.tokens = whitelist tokens. Keeps all of coll1's tokens, and subtracts coll2's amounts
         uint256 subTokensLen = _subTokens.length;
@@ -130,15 +125,14 @@ contract HexaCustomBase is BaseMath {
         }
         return diffAmounts;
     }
-    
 
     // Returns _coll1 minus _tokens and _amounts
     // will error if _tokens include a token not in _coll1.tokens
-    function _subColls(newColls memory _coll1, address[] memory _tokens, uint[] memory _amounts)
-        internal
-        view
-        returns (newColls memory finalColls)
-    {
+    function _subColls(
+        newColls memory _coll1,
+        address[] memory _tokens,
+        uint256[] memory _amounts
+    ) internal view returns (newColls memory finalColls) {
         uint256 coll1Len = _coll1.tokens.length;
         uint256 tokensLen = _tokens.length;
         require(tokensLen == _amounts.length, "SubColls invalid input");
@@ -172,9 +166,9 @@ contract HexaCustomBase is BaseMath {
 
         address[] memory diffTokens = new address[](n);
         uint256[] memory diffAmounts = new uint256[](n);
-        
+
         if (n != 0) {
-            uint j;
+            uint256 j;
             i = 0;
             for (; i < coll3Len; ++i) {
                 if (coll3.amounts[i] != 0) {
@@ -189,9 +183,13 @@ contract HexaCustomBase is BaseMath {
         // returns finalColls;
     }
 
-    function _getArrayCopy(uint[] memory _arr) internal pure returns (uint[] memory){
+    function _getArrayCopy(uint256[] memory _arr)
+        internal
+        pure
+        returns (uint256[] memory)
+    {
         uint256 arrLen = _arr.length;
-        uint[] memory copy = new uint[](arrLen);
+        uint256[] memory copy = new uint256[](arrLen);
         for (uint256 i; i < arrLen; ++i) {
             copy[i] = _arr[i];
         }

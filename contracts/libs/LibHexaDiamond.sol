@@ -44,7 +44,6 @@ library LibHexaDiamond {
         uint256[] amounts;
     }
 
-
     struct DiamondStorage {
         // maps function selector to the facet address and
         // the position of the selector in the facetFunctionSelectors.selectors array
@@ -59,7 +58,6 @@ library LibHexaDiamond {
         bool _paused;
         // chainId
         uint256 chainId;
-
         // addresses
         address borrowerOperationsAddress;
         address troveManagerAddress;
@@ -70,17 +68,13 @@ library LibHexaDiamond {
         address troveManagerRedemptionsAddress;
         address collSurplusPoolAddress;
         address yetiFinanceTreasury;
-        
-        // deposited collateral tracker. Colls is always the whitelist list of all collateral tokens. Amounts 
+        // deposited collateral tracker. Colls is always the whitelist list of all collateral tokens. Amounts
         newColls poolColl;
-
-        // USM Debt tracker. Tracker of all debt in the system (active + default + stability). 
+        // USM Debt tracker. Tracker of all debt in the system (active + default + stability).
         // DONE: confirm if this is the sum of all pools or each pool needs to have one.
-        uint256 aUSMDebt;       // USM debt of active pool
-        uint256 dUSMDebt;       // USM debt of default pool
-        uint256 sUSMDebt;       // USM debt of stability pool
-
-
+        uint256 aUSMDebt; // USM debt of active pool
+        uint256 dUSMDebt; // USM debt of default pool
+        uint256 sUSMDebt; // USM debt of stability pool
 
         // TODO: Please add new members from end of struct
     }
@@ -373,57 +367,70 @@ library LibHexaDiamond {
     // --- 'require' functions | "ActivePool.sol"---
 
     function _requireCallerIsBOorTroveMorTMLorSP() internal view {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond.diamondStorage();
-        
+        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+            .diamondStorage();
+
         if (
             msg.sender != ds.borrowerOperationsAddress &&
             msg.sender != ds.troveManagerAddress &&
             msg.sender != ds.stabilityPoolAddress &&
             msg.sender != ds.troveManagerLiquidationsAddress &&
-            msg.sender != ds.troveManagerRedemptionsAddress) {
-                _revertWrongFuncCaller();
-            }
+            msg.sender != ds.troveManagerRedemptionsAddress
+        ) {
+            _revertWrongFuncCaller();
+        }
     }
 
     function _requireCallerIsBorrowerOperationsOrDefaultPool() internal view {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond.diamondStorage();
-        
-        if (msg.sender != ds.borrowerOperationsAddress &&
-            msg.sender != ds.defaultPoolAddress) {
-                _revertWrongFuncCaller();
-            }
+        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+            .diamondStorage();
+
+        if (
+            msg.sender != ds.borrowerOperationsAddress &&
+            msg.sender != ds.defaultPoolAddress
+        ) {
+            _revertWrongFuncCaller();
+        }
     }
 
     function _requireCallerIsBorrowerOperations() internal view {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond.diamondStorage();
-        
+        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+            .diamondStorage();
+
         if (msg.sender != ds.borrowerOperationsAddress) {
-                _revertWrongFuncCaller();
-            }
+            _revertWrongFuncCaller();
+        }
     }
 
     function _requireCallerIsBOorTroveMorSP() internal view {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond.diamondStorage();
-        
-        if (msg.sender != ds.borrowerOperationsAddress &&
+        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+            .diamondStorage();
+
+        if (
+            msg.sender != ds.borrowerOperationsAddress &&
             msg.sender != ds.troveManagerAddress &&
             msg.sender != ds.stabilityPoolAddress &&
-            msg.sender != ds.troveManagerRedemptionsAddress) {
-                _revertWrongFuncCaller();
-            }
+            msg.sender != ds.troveManagerRedemptionsAddress
+        ) {
+            _revertWrongFuncCaller();
+        }
     }
 
     function _requireCallerIsBOorTroveM() internal view {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond.diamondStorage();
-        
-        if (msg.sender != ds.borrowerOperationsAddress &&
-            msg.sender != ds.troveManagerAddress) {
-                _revertWrongFuncCaller();
-            }
+        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+            .diamondStorage();
+
+        if (
+            msg.sender != ds.borrowerOperationsAddress &&
+            msg.sender != ds.troveManagerAddress
+        ) {
+            _revertWrongFuncCaller();
+        }
     }
 
     function _requireCallerIsWhitelist() internal view {
-        if (msg.sender != address(whitelist)) {         // TODO: whitelist?
+        if (msg.sender != address(whitelist)) {
+            // TODO: whitelist?
             _revertWrongFuncCaller();
         }
     }
@@ -431,7 +438,4 @@ library LibHexaDiamond {
     function _revertWrongFuncCaller() internal view {
         revert("AP: External caller not allowed");
     }
-
-    
-
 }
