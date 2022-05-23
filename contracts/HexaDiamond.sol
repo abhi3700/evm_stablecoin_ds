@@ -7,7 +7,7 @@ import "./libs/Strings.sol";
 
 /// @title A upgradeable stablecoin/borrowing SC protocol
 /// @author abhi3700
-/// @notice Any protocol can launch a protocol (stablecoin/borrowing) with a vault
+/// @notice Any protocol can launch a protocol (stablecoin/borrowing)
 contract HexaDiamond is IDiamondCut {
     using Strings for string;
 
@@ -22,10 +22,7 @@ contract HexaDiamond is IDiamondCut {
 
     // Protocol diamond constructor
     /// @dev initialize protocol's data
-    constructor() {
-
-    }
-
+    constructor() {}
 
     // DiamondCut Actions (Add/Replace/Remove)
     function diamondCut(
@@ -73,5 +70,4 @@ contract HexaDiamond is IDiamondCut {
     receive() external payable {
         revert("DE1");
     }
-
 }
