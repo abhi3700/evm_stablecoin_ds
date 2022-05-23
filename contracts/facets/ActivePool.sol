@@ -204,7 +204,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
         address[] calldata _tokens,
         uint256[] calldata _amounts
     ) external override returns (bool) {
-        LibCFDiamond._requireCallerIsBOorTroveMorTMLorSP();
+        LibHexaDiamond._requireCallerIsBOorTroveMorTMLorSP();
 
         uint256 len = _tokens.length;
         require(len == _amounts.length, "AP:Lengths");
@@ -235,7 +235,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
         address[] calldata _tokens,
         uint256[] calldata _amounts
     ) external override returns (bool) {
-        LibCFDiamond._requireCallerIsBOorTroveMorTMLorSP();
+        LibHexaDiamond._requireCallerIsBOorTroveMorTMLorSP();
 
         uint256 tokensLen = _tokens.length;
         require(tokensLen == _amounts.length, "AP:Lengths");
@@ -256,7 +256,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
         address _token,
         uint256 _amount
     ) external override returns (bool) {
-        LibCFDiamond._requireCallerIsBorrowerOperations();
+        LibHexaDiamond._requireCallerIsBorrowerOperations();
 
         _sendCollateral(_to, _token, _amount); // reverts if send fails
         return true;
@@ -269,7 +269,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
         address _token,
         uint256 _amount
     ) external override returns (bool) {
-        LibCFDiamond._requireCallerIsBorrowerOperations();
+        LibHexaDiamond._requireCallerIsBorrowerOperations();
 
         if (whitelist.isWrapped(_token)) {
             // Collects rewards automatically for that amount and unwraps for the original borrower.
@@ -296,7 +296,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
 
     // Increases the USM Debt of this pool.
     function increaseUSMDebt(uint256 _amount) external override {
-        LibCFDiamond._requireCallerIsBOorTroveM();
+        LibHexaDiamond._requireCallerIsBOorTroveM();
 
         LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
             .diamondStorage();
@@ -307,7 +307,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
 
     // Decreases the USM Debt of this pool.
     function decreaseUSMDebt(uint256 _amount) external override {
-        LibCFDiamond._requireCallerIsBOorTroveMorSP();
+        LibHexaDiamond._requireCallerIsBOorTroveMorSP();
 
         LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
             .diamondStorage();
@@ -326,7 +326,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
         address[] calldata _tokens,
         uint256[] calldata _amounts
     ) external override {
-        LibCFDiamond._requireCallerIsBorrowerOperationsOrDefaultPool();
+        LibHexaDiamond._requireCallerIsBorrowerOperationsOrDefaultPool();
 
         LibHexaDiamond.diamondStorage().poolColl.amounts = _leftSumColls(
             poolColl,
@@ -338,7 +338,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
 
     // Adds collateral type from whitelist.
     function addCollateralType(address _collateral) external override {
-        LibCFDiamond._requireCallerIsWhitelist();
+        LibHexaDiamond._requireCallerIsWhitelist();
 
         LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
             .diamondStorage();
