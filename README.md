@@ -86,6 +86,14 @@ $ yarn clean
 
 ### Deploy
 
+**Sequence**:
+
+1. Deploy the "Hexadiamond.sol" contract with facets & libraries.
+2. Set addresses using `setAddresses()` function
+   - only Owner
+
+<!-- TODO: HexaCuustomBase.sol to be either set as address inside the constructor of diamond. And then create a onlyOwner function setHexaCustomBase() -->
+
 #### localhost
 
 <!-- ```console

@@ -6,15 +6,15 @@ import "./IPool.sol";
 
 interface IActivePool is IPool {
     // --- Events ---
-    event BorrowerOperationsAddressChanged(
-        address _newBorrowerOperationsAddress
-    );
-    event TroveManagerAddressChanged(address _newTroveManagerAddress);
-    event ActivePoolYUSDDebtUpdated(uint256 _YUSDDebt);
-    event ActivePoolCollateralBalanceUpdated(
-        address _collateral,
-        uint256 _amount
-    );
+    // event BorrowerOperationsAddressChanged(
+    //     address _newBorrowerOperationsAddress
+    // );
+    // event TroveManagerAddressChanged(address _newTroveManagerAddress);
+    // event ActivePoolYUSDDebtUpdated(uint256 _YUSDDebt);
+    // event ActivePoolCollateralBalanceUpdated(
+    //     address _collateral,
+    //     uint256 _amount
+    // );
 
     // --- Functions ---
 

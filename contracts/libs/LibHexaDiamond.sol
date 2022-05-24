@@ -2,6 +2,7 @@
 pragma solidity 0.8.6;
 
 import {IDiamondCut} from "../interfaces/IDiamondCut.sol";
+import "../interfaces/IWhitelist.sol";
 
 library LibHexaDiamond {
     /**
@@ -68,6 +69,7 @@ library LibHexaDiamond {
         address troveManagerRedemptionsAddress;
         address collSurplusPoolAddress;
         address yetiFinanceTreasury;
+        IWhitelist whitelist;
         // deposited collateral tracker. Colls is always the whitelist list of all collateral tokens. Amounts
         newColls poolColl;
         // USM Debt tracker. Tracker of all debt in the system (active + default + stability).
@@ -367,8 +369,7 @@ library LibHexaDiamond {
     // --- 'require' functions | "ActivePool.sol"---
 
     function _requireCallerIsBOorTroveMorTMLorSP() internal view {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
-            .diamondStorage();
+        DiamondStorage storage ds = diamondStorage();
 
         if (
             msg.sender != ds.borrowerOperationsAddress &&
@@ -382,8 +383,7 @@ library LibHexaDiamond {
     }
 
     function _requireCallerIsBorrowerOperationsOrDefaultPool() internal view {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
-            .diamondStorage();
+        DiamondStorage storage ds = diamondStorage();
 
         if (
             msg.sender != ds.borrowerOperationsAddress &&
@@ -394,8 +394,7 @@ library LibHexaDiamond {
     }
 
     function _requireCallerIsBorrowerOperations() internal view {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
-            .diamondStorage();
+        DiamondStorage storage ds = diamondStorage();
 
         if (msg.sender != ds.borrowerOperationsAddress) {
             _revertWrongFuncCaller();
@@ -403,8 +402,7 @@ library LibHexaDiamond {
     }
 
     function _requireCallerIsBOorTroveMorSP() internal view {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
-            .diamondStorage();
+        DiamondStorage storage ds = diamondStorage();
 
         if (
             msg.sender != ds.borrowerOperationsAddress &&
@@ -417,8 +415,7 @@ library LibHexaDiamond {
     }
 
     function _requireCallerIsBOorTroveM() internal view {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
-            .diamondStorage();
+        DiamondStorage storage ds = diamondStorage();
 
         if (
             msg.sender != ds.borrowerOperationsAddress &&
@@ -429,8 +426,9 @@ library LibHexaDiamond {
     }
 
     function _requireCallerIsWhitelist() internal view {
-        if (msg.sender != address(whitelist)) {
-            // TODO: whitelist?
+        DiamondStorage storage ds = diamondStorage();
+
+        if (msg.sender != address(ds.whitelist)) {
             _revertWrongFuncCaller();
         }
     }

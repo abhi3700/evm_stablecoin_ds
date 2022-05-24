@@ -8,13 +8,13 @@ import "./ICollateralReceiver.sol";
 interface IPool is ICollateralReceiver {
     // --- Events ---
 
-    event ETHBalanceUpdated(uint256 _newBalance);
-    event YUSDBalanceUpdated(uint256 _newBalance);
-    event ActivePoolAddressChanged(address _newActivePoolAddress);
+    // event ETHBalanceUpdated(uint256 _newBalance);
+    // event YUSDBalanceUpdated(uint256 _newBalance);
+    // event ActivePoolAddressChanged(address _newActivePoolAddress);
     event DefaultPoolAddressChanged(address _newDefaultPoolAddress);
     event StabilityPoolAddressChanged(address _newStabilityPoolAddress);
     event WhitelistAddressChanged(address _newWhitelistAddress);
-    event EtherSent(address _to, uint256 _amount);
+    // event EtherSent(address _to, uint256 _amount);
     event CollateralSent(address _collateral, address _to, uint256 _amount);
 
     // --- Functions ---
@@ -31,9 +31,9 @@ interface IPool is ICollateralReceiver {
         view
         returns (address[] memory, uint256[] memory);
 
-    function getYUSDDebt() external view returns (uint256);
+    function getUSMDebt() external view returns (uint256);
 
-    function increaseYUSDDebt(uint256 _amount) external;
+    function increaseUSMDebt(uint256 _amount) external;
 
-    function decreaseYUSDDebt(uint256 _amount) external;
+    function decreaseUSMDebt(uint256 _amount) external;
 }
