@@ -10,80 +10,75 @@ subgraph "clusterHexaDiamond" {
   "HexaDiamond.<Receive Ether>" [ label = "<Receive Ether>", color = "brown", fillcolor = "#ffbdb9" ];
 }
 
-subgraph "clusterHexaCustomBase" {
-  graph [ label = "HexaCustomBase", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
-  "HexaCustomBase._sumColls" [ label = "_sumColls", color = "#f2c383", fillcolor = "#f2c383" ];
-  "HexaCustomBase._leftSumColls" [ label = "_leftSumColls", color = "#f2c383", fillcolor = "#f2c383" ];
-  "HexaCustomBase._leftSubColls" [ label = "_leftSubColls", color = "#f2c383", fillcolor = "#f2c383" ];
-  "HexaCustomBase._subColls" [ label = "_subColls", color = "#f2c383", fillcolor = "#f2c383" ];
-  "HexaCustomBase._getArrayCopy" [ label = "_getArrayCopy" ];
+subgraph "clusterOwnable" {
+  graph [ label = "Ownable", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
+  "Ownable.<Constructor>" [ label = "<Constructor>", color = "#FF9797", fillcolor = "#FF9797" ];
+  "Ownable.owner" [ label = "owner" ];
+  "Ownable.onlyOwner" [ label = "onlyOwner", color = "#1bc6a6", shape =doubleoctagon ];
+  "Ownable.renounceOwnership" [ label = "renounceOwnership", color = "#FF9797", fillcolor = "#FF9797" ];
+  "Ownable.transferOwnership" [ label = "transferOwnership", color = "#FF9797", fillcolor = "#FF9797" ];
+  "Ownable._transferOwnership" [ label = "_transferOwnership" ];
+  "Ownable._msgSender" [ label = "_msgSender" ];
 }
 
-subgraph "clusterBaseMath" {
-  graph [ label = "BaseMath", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
+subgraph "clusterContext" {
+  graph [ label = "Context", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
+  "Context._msgSender" [ label = "_msgSender", color = "#f2c383", fillcolor = "#f2c383" ];
+  "Context._msgData" [ label = "_msgData", color = "#f2c383", fillcolor = "#f2c383" ];
+}
+
+subgraph "clusterPausable" {
+  graph [ label = "Pausable", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
+  "Pausable.<Constructor>" [ label = "<Constructor>", color = "#FF9797", fillcolor = "#FF9797" ];
+  "Pausable.paused" [ label = "paused" ];
+  "Pausable.whenNotPaused" [ label = "whenNotPaused", color = "#1bc6a6", shape =doubleoctagon ];
+  "Pausable.whenPaused" [ label = "whenPaused", color = "#1bc6a6", shape =doubleoctagon ];
+  "Pausable._pause" [ label = "_pause", color = "#f2c383", fillcolor = "#f2c383" ];
+  "Pausable._unpause" [ label = "_unpause", color = "#f2c383", fillcolor = "#f2c383" ];
+  "Pausable._msgSender" [ label = "_msgSender" ];
+}
+
+subgraph "clusterReentrancyGuard" {
+  graph [ label = "ReentrancyGuard", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
+  "ReentrancyGuard.<Constructor>" [ label = "<Constructor>", color = "#FF9797", fillcolor = "#FF9797" ];
+  "ReentrancyGuard.nonReentrant" [ label = "nonReentrant", color = "#1bc6a6", shape =doubleoctagon ];
+}
+
+subgraph "clusterSafeERC20" {
+  graph [ label = "SafeERC20  (lib)", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
+  "SafeERC20.safeTransfer" [ label = "safeTransfer", color = "#f2c383", fillcolor = "#f2c383" ];
+  "SafeERC20.safeTransferFrom" [ label = "safeTransferFrom", color = "#f2c383", fillcolor = "#f2c383" ];
+  "SafeERC20.safeApprove" [ label = "safeApprove", color = "#f2c383", fillcolor = "#f2c383" ];
+  "SafeERC20.safeIncreaseAllowance" [ label = "safeIncreaseAllowance", color = "#f2c383", fillcolor = "#f2c383" ];
+  "SafeERC20.safeDecreaseAllowance" [ label = "safeDecreaseAllowance", color = "#f2c383", fillcolor = "#f2c383" ];
+  "SafeERC20._callOptionalReturn" [ label = "_callOptionalReturn" ];
 }
 
 subgraph "clusterIERC20" {
   graph [ label = "IERC20  (iface)", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
+  "IERC20.allowance" [ label = "allowance", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "IERC20.functionCall" [ label = "functionCall" ];
   "IERC20.totalSupply" [ label = "totalSupply", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
   "IERC20.balanceOf" [ label = "balanceOf", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
   "IERC20.transfer" [ label = "transfer", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
-  "IERC20.allowance" [ label = "allowance" ];
   "IERC20.approve" [ label = "approve", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
   "IERC20.transferFrom" [ label = "transferFrom", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
-  "IERC20.functionCall" [ label = "functionCall" ];
 }
 
-subgraph "clusterIWhitelist" {
-  graph [ label = "IWhitelist  (iface)", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
-  "IWhitelist.getValidCollateral" [ label = "getValidCollateral", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
-  "IWhitelist.setAddresses" [ label = "setAddresses", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
-  "IWhitelist.isValidRouter" [ label = "isValidRouter", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
-  "IWhitelist.getOracle" [ label = "getOracle", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
-  "IWhitelist.getRatio" [ label = "getRatio", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
-  "IWhitelist.getIsActive" [ label = "getIsActive", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
-  "IWhitelist.getPriceCurve" [ label = "getPriceCurve", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
-  "IWhitelist.getDecimals" [ label = "getDecimals", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
-  "IWhitelist.getFee" [ label = "getFee", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
-  "IWhitelist.getFeeAndUpdate" [ label = "getFeeAndUpdate", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
-  "IWhitelist.getIndex" [ label = "getIndex", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
-  "IWhitelist.isWrapped" [ label = "isWrapped", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
-  "IWhitelist.setDefaultRouter" [ label = "setDefaultRouter", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
-  "IWhitelist.getValueVC" [ label = "getValueVC", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
-  "IWhitelist.getValueUSD" [ label = "getValueUSD", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
-  "IWhitelist.getDefaultRouterAddress" [ label = "getDefaultRouterAddress", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+subgraph "clusterAddress" {
+  graph [ label = "Address  (lib)", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
+  "Address.isContract" [ label = "isContract" ];
+  "Address.sendValue" [ label = "sendValue", color = "#f2c383", fillcolor = "#f2c383" ];
+  "Address.functionCall" [ label = "functionCall" ];
+  "Address.functionCallWithValue" [ label = "functionCallWithValue" ];
+  "Address.functionStaticCall" [ label = "functionStaticCall" ];
+  "Address.functionDelegateCall" [ label = "functionDelegateCall" ];
+  "Address.verifyCallResult" [ label = "verifyCallResult" ];
 }
 
-subgraph "clusterLibHexaDiamond" {
-  graph [ label = "LibHexaDiamond  (lib)", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
-  "LibHexaDiamond.enforceIsContractOwner" [ label = "enforceIsContractOwner", color = "#f2c383", fillcolor = "#f2c383" ];
-  "LibHexaDiamond.diamondCut" [ label = "diamondCut", color = "#f2c383", fillcolor = "#f2c383" ];
-  "LibHexaDiamond.diamondStorage" [ label = "diamondStorage", color = "#f2c383", fillcolor = "#f2c383" ];
-  "LibHexaDiamond.newColls" [ label = "newColls" ];
-  "LibHexaDiamond.setContractOwner" [ label = "setContractOwner", color = "#f2c383", fillcolor = "#f2c383" ];
-  "LibHexaDiamond.contractOwner" [ label = "contractOwner", color = "#f2c383", fillcolor = "#f2c383" ];
-  "LibHexaDiamond.whenPaused" [ label = "whenPaused", color = "#f2c383", fillcolor = "#f2c383" ];
-  "LibHexaDiamond.whenNotPaused" [ label = "whenNotPaused", color = "#f2c383", fillcolor = "#f2c383" ];
-  "LibHexaDiamond.addFunctions" [ label = "addFunctions" ];
-  "LibHexaDiamond.replaceFunctions" [ label = "replaceFunctions" ];
-  "LibHexaDiamond.removeFunctions" [ label = "removeFunctions" ];
-  "LibHexaDiamond.addFacet" [ label = "addFacet" ];
-  "LibHexaDiamond.addFunction" [ label = "addFunction" ];
-  "LibHexaDiamond.removeFunction" [ label = "removeFunction" ];
-  "LibHexaDiamond.initializeDiamondCut" [ label = "initializeDiamondCut" ];
-  "LibHexaDiamond.enforceHasContractCode" [ label = "enforceHasContractCode" ];
-  "LibHexaDiamond._requireCallerIsBOorTroveMorTMLorSP" [ label = "_requireCallerIsBOorTroveMorTMLorSP", color = "#f2c383", fillcolor = "#f2c383" ];
-  "LibHexaDiamond._requireCallerIsBorrowerOperationsOrDefaultPool" [ label = "_requireCallerIsBorrowerOperationsOrDefaultPool", color = "#f2c383", fillcolor = "#f2c383" ];
-  "LibHexaDiamond._requireCallerIsBorrowerOperations" [ label = "_requireCallerIsBorrowerOperations", color = "#f2c383", fillcolor = "#f2c383" ];
-  "LibHexaDiamond._requireCallerIsBOorTroveMorSP" [ label = "_requireCallerIsBOorTroveMorSP", color = "#f2c383", fillcolor = "#f2c383" ];
-  "LibHexaDiamond._requireCallerIsBOorTroveM" [ label = "_requireCallerIsBOorTroveM", color = "#f2c383", fillcolor = "#f2c383" ];
-  "LibHexaDiamond._requireCallerIsWhitelist" [ label = "_requireCallerIsWhitelist", color = "#f2c383", fillcolor = "#f2c383" ];
-  "LibHexaDiamond._revertWrongFuncCaller" [ label = "_revertWrongFuncCaller" ];
-}
-
-subgraph "clusterIDiamondCut" {
-  graph [ label = "IDiamondCut  (iface)", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
-  "IDiamondCut.diamondCut" [ label = "diamondCut", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+subgraph "clusterCheckContract" {
+  graph [ label = "CheckContract", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
+  "CheckContract.checkContract" [ label = "checkContract", color = "#f2c383", fillcolor = "#f2c383" ];
 }
 
 subgraph "clusterActivePool" {
@@ -106,6 +101,7 @@ subgraph "clusterActivePool" {
   "ActivePool.addCollateralType" [ label = "addCollateralType", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
   "ActivePool.getName" [ label = "getName", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
   "ActivePool.checkContract" [ label = "checkContract" ];
+  "ActivePool._leftSumColls" [ label = "_leftSumColls" ];
 }
 
 subgraph "clusterIActivePool" {
@@ -133,6 +129,26 @@ subgraph "clusterICollateralReceiver" {
   "ICollateralReceiver.receiveCollateral" [ label = "receiveCollateral", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
 }
 
+subgraph "clusterIWhitelist" {
+  graph [ label = "IWhitelist  (iface)", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
+  "IWhitelist.getValidCollateral" [ label = "getValidCollateral", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "IWhitelist.setAddresses" [ label = "setAddresses", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "IWhitelist.isValidRouter" [ label = "isValidRouter", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "IWhitelist.getOracle" [ label = "getOracle", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "IWhitelist.getRatio" [ label = "getRatio", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "IWhitelist.getIsActive" [ label = "getIsActive", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "IWhitelist.getPriceCurve" [ label = "getPriceCurve", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "IWhitelist.getDecimals" [ label = "getDecimals", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "IWhitelist.getFee" [ label = "getFee", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "IWhitelist.getFeeAndUpdate" [ label = "getFeeAndUpdate", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "IWhitelist.getIndex" [ label = "getIndex", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "IWhitelist.isWrapped" [ label = "isWrapped", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "IWhitelist.setDefaultRouter" [ label = "setDefaultRouter", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "IWhitelist.getValueVC" [ label = "getValueVC", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "IWhitelist.getValueUSD" [ label = "getValueUSD", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+  "IWhitelist.getDefaultRouterAddress" [ label = "getDefaultRouterAddress", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
+}
+
 subgraph "clusterIWAsset" {
   graph [ label = "IWAsset  (iface)", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
   "IWAsset.wrap" [ label = "wrap", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
@@ -144,47 +160,49 @@ subgraph "clusterIWAsset" {
   "IWAsset.endTreasuryReward" [ label = "endTreasuryReward", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
 }
 
-subgraph "clusterOwnable" {
-  graph [ label = "Ownable", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
-  "Ownable.<Constructor>" [ label = "<Constructor>", color = "#FF9797", fillcolor = "#FF9797" ];
-  "Ownable.owner" [ label = "owner" ];
-  "Ownable.onlyOwner" [ label = "onlyOwner", color = "#1bc6a6", shape =doubleoctagon ];
-  "Ownable.renounceOwnership" [ label = "renounceOwnership", color = "#FF9797", fillcolor = "#FF9797" ];
-  "Ownable.transferOwnership" [ label = "transferOwnership", color = "#FF9797", fillcolor = "#FF9797" ];
-  "Ownable._transferOwnership" [ label = "_transferOwnership" ];
-  "Ownable._msgSender" [ label = "_msgSender" ];
+subgraph "clusterHexaCustomBase" {
+  graph [ label = "HexaCustomBase", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
+  "HexaCustomBase._sumColls" [ label = "_sumColls", color = "#f2c383", fillcolor = "#f2c383" ];
+  "HexaCustomBase._leftSumColls" [ label = "_leftSumColls", color = "#f2c383", fillcolor = "#f2c383" ];
+  "HexaCustomBase._leftSubColls" [ label = "_leftSubColls", color = "#f2c383", fillcolor = "#f2c383" ];
+  "HexaCustomBase._subColls" [ label = "_subColls", color = "#f2c383", fillcolor = "#f2c383" ];
+  "HexaCustomBase._getArrayCopy" [ label = "_getArrayCopy" ];
 }
 
-subgraph "clusterContext" {
-  graph [ label = "Context", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
-  "Context._msgSender" [ label = "_msgSender", color = "#f2c383", fillcolor = "#f2c383" ];
-  "Context._msgData" [ label = "_msgData", color = "#f2c383", fillcolor = "#f2c383" ];
+subgraph "clusterBaseMath" {
+  graph [ label = "BaseMath", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
 }
 
-subgraph "clusterCheckContract" {
-  graph [ label = "CheckContract", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
-  "CheckContract.checkContract" [ label = "checkContract", color = "#f2c383", fillcolor = "#f2c383" ];
+subgraph "clusterLibHexaDiamond" {
+  graph [ label = "LibHexaDiamond  (lib)", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
+  "LibHexaDiamond.enforceIsContractOwner" [ label = "enforceIsContractOwner", color = "#f2c383", fillcolor = "#f2c383" ];
+  "LibHexaDiamond.diamondCut" [ label = "diamondCut", color = "#f2c383", fillcolor = "#f2c383" ];
+  "LibHexaDiamond.diamondStorage" [ label = "diamondStorage", color = "#f2c383", fillcolor = "#f2c383" ];
+  "LibHexaDiamond._requireCallerIsBOorTroveMorTMLorSP" [ label = "_requireCallerIsBOorTroveMorTMLorSP", color = "#f2c383", fillcolor = "#f2c383" ];
+  "LibHexaDiamond._requireCallerIsBorrowerOperations" [ label = "_requireCallerIsBorrowerOperations", color = "#f2c383", fillcolor = "#f2c383" ];
+  "LibHexaDiamond._requireCallerIsBOorTroveM" [ label = "_requireCallerIsBOorTroveM", color = "#f2c383", fillcolor = "#f2c383" ];
+  "LibHexaDiamond._requireCallerIsBOorTroveMorSP" [ label = "_requireCallerIsBOorTroveMorSP", color = "#f2c383", fillcolor = "#f2c383" ];
+  "LibHexaDiamond._requireCallerIsBorrowerOperationsOrDefaultPool" [ label = "_requireCallerIsBorrowerOperationsOrDefaultPool", color = "#f2c383", fillcolor = "#f2c383" ];
+  "LibHexaDiamond._requireCallerIsWhitelist" [ label = "_requireCallerIsWhitelist", color = "#f2c383", fillcolor = "#f2c383" ];
+  "LibHexaDiamond.newColls" [ label = "newColls" ];
+  "LibHexaDiamond.setContractOwner" [ label = "setContractOwner", color = "#f2c383", fillcolor = "#f2c383" ];
+  "LibHexaDiamond.contractOwner" [ label = "contractOwner", color = "#f2c383", fillcolor = "#f2c383" ];
+  "LibHexaDiamond.whenPaused" [ label = "whenPaused", color = "#f2c383", fillcolor = "#f2c383" ];
+  "LibHexaDiamond.whenNotPaused" [ label = "whenNotPaused", color = "#f2c383", fillcolor = "#f2c383" ];
+  "LibHexaDiamond.addFunctions" [ label = "addFunctions" ];
+  "LibHexaDiamond.replaceFunctions" [ label = "replaceFunctions" ];
+  "LibHexaDiamond.removeFunctions" [ label = "removeFunctions" ];
+  "LibHexaDiamond.addFacet" [ label = "addFacet" ];
+  "LibHexaDiamond.addFunction" [ label = "addFunction" ];
+  "LibHexaDiamond.removeFunction" [ label = "removeFunction" ];
+  "LibHexaDiamond.initializeDiamondCut" [ label = "initializeDiamondCut" ];
+  "LibHexaDiamond.enforceHasContractCode" [ label = "enforceHasContractCode" ];
+  "LibHexaDiamond._revertWrongFuncCaller" [ label = "_revertWrongFuncCaller" ];
 }
 
-subgraph "clusterSafeERC20" {
-  graph [ label = "SafeERC20  (lib)", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
-  "SafeERC20.safeTransfer" [ label = "safeTransfer", color = "#f2c383", fillcolor = "#f2c383" ];
-  "SafeERC20.safeTransferFrom" [ label = "safeTransferFrom", color = "#f2c383", fillcolor = "#f2c383" ];
-  "SafeERC20.safeApprove" [ label = "safeApprove", color = "#f2c383", fillcolor = "#f2c383" ];
-  "SafeERC20.safeIncreaseAllowance" [ label = "safeIncreaseAllowance", color = "#f2c383", fillcolor = "#f2c383" ];
-  "SafeERC20.safeDecreaseAllowance" [ label = "safeDecreaseAllowance", color = "#f2c383", fillcolor = "#f2c383" ];
-  "SafeERC20._callOptionalReturn" [ label = "_callOptionalReturn" ];
-}
-
-subgraph "clusterAddress" {
-  graph [ label = "Address  (lib)", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
-  "Address.isContract" [ label = "isContract" ];
-  "Address.sendValue" [ label = "sendValue", color = "#f2c383", fillcolor = "#f2c383" ];
-  "Address.functionCall" [ label = "functionCall" ];
-  "Address.functionCallWithValue" [ label = "functionCallWithValue" ];
-  "Address.functionStaticCall" [ label = "functionStaticCall" ];
-  "Address.functionDelegateCall" [ label = "functionDelegateCall" ];
-  "Address.verifyCallResult" [ label = "verifyCallResult" ];
+subgraph "clusterIDiamondCut" {
+  graph [ label = "IDiamondCut  (iface)", color = "#445773", fontcolor = "#f0f0f0", style = "rounded", bgcolor = "#445773" ];
+  "IDiamondCut.diamondCut" [ label = "diamondCut", color = "#ffbdb9", fillcolor = "#ffbdb9" ];
 }
 
 subgraph "clusterStrings" {
@@ -195,22 +213,75 @@ subgraph "clusterStrings" {
   "Strings.upper" [ label = "upper", color = "#f2c383", fillcolor = "#f2c383" ];
 }
 
-subgraph "cluster_init" {
-  graph [ label = "_init", color = "#e8726d", fontcolor = "#f0f0f0", style = "rounded,dashed", bgcolor = "#3b4b63" ];
-  "_init.delegatecall" [ label = "delegatecall" ];
-}
-
 subgraph "clustertarget" {
   graph [ label = "target", color = "#e8726d", fontcolor = "#f0f0f0", style = "rounded,dashed", bgcolor = "#3b4b63" ];
   "target.staticcall" [ label = "staticcall" ];
   "target.delegatecall" [ label = "delegatecall" ];
 }
 
+subgraph "cluster_init" {
+  graph [ label = "_init", color = "#e8726d", fontcolor = "#f0f0f0", style = "rounded,dashed", bgcolor = "#3b4b63" ];
+  "_init.delegatecall" [ label = "delegatecall" ];
+}
+
   "HexaDiamond.diamondCut";
   "LibHexaDiamond.enforceIsContractOwner";
   "LibHexaDiamond.diamondCut";
-  "HexaCustomBase._sumColls";
+  "Ownable.<Constructor>";
+  "Ownable._transferOwnership";
+  "Ownable._msgSender";
+  "Ownable.onlyOwner";
+  "Ownable.owner";
+  "Ownable.renounceOwnership";
+  "Ownable.transferOwnership";
+  "Pausable.whenNotPaused";
+  "Pausable.paused";
+  "Pausable.whenPaused";
+  "Pausable._pause";
+  "Pausable._msgSender";
+  "Pausable._unpause";
+  "SafeERC20.safeTransfer";
+  "SafeERC20._callOptionalReturn";
+  "SafeERC20.safeTransferFrom";
+  "SafeERC20.safeApprove";
+  "IERC20.allowance";
+  "SafeERC20.safeIncreaseAllowance";
+  "SafeERC20.safeDecreaseAllowance";
+  "IERC20.functionCall";
+  "Address.functionCall";
+  "Address.functionCallWithValue";
+  "Address.isContract";
+  "Address.verifyCallResult";
+  "Address.functionStaticCall";
+  "target.staticcall";
+  "Address.functionDelegateCall";
+  "target.delegatecall";
+  "ActivePool.setAddresses";
+  "ActivePool.checkContract";
   "LibHexaDiamond.diamondStorage";
+  "ActivePool.getCollateral";
+  "ActivePool.getAllCollateral";
+  "ActivePool.getCollateralVC";
+  "ActivePool.getVC";
+  "ActivePool.getUSMDebt";
+  "ActivePool._sendCollateral";
+  "ActivePool.sendCollaterals";
+  "LibHexaDiamond._requireCallerIsBOorTroveMorTMLorSP";
+  "ActivePool._needsUpdateCollateral";
+  "ActivePool.sendCollateralsUnwrap";
+  "ActivePool.sendSingleCollateral";
+  "LibHexaDiamond._requireCallerIsBorrowerOperations";
+  "ActivePool.sendSingleCollateralUnwrap";
+  "ActivePool.increaseUSMDebt";
+  "LibHexaDiamond._requireCallerIsBOorTroveM";
+  "ActivePool.decreaseUSMDebt";
+  "LibHexaDiamond._requireCallerIsBOorTroveMorSP";
+  "ActivePool.receiveCollateral";
+  "LibHexaDiamond._requireCallerIsBorrowerOperationsOrDefaultPool";
+  "ActivePool._leftSumColls";
+  "ActivePool.addCollateralType";
+  "LibHexaDiamond._requireCallerIsWhitelist";
+  "HexaCustomBase._sumColls";
   "LibHexaDiamond.newColls";
   "HexaCustomBase._leftSumColls";
   "HexaCustomBase._getArrayCopy";
@@ -229,55 +300,78 @@ subgraph "clustertarget" {
   "LibHexaDiamond.removeFunction";
   "LibHexaDiamond.enforceHasContractCode";
   "_init.delegatecall";
-  "LibHexaDiamond._requireCallerIsBOorTroveMorTMLorSP";
   "LibHexaDiamond._revertWrongFuncCaller";
-  "LibHexaDiamond._requireCallerIsBorrowerOperationsOrDefaultPool";
-  "LibHexaDiamond._requireCallerIsBorrowerOperations";
-  "LibHexaDiamond._requireCallerIsBOorTroveMorSP";
-  "LibHexaDiamond._requireCallerIsBOorTroveM";
-  "LibHexaDiamond._requireCallerIsWhitelist";
-  "ActivePool.setAddresses";
-  "ActivePool.checkContract";
-  "ActivePool.getCollateral";
-  "ActivePool.getAllCollateral";
-  "ActivePool.getCollateralVC";
-  "ActivePool.getVC";
-  "ActivePool.getUSMDebt";
-  "ActivePool._sendCollateral";
-  "ActivePool.sendCollaterals";
-  "ActivePool._needsUpdateCollateral";
-  "ActivePool.sendCollateralsUnwrap";
-  "ActivePool.sendSingleCollateral";
-  "ActivePool.sendSingleCollateralUnwrap";
-  "ActivePool.increaseUSMDebt";
-  "ActivePool.decreaseUSMDebt";
-  "ActivePool.receiveCollateral";
-  "ActivePool.addCollateralType";
-  "Ownable.<Constructor>";
-  "Ownable._transferOwnership";
-  "Ownable._msgSender";
-  "Ownable.onlyOwner";
-  "Ownable.owner";
-  "Ownable.renounceOwnership";
-  "Ownable.transferOwnership";
-  "SafeERC20.safeTransfer";
-  "SafeERC20._callOptionalReturn";
-  "SafeERC20.safeTransferFrom";
-  "SafeERC20.safeApprove";
-  "IERC20.allowance";
-  "SafeERC20.safeIncreaseAllowance";
-  "SafeERC20.safeDecreaseAllowance";
-  "IERC20.functionCall";
-  "Address.functionCall";
-  "Address.functionCallWithValue";
-  "Address.isContract";
-  "Address.verifyCallResult";
-  "Address.functionStaticCall";
-  "target.staticcall";
-  "Address.functionDelegateCall";
-  "target.delegatecall";
   "HexaDiamond.diamondCut" -> "LibHexaDiamond.enforceIsContractOwner" [ color = "white" ];
   "HexaDiamond.diamondCut" -> "LibHexaDiamond.diamondCut" [ color = "white" ];
+  "Ownable.<Constructor>" -> "Ownable._transferOwnership" [ color = "#1bc6a6" ];
+  "Ownable.<Constructor>" -> "Ownable._msgSender" [ color = "#1bc6a6" ];
+  "Ownable.onlyOwner" -> "Ownable.owner" [ color = "#1bc6a6" ];
+  "Ownable.onlyOwner" -> "Ownable._msgSender" [ color = "#1bc6a6" ];
+  "Ownable.renounceOwnership" -> "Ownable._transferOwnership" [ color = "#1bc6a6" ];
+  "Ownable.transferOwnership" -> "Ownable._transferOwnership" [ color = "#1bc6a6" ];
+  "Pausable.whenNotPaused" -> "Pausable.paused" [ color = "#1bc6a6" ];
+  "Pausable.whenPaused" -> "Pausable.paused" [ color = "#1bc6a6" ];
+  "Pausable._pause" -> "Pausable._msgSender" [ color = "#1bc6a6" ];
+  "Pausable._unpause" -> "Pausable._msgSender" [ color = "#1bc6a6" ];
+  "SafeERC20.safeTransfer" -> "SafeERC20._callOptionalReturn" [ color = "#1bc6a6" ];
+  "SafeERC20.safeTransferFrom" -> "SafeERC20._callOptionalReturn" [ color = "#1bc6a6" ];
+  "SafeERC20.safeApprove" -> "IERC20.allowance" [ color = "white" ];
+  "SafeERC20.safeApprove" -> "SafeERC20._callOptionalReturn" [ color = "#1bc6a6" ];
+  "SafeERC20.safeIncreaseAllowance" -> "IERC20.allowance" [ color = "white" ];
+  "SafeERC20.safeIncreaseAllowance" -> "SafeERC20._callOptionalReturn" [ color = "#1bc6a6" ];
+  "SafeERC20.safeDecreaseAllowance" -> "IERC20.allowance" [ color = "white" ];
+  "SafeERC20.safeDecreaseAllowance" -> "SafeERC20._callOptionalReturn" [ color = "#1bc6a6" ];
+  "SafeERC20._callOptionalReturn" -> "IERC20.functionCall" [ color = "white" ];
+  "Address.functionCall" -> "Address.functionCall" [ color = "#1bc6a6" ];
+  "Address.functionCall" -> "Address.functionCallWithValue" [ color = "#1bc6a6" ];
+  "Address.functionCallWithValue" -> "Address.functionCallWithValue" [ color = "#1bc6a6" ];
+  "Address.functionCallWithValue" -> "Address.isContract" [ color = "#1bc6a6" ];
+  "Address.functionCallWithValue" -> "Address.verifyCallResult" [ color = "#1bc6a6" ];
+  "Address.functionStaticCall" -> "Address.functionStaticCall" [ color = "#1bc6a6" ];
+  "Address.functionStaticCall" -> "Address.isContract" [ color = "#1bc6a6" ];
+  "Address.functionStaticCall" -> "target.staticcall" [ color = "white" ];
+  "Address.functionStaticCall" -> "Address.verifyCallResult" [ color = "#1bc6a6" ];
+  "Address.functionDelegateCall" -> "Address.functionDelegateCall" [ color = "#1bc6a6" ];
+  "Address.functionDelegateCall" -> "Address.isContract" [ color = "#1bc6a6" ];
+  "Address.functionDelegateCall" -> "target.delegatecall" [ color = "white" ];
+  "Address.functionDelegateCall" -> "Address.verifyCallResult" [ color = "#1bc6a6" ];
+  "ActivePool.setAddresses" -> "ActivePool.checkContract" [ color = "#1bc6a6" ];
+  "ActivePool.setAddresses" -> "ActivePool.checkContract" [ color = "#1bc6a6" ];
+  "ActivePool.setAddresses" -> "ActivePool.checkContract" [ color = "#1bc6a6" ];
+  "ActivePool.setAddresses" -> "ActivePool.checkContract" [ color = "#1bc6a6" ];
+  "ActivePool.setAddresses" -> "ActivePool.checkContract" [ color = "#1bc6a6" ];
+  "ActivePool.setAddresses" -> "ActivePool.checkContract" [ color = "#1bc6a6" ];
+  "ActivePool.setAddresses" -> "ActivePool.checkContract" [ color = "#1bc6a6" ];
+  "ActivePool.setAddresses" -> "ActivePool.checkContract" [ color = "#1bc6a6" ];
+  "ActivePool.setAddresses" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
+  "ActivePool.getCollateral" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
+  "ActivePool.getAllCollateral" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
+  "ActivePool.getCollateralVC" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
+  "ActivePool.getCollateralVC" -> "ActivePool.getCollateral" [ color = "#1bc6a6" ];
+  "ActivePool.getVC" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
+  "ActivePool.getUSMDebt" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
+  "ActivePool._sendCollateral" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
+  "ActivePool.sendCollaterals" -> "LibHexaDiamond._requireCallerIsBOorTroveMorTMLorSP" [ color = "white" ];
+  "ActivePool.sendCollaterals" -> "ActivePool._sendCollateral" [ color = "#1bc6a6" ];
+  "ActivePool.sendCollaterals" -> "ActivePool._needsUpdateCollateral" [ color = "#1bc6a6" ];
+  "ActivePool.sendCollateralsUnwrap" -> "LibHexaDiamond._requireCallerIsBOorTroveMorTMLorSP" [ color = "white" ];
+  "ActivePool.sendCollateralsUnwrap" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
+  "ActivePool.sendCollateralsUnwrap" -> "ActivePool._sendCollateral" [ color = "#1bc6a6" ];
+  "ActivePool.sendSingleCollateral" -> "LibHexaDiamond._requireCallerIsBorrowerOperations" [ color = "white" ];
+  "ActivePool.sendSingleCollateral" -> "ActivePool._sendCollateral" [ color = "#1bc6a6" ];
+  "ActivePool.sendSingleCollateralUnwrap" -> "LibHexaDiamond._requireCallerIsBorrowerOperations" [ color = "white" ];
+  "ActivePool.sendSingleCollateralUnwrap" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
+  "ActivePool.sendSingleCollateralUnwrap" -> "ActivePool._sendCollateral" [ color = "#1bc6a6" ];
+  "ActivePool._needsUpdateCollateral" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
+  "ActivePool.increaseUSMDebt" -> "LibHexaDiamond._requireCallerIsBOorTroveM" [ color = "white" ];
+  "ActivePool.increaseUSMDebt" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
+  "ActivePool.decreaseUSMDebt" -> "LibHexaDiamond._requireCallerIsBOorTroveMorSP" [ color = "white" ];
+  "ActivePool.decreaseUSMDebt" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
+  "ActivePool.receiveCollateral" -> "LibHexaDiamond._requireCallerIsBorrowerOperationsOrDefaultPool" [ color = "white" ];
+  "ActivePool.receiveCollateral" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
+  "ActivePool.receiveCollateral" -> "ActivePool._leftSumColls" [ color = "#1bc6a6" ];
+  "ActivePool.addCollateralType" -> "LibHexaDiamond._requireCallerIsWhitelist" [ color = "white" ];
+  "ActivePool.addCollateralType" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
   "HexaCustomBase._sumColls" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
   "HexaCustomBase._sumColls" -> "LibHexaDiamond.newColls" [ color = "white" ];
   "HexaCustomBase._sumColls" -> "HexaCustomBase._sumColls" [ color = "#1bc6a6" ];
@@ -321,71 +415,6 @@ subgraph "clustertarget" {
   "LibHexaDiamond._requireCallerIsBOorTroveM" -> "LibHexaDiamond._revertWrongFuncCaller" [ color = "#1bc6a6" ];
   "LibHexaDiamond._requireCallerIsWhitelist" -> "LibHexaDiamond.diamondStorage" [ color = "#1bc6a6" ];
   "LibHexaDiamond._requireCallerIsWhitelist" -> "LibHexaDiamond._revertWrongFuncCaller" [ color = "#1bc6a6" ];
-  "ActivePool.setAddresses" -> "ActivePool.checkContract" [ color = "#1bc6a6" ];
-  "ActivePool.setAddresses" -> "ActivePool.checkContract" [ color = "#1bc6a6" ];
-  "ActivePool.setAddresses" -> "ActivePool.checkContract" [ color = "#1bc6a6" ];
-  "ActivePool.setAddresses" -> "ActivePool.checkContract" [ color = "#1bc6a6" ];
-  "ActivePool.setAddresses" -> "ActivePool.checkContract" [ color = "#1bc6a6" ];
-  "ActivePool.setAddresses" -> "ActivePool.checkContract" [ color = "#1bc6a6" ];
-  "ActivePool.setAddresses" -> "ActivePool.checkContract" [ color = "#1bc6a6" ];
-  "ActivePool.setAddresses" -> "ActivePool.checkContract" [ color = "#1bc6a6" ];
-  "ActivePool.setAddresses" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
-  "ActivePool.getCollateral" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
-  "ActivePool.getAllCollateral" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
-  "ActivePool.getCollateralVC" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
-  "ActivePool.getCollateralVC" -> "ActivePool.getCollateral" [ color = "#1bc6a6" ];
-  "ActivePool.getVC" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
-  "ActivePool.getUSMDebt" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
-  "ActivePool._sendCollateral" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
-  "ActivePool.sendCollaterals" -> "LibHexaDiamond._requireCallerIsBOorTroveMorTMLorSP" [ color = "white" ];
-  "ActivePool.sendCollaterals" -> "ActivePool._sendCollateral" [ color = "#1bc6a6" ];
-  "ActivePool.sendCollaterals" -> "ActivePool._needsUpdateCollateral" [ color = "#1bc6a6" ];
-  "ActivePool.sendCollateralsUnwrap" -> "LibHexaDiamond._requireCallerIsBOorTroveMorTMLorSP" [ color = "white" ];
-  "ActivePool.sendCollateralsUnwrap" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
-  "ActivePool.sendCollateralsUnwrap" -> "ActivePool._sendCollateral" [ color = "#1bc6a6" ];
-  "ActivePool.sendSingleCollateral" -> "LibHexaDiamond._requireCallerIsBorrowerOperations" [ color = "white" ];
-  "ActivePool.sendSingleCollateral" -> "ActivePool._sendCollateral" [ color = "#1bc6a6" ];
-  "ActivePool.sendSingleCollateralUnwrap" -> "LibHexaDiamond._requireCallerIsBorrowerOperations" [ color = "white" ];
-  "ActivePool.sendSingleCollateralUnwrap" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
-  "ActivePool.sendSingleCollateralUnwrap" -> "ActivePool._sendCollateral" [ color = "#1bc6a6" ];
-  "ActivePool._needsUpdateCollateral" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
-  "ActivePool.increaseUSMDebt" -> "LibHexaDiamond._requireCallerIsBOorTroveM" [ color = "white" ];
-  "ActivePool.increaseUSMDebt" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
-  "ActivePool.decreaseUSMDebt" -> "LibHexaDiamond._requireCallerIsBOorTroveMorSP" [ color = "white" ];
-  "ActivePool.decreaseUSMDebt" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
-  "ActivePool.receiveCollateral" -> "LibHexaDiamond._requireCallerIsBorrowerOperationsOrDefaultPool" [ color = "white" ];
-  "ActivePool.receiveCollateral" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
-  "ActivePool.receiveCollateral" -> "HexaCustomBase._leftSumColls" [ color = "#1bc6a6" ];
-  "ActivePool.addCollateralType" -> "LibHexaDiamond._requireCallerIsWhitelist" [ color = "white" ];
-  "ActivePool.addCollateralType" -> "LibHexaDiamond.diamondStorage" [ color = "white" ];
-  "Ownable.<Constructor>" -> "Ownable._transferOwnership" [ color = "#1bc6a6" ];
-  "Ownable.<Constructor>" -> "Ownable._msgSender" [ color = "#1bc6a6" ];
-  "Ownable.onlyOwner" -> "Ownable.owner" [ color = "#1bc6a6" ];
-  "Ownable.onlyOwner" -> "Ownable._msgSender" [ color = "#1bc6a6" ];
-  "Ownable.renounceOwnership" -> "Ownable._transferOwnership" [ color = "#1bc6a6" ];
-  "Ownable.transferOwnership" -> "Ownable._transferOwnership" [ color = "#1bc6a6" ];
-  "SafeERC20.safeTransfer" -> "SafeERC20._callOptionalReturn" [ color = "#1bc6a6" ];
-  "SafeERC20.safeTransferFrom" -> "SafeERC20._callOptionalReturn" [ color = "#1bc6a6" ];
-  "SafeERC20.safeApprove" -> "IERC20.allowance" [ color = "white" ];
-  "SafeERC20.safeApprove" -> "SafeERC20._callOptionalReturn" [ color = "#1bc6a6" ];
-  "SafeERC20.safeIncreaseAllowance" -> "IERC20.allowance" [ color = "white" ];
-  "SafeERC20.safeIncreaseAllowance" -> "SafeERC20._callOptionalReturn" [ color = "#1bc6a6" ];
-  "SafeERC20.safeDecreaseAllowance" -> "IERC20.allowance" [ color = "white" ];
-  "SafeERC20.safeDecreaseAllowance" -> "SafeERC20._callOptionalReturn" [ color = "#1bc6a6" ];
-  "SafeERC20._callOptionalReturn" -> "IERC20.functionCall" [ color = "white" ];
-  "Address.functionCall" -> "Address.functionCall" [ color = "#1bc6a6" ];
-  "Address.functionCall" -> "Address.functionCallWithValue" [ color = "#1bc6a6" ];
-  "Address.functionCallWithValue" -> "Address.functionCallWithValue" [ color = "#1bc6a6" ];
-  "Address.functionCallWithValue" -> "Address.isContract" [ color = "#1bc6a6" ];
-  "Address.functionCallWithValue" -> "Address.verifyCallResult" [ color = "#1bc6a6" ];
-  "Address.functionStaticCall" -> "Address.functionStaticCall" [ color = "#1bc6a6" ];
-  "Address.functionStaticCall" -> "Address.isContract" [ color = "#1bc6a6" ];
-  "Address.functionStaticCall" -> "target.staticcall" [ color = "white" ];
-  "Address.functionStaticCall" -> "Address.verifyCallResult" [ color = "#1bc6a6" ];
-  "Address.functionDelegateCall" -> "Address.functionDelegateCall" [ color = "#1bc6a6" ];
-  "Address.functionDelegateCall" -> "Address.isContract" [ color = "#1bc6a6" ];
-  "Address.functionDelegateCall" -> "target.delegatecall" [ color = "white" ];
-  "Address.functionDelegateCall" -> "Address.verifyCallResult" [ color = "#1bc6a6" ];
 
 
 rankdir=LR
