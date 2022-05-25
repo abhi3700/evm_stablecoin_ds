@@ -6,3 +6,4 @@
 ☐ Clear the commented state variables (already present in the .sol files)
     * state vars
     * using statements
+☐ remove `setAddresses()` function from all the main contracts & shift to `LibHexaDiamond.sol` file.
