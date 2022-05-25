@@ -70,8 +70,10 @@ library LibHexaDiamond {
         address collSurplusPoolAddress;
         address yetiFinanceTreasury;
         IWhitelist whitelist;
-        // deposited collateral tracker. Colls is always the whitelist list of all collateral tokens. Amounts
-        newColls poolColl;
+        // deposited collateral tracker of each pool. Colls is always the whitelist list of all collateral tokens. Amounts
+        newColls apoolColl;
+        newColls dpoolColl;
+        newColls spoolColl;
         // USM Debt tracker. Tracker of all debt in the system (active + default + stability).
         // DONE: confirm if this is the sum of all pools or each pool needs to have one.
         uint256 aUSMDebt; // USM debt of active pool
@@ -433,7 +435,7 @@ library LibHexaDiamond {
         }
     }
 
-    function _revertWrongFuncCaller() internal view {
+    function _revertWrongFuncCaller() internal pure {
         revert("AP: External caller not allowed");
     }
 }

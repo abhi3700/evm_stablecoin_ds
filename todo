@@ -1,10 +1,8 @@
-*ActivePool*
-============
 ✔ Change `memory` to `calldata`. Previously, ≤ 0.6.9 `calldata` was limited to `external` function only. @done(22-05-24 20:35)
-    Benefit: gas efficiency
+    * Benefit: gas efficiency
 
 ☐ Move "CheckContract.sol" to "LibHexaDiamond.sol" file.
 ☐ Create `apoolColl` instead of `poolColl`. And make a separate state_Var for all other pool collaterals like `spoolColl`, `dpoolColl`
-
-
-
+☐ Clear the commented state variables (already present in the .sol files)
+    * state vars
+    * using statements

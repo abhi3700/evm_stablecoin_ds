@@ -14,6 +14,7 @@ import "../dependencies/HexaCustomBase.sol";
 import "../dependencies/SafeERC20.sol";
 
 import "../libs/LibHexaDiamond.sol";
+// TODO: replace `memory` to `calldata` for gas efficiency
 
 /*
  * The Active Pool holds the all collateral and USM debt (but not USM tokens) for all active troves.
@@ -23,7 +24,7 @@ import "../libs/LibHexaDiamond.sol";
  *
  */
 contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
-    using SafeMath for uint256;
+    // using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
     // bytes32 constant public NAME = "ActivePool";
@@ -85,8 +86,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
         ds.troveManagerAddress = _troveManagerAddress;
         ds.stabilityPoolAddress = _stabilityPoolAddress;
         ds.defaultPoolAddress = _defaultPoolAddress;
-        // TODO: whitelist ?
-        whitelist = IWhitelist(_whitelistAddress);
+        ds.whitelist = IWhitelist(_whitelistAddress);
         ds.troveManagerLiquidationsAddress = _troveManagerLiquidationsAddress;
         ds.troveManagerRedemptionsAddress = _troveManagerRedemptionsAddress;
         ds.collSurplusPoolAddress = _collSurplusPoolAddress;
@@ -117,9 +117,12 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
         override
         returns (uint256)
     {
+        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+            .diamondStorage();
+
         return
-            LibHexaDiamond.diamondStorage().poolColl.amounts[
-                whitelist.getIndex(_collateral)
+            ds.apoolColl.amounts[
+                ds.whitelist.getIndex(_collateral)
             ];
     }
 
@@ -135,7 +138,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
         LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
             .diamondStorage();
 
-        return (ds.poolColl.tokens, ds.poolColl.amounts);
+        return (ds.apoolColl.tokens, ds.apoolColl.amounts);
     }
 
     // returns the VC value of a given collateralAddress in this contract
@@ -145,8 +148,10 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
         override
         returns (uint256)
     {
-        // TODO: whitelist?
-        return whitelist.getValueVC(_collateral, getCollateral(_collateral));
+        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+            .diamondStorage();
+        
+        return ds.whitelist.getValueVC(_collateral, getCollateral(_collateral));
     }
 
     /*
@@ -161,13 +166,12 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
         LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
             .diamondStorage();
 
-        uint256 len = ds.poolColl.tokens.length;
+        uint256 len = ds.apoolColl.tokens.length;
         for (uint256 i; i < len; ++i) {
-            address collateral = ds.poolColl.tokens[i];
-            uint256 amount = ds.poolColl.amounts[i];
+            address collateral = ds.apoolColl.tokens[i];
+            uint256 amount = ds.apoolColl.amounts[i];
 
-            // TODO: whitelist?
-            uint256 collateralVC = whitelist.getValueVC(collateral, amount);
+            uint256 collateralVC = ds.whitelist.getValueVC(collateral, amount);
 
             totalVC += collateralVC;
         }
@@ -189,9 +193,8 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
         LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
             .diamondStorage();
 
-        // TODO: whitelist?
-        uint256 index = whitelist.getIndex(_collateral);
-        ds.poolColl.amounts[index] -= _amount;
+        uint256 index = ds.whitelist.getIndex(_collateral);
+        ds.apoolColl.amounts[index] -= _amount;
         IERC20(_collateral).safeTransfer(_to, _amount);
 
         emit ActivePoolBalanceUpdated(_collateral, _amount);
@@ -239,8 +242,12 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
 
         uint256 tokensLen = _tokens.length;
         require(tokensLen == _amounts.length, "AP:Lengths");
+
+        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+            .diamondStorage();
+        
         for (uint256 i; i < tokensLen; ++i) {
-            if (whitelist.isWrapped(_tokens[i])) {
+            if (ds.whitelist.isWrapped(_tokens[i])) {
                 // Collects rewards automatically for that amount and unwraps for the original borrower.
                 IWAsset(_tokens[i]).unwrapFor(_from, _to, _amounts[i]);
             } else {
@@ -271,7 +278,10 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
     ) external override returns (bool) {
         LibHexaDiamond._requireCallerIsBorrowerOperations();
 
-        if (whitelist.isWrapped(_token)) {
+        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+            .diamondStorage();
+
+        if (ds.whitelist.isWrapped(_token)) {
             // Collects rewards automatically for that amount and unwraps for the original borrower.
             IWAsset(_token).unwrapFor(_from, _to, _amount);
         } else {
@@ -328,8 +338,13 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
     ) external override {
         LibHexaDiamond._requireCallerIsBorrowerOperationsOrDefaultPool();
 
-        LibHexaDiamond.diamondStorage().poolColl.amounts = _leftSumColls(
-            poolColl,
+        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+            .diamondStorage();
+
+        LibHexaDiamond.newColls memory _poolColl = ds.apoolColl;
+
+        ds.apoolColl.amounts = _leftSumColls(
+            _poolColl,
             _tokens,
             _amounts
         );
@@ -343,8 +358,8 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
         LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
             .diamondStorage();
 
-        ds.poolColl.tokens.push(_collateral);
-        ds.poolColl.amounts.push(0);
+        ds.apoolColl.tokens.push(_collateral);
+        ds.apoolColl.amounts.push(0);
     }
 
     //======================================================
