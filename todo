@@ -2,6 +2,8 @@
     * Benefit: gas efficiency
 
 ✔ Create `apoolColl` instead of `poolColl`. And make a separate state_Var for all other pool collaterals like `spoolColl`, `dpoolColl` @done(22-05-26 14:51)
+✔ *ActivePool* @started(22-05-22 16:48) @done(22-05-25 14:23)
+✔ *DefaultPool* @started(22-05-26 12:30) @done(22-05-26 20:58)
 
 
 ☐ Move "CheckContract.sol" to "LibHexaDiamond.sol" file.
@@ -9,7 +11,6 @@
     * state vars
     * using statements
 ☐ remove `setAddresses()` function from all the main contracts & shift to `LibHexaDiamond.sol` file.
-✔ *DefaultPool* @started(22-05-26 12:30) @done(22-05-26 20:58) @lasted(8h28m11s)
 ☐ *Whitelist.sol*
 ☐ replace `msg.sender` with `_msgSender()` in all files.
 ☐ comment `stabilityPoolAddress`, stability pool wherever used - `require`, `setAddresses()`
