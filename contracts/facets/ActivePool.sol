@@ -14,7 +14,6 @@ import "../dependencies/HexaCustomBase.sol";
 import "../dependencies/SafeERC20.sol";
 
 import "../libs/LibHexaDiamond.sol";
-// TODO: replace `memory` to `calldata` for gas efficiency
 
 /*
  * The Active Pool holds the all collateral and USM debt (but not USM tokens) for all active troves.
@@ -41,7 +40,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
     // newColls internal poolColl;
 
     // // USM Debt tracker. Tracker of all debt in the system.
-    // uint256 internal USMDebt;
+    // uint256 internal aUSMDebt;
 
     // --- Events ---
 
@@ -120,10 +119,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
         LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
             .diamondStorage();
 
-        return
-            ds.apoolColl.amounts[
-                ds.whitelist.getIndex(_collateral)
-            ];
+        return ds.apoolColl.amounts[ds.whitelist.getIndex(_collateral)];
     }
 
     /*
@@ -150,7 +146,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
     {
         LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
             .diamondStorage();
-        
+
         return ds.whitelist.getValueVC(_collateral, getCollateral(_collateral));
     }
 
@@ -245,7 +241,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
 
         LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
             .diamondStorage();
-        
+
         for (uint256 i; i < tokensLen; ++i) {
             if (ds.whitelist.isWrapped(_tokens[i])) {
                 // Collects rewards automatically for that amount and unwraps for the original borrower.
@@ -343,11 +339,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
 
         LibHexaDiamond.newColls memory _poolColl = ds.apoolColl;
 
-        ds.apoolColl.amounts = _leftSumColls(
-            _poolColl,
-            _tokens,
-            _amounts
-        );
+        ds.apoolColl.amounts = _leftSumColls(_poolColl, _tokens, _amounts);
         emit ActivePoolBalancesUpdated(_tokens, _amounts);
     }
 
