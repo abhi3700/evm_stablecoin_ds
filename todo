@@ -9,4 +9,7 @@
     * state vars
     * using statements
 ☐ remove `setAddresses()` function from all the main contracts & shift to `LibHexaDiamond.sol` file.
-☐ *DefaultPool* @started(22-05-26 12:30)
+✔ *DefaultPool* @started(22-05-26 12:30) @done(22-05-26 20:58) @lasted(8h28m11s)
+☐ *Whitelist.sol*
+☐ replace `msg.sender` with `_msgSender()` in all files.
+☐ comment `stabilityPoolAddress`, stability pool wherever used - `require`, `setAddresses()`

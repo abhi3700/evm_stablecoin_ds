@@ -9,8 +9,8 @@ interface IPool is ICollateralReceiver {
     // --- Events ---
 
     // event ETHBalanceUpdated(uint256 _newBalance);
-    // event YUSDBalanceUpdated(uint256 _newBalance);
-    // event ActivePoolAddressChanged(address _newActivePoolAddress);
+    // event USMBalanceUpdated(uint256 _newBalance);
+    event ActivePoolAddressChanged(address _newActivePoolAddress);
     event DefaultPoolAddressChanged(address _newDefaultPoolAddress);
     event StabilityPoolAddressChanged(address _newStabilityPoolAddress);
     event WhitelistAddressChanged(address _newWhitelistAddress);

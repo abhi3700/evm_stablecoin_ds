@@ -69,6 +69,7 @@ library LibHexaDiamond {
         address troveManagerRedemptionsAddress;
         address collSurplusPoolAddress;
         address yetiFinanceTreasury;
+        address whitelistAddress;
         IWhitelist whitelist;
         // deposited collateral tracker of each pool. Colls is always the whitelist list of all collateral tokens. Amounts
         newColls apoolColl;
@@ -427,10 +428,27 @@ library LibHexaDiamond {
         }
     }
 
+    function _requireCallerIsTroveManager() internal view {
+        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+            .diamondStorage();
+
+        if (msg.sender != ds.troveManagerAddress) {
+            _revertWrongFuncCaller();
+        }
+    }
+
     function _requireCallerIsWhitelist() internal view {
         DiamondStorage storage ds = diamondStorage();
 
         if (msg.sender != address(ds.whitelist)) {
+            _revertWrongFuncCaller();
+        }
+    }
+
+    function _requireCallerIsActivePool() internal view {
+        DiamondStorage storage ds = diamondStorage();
+
+        if (msg.sender != ds.activePoolAddress) {
             _revertWrongFuncCaller();
         }
     }

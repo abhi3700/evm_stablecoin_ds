@@ -15,10 +15,13 @@ struct Trove {
 * Change the solidity version from `0.6.11` to `0.8.6`.
 * Removed the usage of "SafeMath.sol". So, arithmetic functions like `add`, `sub` is removed.
 * renamed `YUSDDebt` to `aUSMDebt`.
+* `poolColl` state variable is replaced by `apoolColl`.
 * All the storage variables used are prefixed with `diamondStorage()` function of "LibHexaDiamond.sol" file.
-* `poolColl` state variable is replaced by `apoolColl` in "HexaDiamond.sol".
 * All the require functions are referenced here from "LibHexaDiamond.sol" file.
 * File formatted as per "Solidity+Hardhat".
+* renamed the functions:
+  * `increaseUSMDebt()`
+  * `decreaseUSMDebt()`
 
 **"IActivePool.sol"**
 
@@ -62,6 +65,13 @@ uint256 aUSMDebt; // USM debt of active pool
 * Change the solidity version from `0.6.11` to `0.8.6`.
 * Removed the usage of "SafeMath.sol". So, arithmetic functions like `add`, `sub` is removed.
 * renamed `YUSDDebt` to `dUSMDebt`.
+* `poolColl` state variable is replaced by `dpoolColl`.
+* All the require functions are referenced here from "LibHexaDiamond.sol" file.
+  * NEW: `_requireCallerIsActivePool()`
+* File formatted as per "Solidity+Hardhat".
+* renamed the functions:
+  * `increaseUSMDebt()`
+  * `decreaseUSMDebt()`
 
 **"IDefaultPool.sol"**
 
@@ -81,6 +91,7 @@ address troveManagerLiquidationsAddress;
 address troveManagerRedemptionsAddress;
 address collSurplusPoolAddress;
 address yetiFinanceTreasury;
+address whitelistAddress;
 IWhitelist whitelist;
 
 newColls dpoolColl;
