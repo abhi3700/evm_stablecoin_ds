@@ -83,7 +83,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
 
         ds.borrowerOperationsAddress = _borrowerOperationsAddress;
         ds.troveManagerAddress = _troveManagerAddress;
-        ds.stabilityPoolAddress = _stabilityPoolAddress;
+        // ds.stabilityPoolAddress = _stabilityPoolAddress;
         ds.defaultPoolAddress = _defaultPoolAddress;
         ds.whitelist = IWhitelist(_whitelistAddress);
         ds.troveManagerLiquidationsAddress = _troveManagerLiquidationsAddress;
@@ -296,7 +296,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
             .diamondStorage();
 
         return ((_contractAddress == ds.defaultPoolAddress) ||
-            (_contractAddress == ds.stabilityPoolAddress) ||
+            // (_contractAddress == ds.stabilityPoolAddress) ||
             (_contractAddress == ds.collSurplusPoolAddress));
     }
 
