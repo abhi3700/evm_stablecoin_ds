@@ -14,3 +14,5 @@
 ☐ *Whitelist.sol*
 ☐ replace `msg.sender` with `_msgSender()` in all files.
 ☐ comment `stabilityPoolAddress`, stability pool wherever used - `require`, `setAddresses()`
+☐ create a diagram with ActivePool, DefaultPool with Trove @started(22-05-27 13:19)
+☐ remove SP from `_requireCallerIsBOorTroveMorTMLorSP`

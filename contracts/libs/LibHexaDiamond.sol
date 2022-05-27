@@ -63,7 +63,7 @@ library LibHexaDiamond {
         address borrowerOperationsAddress;
         address troveManagerAddress;
         address activePoolAddress;
-        address stabilityPoolAddress;
+        // address stabilityPoolAddress;
         address defaultPoolAddress;
         address troveManagerLiquidationsAddress;
         address troveManagerRedemptionsAddress;
@@ -377,7 +377,7 @@ library LibHexaDiamond {
         if (
             msg.sender != ds.borrowerOperationsAddress &&
             msg.sender != ds.troveManagerAddress &&
-            msg.sender != ds.stabilityPoolAddress &&
+            // msg.sender != ds.stabilityPoolAddress &&
             msg.sender != ds.troveManagerLiquidationsAddress &&
             msg.sender != ds.troveManagerRedemptionsAddress
         ) {
@@ -410,7 +410,7 @@ library LibHexaDiamond {
         if (
             msg.sender != ds.borrowerOperationsAddress &&
             msg.sender != ds.troveManagerAddress &&
-            msg.sender != ds.stabilityPoolAddress &&
+            // msg.sender != ds.stabilityPoolAddress &&
             msg.sender != ds.troveManagerRedemptionsAddress
         ) {
             _revertWrongFuncCaller();

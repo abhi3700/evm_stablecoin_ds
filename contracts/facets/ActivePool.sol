@@ -197,7 +197,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
         emit CollateralSent(_collateral, _to, _amount);
     }
 
-    // Returns true if all payments were successfully sent. Must be called by borrower operations, trove manager, or stability pool.
+    // Returns true if all payments were successfully sent. Must be called by borrower operations, trove manager/* , or stability pool */.
     function sendCollaterals(
         address _to,
         address[] calldata _tokens,
@@ -224,7 +224,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, HexaCustomBase {
         return true;
     }
 
-    // Returns true if all payments were successfully sent. Must be called by borrower operations, trove manager, or stability pool.
+    // Returns true if all payments were successfully sent. Must be called by borrower operations, trove manager, /* or stability pool */.
     // This function als ounwraps the collaterals and sends them to _to, if they are wrapped assets. If collect rewards is set to true,
     // It also harvests rewards on the user's behalf.
     // _from is where the reward balance is, _to is where to send the tokens.
