@@ -6,13 +6,13 @@
 ✔ *DefaultPool* @started(22-05-26 12:30) @done(22-05-26 20:58)
 
 
+☐ *Whitelist.sol* @started(22-05-30 21:31)
+☐ create a diagram with ActivePool, DefaultPool with Trove @started(22-05-27 13:19)
 ☐ Move "CheckContract.sol" to "LibHexaDiamond.sol" file.
 ☐ Clear the commented state variables (already present in the .sol files)
     * state vars
     * using statements
 ☐ remove `setAddresses()` function from all the main contracts & shift to `LibHexaDiamond.sol` file.
-☐ *Whitelist.sol*
 ☐ replace `msg.sender` with `_msgSender()` in all files.
 // ☐ comment `stabilityPoolAddress`, stability pool wherever used - `require`, `setAddresses()`
-☐ create a diagram with ActivePool, DefaultPool with Trove @started(22-05-27 13:19)
 ☐ remove SP from `_requireCallerIsBOorTroveMorTMLorSP`

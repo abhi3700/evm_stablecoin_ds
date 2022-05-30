@@ -31,7 +31,7 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool, HexaCustomBase {
     // address internal troveManagerAddress;
     // address internal activePoolAddress;
     // address internal whitelistAddress;
-    // address internal yetiFinanceTreasury;
+    // address internal hexaFinanceTreasury;
 
     // // deposited collateral tracker. Colls is always the whitelist list of all collateral tokens. Amounts
     // newColls internal dpoolColl;
@@ -54,12 +54,12 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool, HexaCustomBase {
         address _troveManagerAddress,
         address _activePoolAddress,
         address _whitelistAddress,
-        address _yetiTreasuryAddress
+        address _hexaTreasuryAddress
     ) external onlyOwner {
         checkContract(_troveManagerAddress);
         checkContract(_activePoolAddress);
         checkContract(_whitelistAddress);
-        checkContract(_yetiTreasuryAddress);
+        checkContract(_hexaTreasuryAddress);
 
         LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
             .diamondStorage();
@@ -68,7 +68,7 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool, HexaCustomBase {
         ds.activePoolAddress = _activePoolAddress;
         ds.whitelist = IWhitelist(_whitelistAddress);
         ds.whitelistAddress = _whitelistAddress;
-        ds.yetiFinanceTreasury = _yetiTreasuryAddress;
+        ds.hexaFinanceTreasury = _hexaTreasuryAddress;
 
         emit TroveManagerAddressChanged(_troveManagerAddress);
         emit ActivePoolAddressChanged(_activePoolAddress);

@@ -89,10 +89,12 @@ $ yarn clean
 **Sequence**:
 
 1. Deploy the "Hexadiamond.sol" contract with facets & libraries.
-2. Set addresses using `setAddresses()` function
+2. Set addresses using `setAddresses()` function (inside diamond SC i.e. `HexaDiamond.sol`)
    - only Owner
 
-<!-- TODO: HexaCuustomBase.sol to be either set as address inside the constructor of diamond. And then create a onlyOwner function setHexaCustomBase() -->
+<!-- TODO: HexaCustomBase.sol to be either set as address inside the constructor of diamond. And then create a onlyOwner function setHexaCustomBase() -->
+
+3. Add assets as whitelisted for respective pools (active, default, stability, colSurplus) from `Whitelist::addCollateral` function. Whenever an asset is added, the asset is updated in the pools as well.
 
 #### localhost
 

@@ -68,7 +68,7 @@ library LibHexaDiamond {
         address troveManagerLiquidationsAddress;
         address troveManagerRedemptionsAddress;
         address collSurplusPoolAddress;
-        address yetiFinanceTreasury;
+        address hexaFinanceTreasury;
         address whitelistAddress;
         IWhitelist whitelist;
         // deposited collateral tracker of each pool. Colls is always the whitelist list of all collateral tokens. Amounts

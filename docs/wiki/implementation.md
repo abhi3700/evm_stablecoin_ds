@@ -40,7 +40,7 @@ address defaultPoolAddress;
 address troveManagerLiquidationsAddress;
 address troveManagerRedemptionsAddress;
 address collSurplusPoolAddress;
-address yetiFinanceTreasury;
+address hexaFinanceTreasury;
 IWhitelist whitelist;
 
 newColls apoolColl;
@@ -90,7 +90,7 @@ address defaultPoolAddress;
 address troveManagerLiquidationsAddress;
 address troveManagerRedemptionsAddress;
 address collSurplusPoolAddress;
-address yetiFinanceTreasury;
+address hexaFinanceTreasury;
 address whitelistAddress;
 IWhitelist whitelist;
 
