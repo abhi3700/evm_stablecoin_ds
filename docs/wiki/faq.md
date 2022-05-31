@@ -13,3 +13,11 @@ It is the most robust architecture out of all proxy patterns existing in the EVM
 - **Modular**: In case of big codebase where the upgradeability is a requirement, it is important to have a design where a facet can be linked/delinked because of unneeded features.
 
 Read [more](https://eip2535diamonds.substack.com/p/answering-some-diamond-questions)
+
+#### Q2. Why Hardhat as testing framework?
+
+#### A2
+
+- It provides stack of errors, which helps in debugging the error.
+- It provides built-in console log feature.
+- The developer community is very big to support with required utility packages other than the mandatory ones.
