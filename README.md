@@ -70,7 +70,7 @@ $ yarn coverage
 
 ### Report Gas
 
-See the gas usage per unit test and averate gas per method call:
+See the gas usage per unit test and average gas per method call:
 
 ```console
 $ REPORT_GAS=true yarn test
@@ -89,7 +89,10 @@ $ yarn clean
 **Sequence**:
 
 1. Deploy the "Hexadiamond.sol" contract with facets & libraries.
-2. Set addresses using `setAddresses()` function (inside diamond SC i.e. `HexaDiamond.sol`)
+   - "DefaultPool.sol"
+   - "ActivePool.sol"
+   - "Whitelist.sol"
+2. Set addresses using `setAddresses()` function (inside Diamond Proxy SC)
    - only Owner
 
 <!-- TODO: HexaCustomBase.sol to be either set as address inside the constructor of diamond. And then create a onlyOwner function setHexaCustomBase() -->

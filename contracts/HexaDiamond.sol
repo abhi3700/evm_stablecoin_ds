@@ -22,7 +22,9 @@ contract HexaDiamond is IDiamondCut {
 
     // Protocol diamond constructor
     /// @dev initialize protocol's data
-    constructor() {}
+    constructor() {
+        // set whitelist address - `whitelist`, `whitelistAddress`
+    }
 
     // DiamondCut Actions (Add/Replace/Remove)
     function diamondCut(

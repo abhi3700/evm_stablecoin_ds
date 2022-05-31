@@ -3,6 +3,9 @@ pragma solidity 0.8.6;
 
 import {IDiamondCut} from "../interfaces/IDiamondCut.sol";
 import "../interfaces/IWhitelist.sol";
+import "../interfaces/IActivePool.sol";
+import "../interfaces/IDefaultPool.sol";
+import "../interfaces/ICollSurplusPool.sol";
 
 library LibHexaDiamond {
     /**
@@ -45,6 +48,18 @@ library LibHexaDiamond {
         uint256[] amounts;
     }
 
+    struct CollateralParams {
+        // Safety ratio
+        uint256 ratio; // 10**18 * the ratio. i.e. ratio = .95 * 10**18 for 95%. More risky collateral has a lower ratio
+        address oracle;
+        uint256 decimals;
+        address priceCurve;
+        uint256 index;
+        bool active;
+        bool isWrapped;
+        address defaultRouter;
+    }
+
     struct DiamondStorage {
         // maps function selector to the facet address and
         // the position of the selector in the facetFunctionSelectors.selectors array
@@ -71,6 +86,12 @@ library LibHexaDiamond {
         address hexaFinanceTreasury;
         address whitelistAddress;
         IWhitelist whitelist;
+        IActivePool activePool;
+        IDefaultPool defaultPool;
+        // IStabilityPool stabilityPool;
+        ICollSurplusPool collSurplusPool;
+        // status of addresses set
+        bool addressesSet;
         // deposited collateral tracker of each pool. Colls is always the whitelist list of all collateral tokens. Amounts
         newColls apoolColl;
         newColls dpoolColl;
@@ -80,6 +101,12 @@ library LibHexaDiamond {
         uint256 aUSMDebt; // USM debt of active pool
         uint256 dUSMDebt; // USM debt of default pool
         uint256 sUSMDebt; // USM debt of stability pool
+
+        mapping(address => CollateralParams) collateralParams;
+        mapping(address => bool) validRouter;
+        // list of all collateral types in collateralParams (active and deprecated)
+        // Addresses for easy access
+        address[] validCollateral; // index maps to token address.
 
         // TODO: Please add new members from end of struct
     }
@@ -369,7 +396,7 @@ library LibHexaDiamond {
      * ****************************************
      */
 
-    // --- 'require' functions | "ActivePool.sol"---
+    // --- 'require' functions | "ActivePool.sol" | "DefaultPool.sol"---
 
     function _requireCallerIsBOorTroveMorTMLorSP() internal view {
         DiamondStorage storage ds = diamondStorage();

@@ -8,7 +8,7 @@ interface IWhitelist {
     function setAddresses(
         address _activePoolAddress,
         address _defaultPoolAddress,
-        address _stabilityPoolAddress,
+        // address _stabilityPoolAddress,
         address _collSurplusPoolAddress,
         address _borrowerOperationsAddress
     ) external;

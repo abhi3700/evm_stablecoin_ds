@@ -72,7 +72,7 @@ library LiquityMath {
         }
 
         return decMul(x, y);
-  }
+    }
 
     function _getAbsoluteDifference(uint _a, uint _b) internal pure returns (uint) {
         return (_a >= _b) ? _a.sub(_b) : _b.sub(_a);
