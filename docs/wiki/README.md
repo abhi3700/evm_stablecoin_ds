@@ -13,3 +13,4 @@ The documentation is about native stablecoin for Polygon`.
 - [Commands](./commands.md)
 - [Error Codes](./errors.md)
 - [Troubleshoot](./troubleshoot.md)
+- [FAQs](./faq.md)
