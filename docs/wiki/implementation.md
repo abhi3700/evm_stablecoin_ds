@@ -9,6 +9,45 @@ struct Trove {
 }
 ```
 
+## Whitelist
+
+* Change the License from `UNLICENSED`to `MIT`.
+* Change the solidity version from `0.6.11` to `0.8.6`.
+* Removed the usage of "SafeMath.sol". So, arithmetic functions like `add`, `sub` is removed.
+* All the storage variables used are prefixed with `diamondStorage()` function of "LibHexaDiamond.sol" file.
+* File formatted as per "Solidity+Hardhat".
+
+**"LibHexaDiamond.sol"**
+
+* The state variables of this contract are moved here into diamond storage struct.
+
+```solidity
+    struct CollateralParams {
+        // Safety ratio
+        uint256 ratio; // 10**18 * the ratio. i.e. ratio = .95 * 10**18 for 95%. More risky collateral has a lower ratio
+        address oracle;
+        uint256 decimals;
+        address priceCurve;
+        uint256 index;
+        bool active;
+        bool isWrapped;
+        address defaultRouter;
+    }
+
+    struct DiamondStorage {
+        ...
+        IWhitelist whitelist;
+        IActivePool activePool;
+        IDefaultPool defaultPool;
+        // IStabilityPool stabilityPool;
+        ICollSurplusPool collSurplusPool;
+        // status of addresses set
+        bool addressesSet;
+        ...
+        ...
+    }
+```
+
 ## ActivePool
 
 * Change the License from `UNLICENSED`to `MIT`.
