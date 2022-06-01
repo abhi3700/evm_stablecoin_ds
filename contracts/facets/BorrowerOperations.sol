@@ -39,111 +39,111 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
     // --- Connected contract declarations ---
 
-    ITroveManager internal troveManager;
+    // ITroveManager internal troveManager;
 
-    address internal stabilityPoolAddress;
+    // address internal stabilityPoolAddress;
 
-    address internal gasPoolAddress;
+    // address internal gasPoolAddress;
 
-    ICollSurplusPool internal collSurplusPool;
+    // ICollSurplusPool internal collSurplusPool;
 
     ISYETI internal sYETI;
     address internal sYETIAddress;
 
     IYUSDToken internal yusdToken;
 
-    uint internal constant BOOTSTRAP_PERIOD = 14 days;
-    uint deploymentTime;
+    // uint internal constant BOOTSTRAP_PERIOD = 14 days;
+    // uint deploymentTime;
 
     // A doubly linked list of Troves, sorted by their collateral ratios
-    ISortedTroves internal sortedTroves;
+    // ISortedTroves internal sortedTroves;
 
-    struct CollateralData {
-        address collateral;
-        uint256 amount;
-    }
+    // struct CollateralData {
+    //     address collateral;
+    //     uint256 amount;
+    // }
 
-    struct DepositFeeCalc {
-        uint256 collateralYUSDFee;
-        uint256 systemCollateralVC;
-        uint256 collateralInputVC;
-        uint256 systemTotalVC;
-        address token;
-    }
+    // struct DepositFeeCalc {
+    //     uint256 collateralYUSDFee;
+    //     uint256 systemCollateralVC;
+    //     uint256 collateralInputVC;
+    //     uint256 systemTotalVC;
+    //     address token;
+    // }
 
     /* --- Variable container structs  ---
 
     Used to hold, return and assign variables inside a function, in order to avoid the error:
     "CompilerError: Stack too deep". */
-    struct AdjustTrove_Params {
-        address[] _collsIn;
-        uint256[] _amountsIn;
-        address[] _collsOut;
-        uint256[] _amountsOut;
-        uint256[] _maxSlippages;
-        uint256 _YUSDChange;
-        uint256 _totalYUSDDebtFromLever;
-        bool _isDebtIncrease;
-        bool _isUnlever;
-        address _upperHint;
-        address _lowerHint;
-        uint256 _maxFeePercentage;
-    }
+    // struct AdjustTrove_Params {
+    //     address[] _collsIn;
+    //     uint256[] _amountsIn;
+    //     address[] _collsOut;
+    //     uint256[] _amountsOut;
+    //     uint256[] _maxSlippages;
+    //     uint256 _YUSDChange;
+    //     uint256 _totalYUSDDebtFromLever;
+    //     bool _isDebtIncrease;
+    //     bool _isUnlever;
+    //     address _upperHint;
+    //     address _lowerHint;
+    //     uint256 _maxFeePercentage;
+    // }
 
-    struct LocalVariables_adjustTrove {
-        uint256 netDebtChange;
-        bool isCollIncrease;
-        uint256 collChange;
-        uint256 currVC;
-        uint256 newVC;
-        uint256 debt;
-        address[] currAssets;
-        uint256[] currAmounts;
-        address[] newAssets;
-        uint256[] newAmounts;
-        uint256 oldICR;
-        uint256 newICR;
-        uint256 newTCR;
-        uint256 YUSDFee;
-        uint256 variableYUSDFee;
-        uint256 newDebt;
-        uint256 VCin;
-        uint256 VCout;
-        uint256 maxFeePercentageFactor;
-    }
+    // struct LocalVariables_adjustTrove {
+    //     uint256 netDebtChange;
+    //     bool isCollIncrease;
+    //     uint256 collChange;
+    //     uint256 currVC;
+    //     uint256 newVC;
+    //     uint256 debt;
+    //     address[] currAssets;
+    //     uint256[] currAmounts;
+    //     address[] newAssets;
+    //     uint256[] newAmounts;
+    //     uint256 oldICR;
+    //     uint256 newICR;
+    //     uint256 newTCR;
+    //     uint256 YUSDFee;
+    //     uint256 variableYUSDFee;
+    //     uint256 newDebt;
+    //     uint256 VCin;
+    //     uint256 VCout;
+    //     uint256 maxFeePercentageFactor;
+    // }
 
-    struct LocalVariables_openTrove {
-        address[] collaterals;
-        uint256[] prices;
-        uint256 YUSDFee;
-        uint256 netDebt;
-        uint256 compositeDebt;
-        uint256 ICR;
-        uint256 arrayIndex;
-        address collAddress;
-        uint256 VC;
-        uint256 newTCR;
-        bool isRecoveryMode;
-    }
+    // struct LocalVariables_openTrove {
+    //     address[] collaterals;
+    //     uint256[] prices;
+    //     uint256 YUSDFee;
+    //     uint256 netDebt;
+    //     uint256 compositeDebt;
+    //     uint256 ICR;
+    //     uint256 arrayIndex;
+    //     address collAddress;
+    //     uint256 VC;
+    //     uint256 newTCR;
+    //     bool isRecoveryMode;
+    // }
 
-    struct CloseTrove_Params {
-        address[] _collsOut;
-        uint256[] _amountsOut;
-        uint256[] _maxSlippages;
-        bool _isUnlever;
-    }
+    // struct CloseTrove_Params {
+    //     address[] _collsOut;
+    //     uint256[] _amountsOut;
+    //     uint256[] _maxSlippages;
+    //     bool _isUnlever;
+    // }
 
-    struct ContractsCache {
-        ITroveManager troveManager;
-        IActivePool activePool;
-        IYUSDToken yusdToken;
-    }
+    // struct ContractsCache {
+    //     ITroveManager troveManager;
+    //     IActivePool activePool;
+    //     IYUSDToken yusdToken;
+    // }
 
-    enum BorrowerOperation {
-        openTrove,
-        closeTrove,
-        adjustTrove
-    }
+    // enum BorrowerOperation {
+    //     openTrove,
+    //     closeTrove,
+    //     adjustTrove
+    // }
 
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
     event ActivePoolAddressChanged(address _activePoolAddress);
@@ -153,7 +153,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     event CollSurplusPoolAddressChanged(address _collSurplusPoolAddress);
     event PriceFeedAddressChanged(address _newPriceFeedAddress);
     event SortedTrovesAddressChanged(address _sortedTrovesAddress);
-    event YUSDTokenAddressChanged(address _yusdTokenAddress);
+    event USMTokenAddressChanged(address _usmTokenAddress);
     event SYETIAddressChanged(address _sYETIAddress);
 
     event TroveCreated(address indexed _borrower, uint256 arrayIndex);
@@ -164,7 +164,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         uint256[] _amounts,
         BorrowerOperation operation
     );
-    event YUSDBorrowingFeePaid(address indexed _borrower, uint256 _YUSDFee);
+    event USMBorrowingFeePaid(address indexed _borrower, uint256 _YUSDFee);
 
     // --- Dependency setters ---
 
@@ -176,7 +176,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         address _gasPoolAddress,
         address _collSurplusPoolAddress,
         address _sortedTrovesAddress,
-        address _yusdTokenAddress,
+        address _usmTokenAddress,
         address _sYETIAddress,
         address _whitelistAddress
     ) external override onlyOwner {
@@ -192,7 +192,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         checkContract(_gasPoolAddress);
         checkContract(_collSurplusPoolAddress);
         checkContract(_sortedTrovesAddress);
-        checkContract(_yusdTokenAddress);
+        checkContract(_usmTokenAddress);
         checkContract(_sYETIAddress);
         checkContract(_whitelistAddress);
 
@@ -204,7 +204,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         gasPoolAddress = _gasPoolAddress;
         collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
         sortedTroves = ISortedTroves(_sortedTrovesAddress);
-        yusdToken = IYUSDToken(_yusdTokenAddress);
+        yusdToken = IYUSDToken(_usmTokenAddress);
         sYETIAddress = _sYETIAddress;
 
         emit TroveManagerAddressChanged(_troveManagerAddress);
@@ -214,7 +214,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         emit GasPoolAddressChanged(_gasPoolAddress);
         emit CollSurplusPoolAddressChanged(_collSurplusPoolAddress);
         emit SortedTrovesAddressChanged(_sortedTrovesAddress);
-        emit YUSDTokenAddressChanged(_yusdTokenAddress);
+        emit USMTokenAddressChanged(_usmTokenAddress);
         emit SYETIAddressChanged(_sYETIAddress);
 
         _renounceOwnership();
@@ -448,7 +448,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
             _amounts,
             BorrowerOperation.openTrove
         );
-        emit YUSDBorrowingFeePaid(_troveOwner, vars.YUSDFee);
+        emit USMBorrowingFeePaid(_troveOwner, vars.YUSDFee);
     }
 
 
@@ -765,7 +765,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
             vars.newAmounts,
             BorrowerOperation.adjustTrove
         );
-        emit YUSDBorrowingFeePaid(msg.sender, vars.YUSDFee);
+        emit USMBorrowingFeePaid(msg.sender, vars.YUSDFee);
 
         // in case of unlever up
         if (params._isUnlever) {

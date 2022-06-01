@@ -1,6 +1,6 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.11;
+pragma solidity 0.8.6;
 
 import "../Interfaces/IERC20.sol";
 import "../Interfaces/IERC2612.sol";

@@ -6,16 +6,17 @@ import "../interfaces/IWhitelist.sol";
 import "../interfaces/IActivePool.sol";
 import "../interfaces/IDefaultPool.sol";
 import "../interfaces/ICollSurplusPool.sol";
+import "../interfaces/ITroveManager.sol";
 
-library LibHexaDiamond {
+library LibMojoDiamond {
     /**
      * ****************************************
      *
      * Errors
      * ****************************************
      LIBE0: the caller is not a owner
-     LIBE1: HexaFi SC was not paused
-     LIBE2: HexaFi SC was paused
+     LIBE1: MojoFi SC was not paused
+     LIBE2: MojoFi SC was paused
      LIBE3: the diamond cut action is not correct
      LIBE4: the function selectors are empty
      LIBE5: the facet address can not be zero_address.
@@ -30,7 +31,7 @@ library LibHexaDiamond {
      */
 
     bytes32 internal constant DIAMOND_STORAGE_POSITION =
-        keccak256("hexa.finance.diamond.storage");
+        keccak256("mojo.finance.diamond.storage");
 
     struct FacetAddressAndPosition {
         address facetAddress;
@@ -42,12 +43,15 @@ library LibHexaDiamond {
         uint256 facetAddressPosition; // position of facetAddress in facetAddresses array
     }
 
+    
+    // ========"ActivePool.sol" | "DefaultPool.sol"======== 
     struct newColls {
         // tokens and amounts should be the same length
         address[] tokens;
         uint256[] amounts;
     }
 
+    // ========"Whitelist.sol"======== 
     struct CollateralParams {
         // Safety ratio
         uint256 ratio; // 10**18 * the ratio. i.e. ratio = .95 * 10**18 for 95%. More risky collateral has a lower ratio
@@ -60,6 +64,91 @@ library LibHexaDiamond {
         address defaultRouter;
     }
 
+    // ========"BorrowerOperations.sol"======== 
+    struct CollateralData {
+        address collateral;
+        uint256 amount;
+    }
+
+    struct DepositFeeCalc {
+        uint256 collateralYUSDFee;
+        uint256 systemCollateralVC;
+        uint256 collateralInputVC;
+        uint256 systemTotalVC;
+        address token;
+    }
+
+    struct AdjustTrove_Params {
+        address[] _collsIn;
+        uint256[] _amountsIn;
+        address[] _collsOut;
+        uint256[] _amountsOut;
+        uint256[] _maxSlippages;
+        uint256 _YUSDChange;
+        uint256 _totalYUSDDebtFromLever;
+        bool _isDebtIncrease;
+        bool _isUnlever;
+        address _upperHint;
+        address _lowerHint;
+        uint256 _maxFeePercentage;
+    }
+
+    struct LocalVariables_adjustTrove {
+        uint256 netDebtChange;
+        bool isCollIncrease;
+        uint256 collChange;
+        uint256 currVC;
+        uint256 newVC;
+        uint256 debt;
+        address[] currAssets;
+        uint256[] currAmounts;
+        address[] newAssets;
+        uint256[] newAmounts;
+        uint256 oldICR;
+        uint256 newICR;
+        uint256 newTCR;
+        uint256 YUSDFee;
+        uint256 variableYUSDFee;
+        uint256 newDebt;
+        uint256 VCin;
+        uint256 VCout;
+        uint256 maxFeePercentageFactor;
+    }
+
+    struct LocalVariables_openTrove {
+        address[] collaterals;
+        uint256[] prices;
+        uint256 YUSDFee;
+        uint256 netDebt;
+        uint256 compositeDebt;
+        uint256 ICR;
+        uint256 arrayIndex;
+        address collAddress;
+        uint256 VC;
+        uint256 newTCR;
+        bool isRecoveryMode;
+    }
+
+    struct CloseTrove_Params {
+        address[] _collsOut;
+        uint256[] _amountsOut;
+        uint256[] _maxSlippages;
+        bool _isUnlever;
+    }
+
+    struct ContractsCache {
+        ITroveManager troveManager;
+        IActivePool activePool;
+        IYUSDToken yusdToken;
+    }
+
+    enum BorrowerOperation {
+        openTrove,
+        closeTrove,
+        adjustTrove
+    }
+
+    // ========"Diamond Storage"======== 
     struct DiamondStorage {
         // maps function selector to the facet address and
         // the position of the selector in the facetFunctionSelectors.selectors array
@@ -80,18 +169,22 @@ library LibHexaDiamond {
         address activePoolAddress;
         // address stabilityPoolAddress;
         address defaultPoolAddress;
+        address gasPoolAddress;
         address troveManagerLiquidationsAddress;
         address troveManagerRedemptionsAddress;
         address collSurplusPoolAddress;
-        address hexaFinanceTreasury;
+        address mojoFinanceTreasury;
         address whitelistAddress;
         IWhitelist whitelist;
         IActivePool activePool;
         IDefaultPool defaultPool;
         // IStabilityPool stabilityPool;
         ICollSurplusPool collSurplusPool;
+        ITroveManager troveManager;
+        ISortedTroves sortedTroves;
         // status of addresses set
         bool addressesSet;
+        IUSMToken usmToken;
         // deposited collateral tracker of each pool. Colls is always the whitelist list of all collateral tokens. Amounts
         newColls apoolColl;
         newColls dpoolColl;
@@ -107,9 +200,12 @@ library LibHexaDiamond {
         // list of all collateral types in collateralParams (active and deprecated)
         // Addresses for easy access
         address[] validCollateral; // index maps to token address.
+        uint256 deploymentTime;     // deployment time for "BorrowerOperations.sol"
 
         // TODO: Please add new members from end of struct
     }
+
+    uint internal constant BOOTSTRAP_PERIOD = 14 days;
 
     function diamondStorage()
         internal
@@ -456,7 +552,7 @@ library LibHexaDiamond {
     }
 
     function _requireCallerIsTroveManager() internal view {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         if (msg.sender != ds.troveManagerAddress) {

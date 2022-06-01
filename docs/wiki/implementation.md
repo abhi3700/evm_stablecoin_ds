@@ -166,7 +166,7 @@ So, we can direct the minted stablecoins (USM) to pools like Liquidity, Lending/
 > * `BOOTSTRAP_PERIOD`
 > * `deploymentTime`
 > 
-> The local variables (used in the functions) are maintained in `struct` so as to avoid `CompilerError: Stack too deep`
+> The local variables (used in the functions) are maintained in variable container structs so as to avoid `CompilerError: Stack too deep`.
 
 * Change the License from `UNLICENSED`to `MIT`.
 * Change the solidity version from `0.6.11` to `0.8.6`.
@@ -174,3 +174,18 @@ So, we can direct the minted stablecoins (USM) to pools like Liquidity, Lending/
 * Removed the usage of "SafeMath.sol". So, arithmetic functions like `add`, `sub` is removed.
 * Added a utility function called `getName()`.
 * `stabilityPoolAddress` dereferenced here as there is no plan to include "Stability Pool".
+* Following structs moved to "LibMojoDiamond.sol" file:
+  * `CollateralData`
+  * `DepositFeeCalc`
+  * `AdjustTrove_Params`
+  * `LocalVariables_adjustTrove`
+  * `LocalVariables_openTrove`
+  * `CloseTrove_Params`
+  * `ContractsCache`
+* Enum `BorrowerOperation` moved to "LibMojoDiamond.sol" file
+* `YUSDTokenAddressChanged` event renamed to `USMTokenAddressChanged`
+* `YUSDBorrowingFeePaid` event renamed to `USMBorrowingFeePaid`
+
+**"IUSMToken.sol"**
+
+* Changed the name from "IYUSDToken.sol" to "IUSMToken.sol".
