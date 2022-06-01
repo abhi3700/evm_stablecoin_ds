@@ -14,7 +14,7 @@ import "../interfaces/IERC20.sol";
 import "../dependencies/LiquityBase.sol";
 import "../dependencies/Ownable.sol";
 import "../dependencies/CheckContract.sol";
-import "../dependencies/SafeMath.sol";
+// import "../dependencies/SafeMath.sol";
 import "../dependencies/ReentrancyGuard.sol";
 import "../interfaces/IWAsset.sol";
 
@@ -34,8 +34,8 @@ import "../interfaces/IWAsset.sol";
   */
 
 contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOperations, ReentrancyGuard {
-    using SafeMath for uint256;
-    string public constant NAME = "BorrowerOperations";
+    // using SafeMath for uint256;
+    // string public constant NAME = "BorrowerOperations";
 
     // --- Connected contract declarations ---
 
@@ -1413,5 +1413,12 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
     function getCompositeDebt(uint256 _debt) external pure override returns (uint256) {
         return _getCompositeDebt(_debt);
+    }
+
+    //======================================================
+    // Utils
+    //======================================================
+    function getName() external pure returns (string memory) {
+        return "BorrowerOperations";
     }
 }

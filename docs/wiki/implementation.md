@@ -63,6 +63,7 @@ struct Trove {
 * renamed the functions:
   * `increaseUSMDebt()`
   * `decreaseUSMDebt()`
+* Added a utility function called `getName()`.
 
 **"IActivePool.sol"**
 
@@ -114,6 +115,7 @@ uint256 aUSMDebt; // USM debt of active pool
 * renamed the functions:
   * `increaseUSMDebt()`
   * `decreaseUSMDebt()`
+* Added a utility function called `getName()`.
 
 **"IDefaultPool.sol"**
 
@@ -147,3 +149,28 @@ uint256 dUSMDebt; // USM debt of default pool
 **"HexaCustomBase.sol"**
 
 All required changes are done during "ActivePool.sol" file modification.
+
+## StabilityPool
+
+This has been dropped as of now. Because there is no plan to use inflationary model for native token (MOJO) in order to incentivize people to stake the minted USM.
+
+Instead the minted stablecoin is supposed to have utility in DApps like gaming, payment sector.
+
+So, we can direct the minted stablecoins (USM) to pools like Liquidity, Lending/Borrowing in DEXes (Uniswap, Curve, etc.) and other DeFi protocols (Aave, Compound, dy/dx, etc.).
+
+## BorrowerOperations
+
+> Here, the connected contracts are called here & its functions are used to change the respective state variables.
+> 
+> NO storage variables as such except:
+> * `BOOTSTRAP_PERIOD`
+> * `deploymentTime`
+> 
+> The local variables (used in the functions) are maintained in `struct` so as to avoid `CompilerError: Stack too deep`
+
+* Change the License from `UNLICENSED`to `MIT`.
+* Change the solidity version from `0.6.11` to `0.8.6`.
+* Modified the paths of files imported.
+* Removed the usage of "SafeMath.sol". So, arithmetic functions like `add`, `sub` is removed.
+* Added a utility function called `getName()`.
+* `stabilityPoolAddress` dereferenced here as there is no plan to include "Stability Pool".
