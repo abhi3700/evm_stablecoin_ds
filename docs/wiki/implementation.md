@@ -13,6 +13,7 @@ struct Trove {
 
 * Change the License from `UNLICENSED`to `MIT`.
 * Change the solidity version from `0.6.11` to `0.8.6`.
+* Modified the paths of files imported.
 * Removed the usage of "SafeMath.sol". So, arithmetic functions like `add`, `sub` is removed.
 * All the storage variables used are prefixed with `diamondStorage()` function of "LibHexaDiamond.sol" file.
 * File formatted as per "Solidity+Hardhat".
@@ -52,6 +53,7 @@ struct Trove {
 
 * Change the License from `UNLICENSED`to `MIT`.
 * Change the solidity version from `0.6.11` to `0.8.6`.
+* Modified the paths of files imported.
 * Removed the usage of "SafeMath.sol". So, arithmetic functions like `add`, `sub` is removed.
 * renamed `YUSDDebt` to `aUSMDebt`.
 * `poolColl` state variable is replaced by `apoolColl`.
@@ -102,6 +104,7 @@ uint256 aUSMDebt; // USM debt of active pool
 
 * Change the License from `UNLICENSED`to `MIT`.
 * Change the solidity version from `0.6.11` to `0.8.6`.
+* Modified the paths of files imported.
 * Removed the usage of "SafeMath.sol". So, arithmetic functions like `add`, `sub` is removed.
 * renamed `YUSDDebt` to `dUSMDebt`.
 * `poolColl` state variable is replaced by `dpoolColl`.
