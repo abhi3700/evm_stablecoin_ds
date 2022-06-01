@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import {LibHexaDiamond} from "./libs/LibHexaDiamond.sol";
+import {LibMojoDiamond} from "./libs/LibMojoDiamond.sol";
 import {IDiamondCut} from "./interfaces/IDiamondCut.sol";
 import "./libs/Strings.sol";
 
-/// @title A upgradeable stablecoin/borrowing SC protocol
+/// @title An upgradeable stablecoin/borrowing SC protocol
 /// @author abhi3700
-/// @notice Any protocol can launch a protocol (stablecoin/borrowing)
+/// @notice Launch the lending protocol to create CDP based stablecoin
 contract HexaDiamond is IDiamondCut {
     using Strings for string;
 
@@ -32,15 +32,15 @@ contract HexaDiamond is IDiamondCut {
         address _init,
         bytes calldata _calldata
     ) external override {
-        LibHexaDiamond.enforceIsContractOwner();
-        LibHexaDiamond.diamondCut(_diamondCut, _init, _calldata);
+        LibMojoDiamond.enforceIsContractOwner();
+        LibMojoDiamond.diamondCut(_diamondCut, _init, _calldata);
     }
 
     // Find facet for function that is called and execute the
     // function if a facet is found and return any value.
     fallback() external payable {
-        LibHexaDiamond.DiamondStorage storage ds;
-        bytes32 position = LibHexaDiamond.DIAMOND_STORAGE_POSITION;
+        LibMojoDiamond.DiamondStorage storage ds;
+        bytes32 position = LibMojoDiamond.DIAMOND_STORAGE_POSITION;
         // get diamond storage
         assembly {
             ds.slot := position

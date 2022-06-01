@@ -6,25 +6,25 @@ import "./BaseMath.sol";
 // import "./SafeMath.sol";         // Not needed for compiler version >= 0.8.0
 import "../interfaces/IERC20.sol";
 
-import "../libs/LibHexaDiamond.sol";
+import "../libs/LibMojoDiamond.sol";
 
 // NOTE: if this hits the contract size limit, 
-// then create "LibHexaDiamond2.sol" & shift the `newColls` struct & 
+// then create "LibMojoDiamond2.sol" & shift the `newColls` struct & 
 // `whitelist` state var to there with a new diamond storage position
 
-contract HexaCustomBase is BaseMath {
+contract MojoCustomBase is BaseMath {
     // using SafeMath for uint256;          // TODO: clear
 
     // Collateral math
     // gets the sum of _coll1 and _coll2
-    function _sumColls(LibHexaDiamond.newColls memory _coll1, LibHexaDiamond.newColls memory _coll2)
+    function _sumColls(LibMojoDiamond.newColls memory _coll1, LibMojoDiamond.newColls memory _coll2)
         internal
         view
-        returns (LibHexaDiamond.newColls memory finalColls)
+        returns (LibMojoDiamond.newColls memory finalColls)
     {
-        LibHexaDiamond.newColls memory coll3;
+        LibMojoDiamond.newColls memory coll3;
 
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         coll3.tokens = ds.whitelist.getValidCollateral();
@@ -70,11 +70,11 @@ contract HexaCustomBase is BaseMath {
 
     // gets the sum of coll1 with tokens and amounts
     function _sumColls(
-        LibHexaDiamond.newColls memory _coll1,
+        LibMojoDiamond.newColls memory _coll1,
         address[] calldata tokens,
         uint256[] calldata amounts
-    ) internal view returns (LibHexaDiamond.newColls memory) {
-        LibHexaDiamond.newColls memory coll2 = LibHexaDiamond.newColls(tokens, amounts);
+    ) internal view returns (LibMojoDiamond.newColls memory) {
+        LibMojoDiamond.newColls memory coll2 = LibMojoDiamond.newColls(tokens, amounts);
         return _sumColls(_coll1, coll2);
     }
 
@@ -83,8 +83,8 @@ contract HexaCustomBase is BaseMath {
         uint256[] calldata amounts1,
         address[] calldata tokens2,
         uint256[] calldata amounts2
-    ) internal view returns (LibHexaDiamond.newColls memory) {
-        LibHexaDiamond.newColls memory coll1 = LibHexaDiamond.newColls(tokens1, amounts1);
+    ) internal view returns (LibMojoDiamond.newColls memory) {
+        LibMojoDiamond.newColls memory coll1 = LibMojoDiamond.newColls(tokens1, amounts1);
         return _sumColls(coll1, tokens2, amounts2);
     }
 
@@ -92,13 +92,13 @@ contract HexaCustomBase is BaseMath {
     // Used in active, default, stability, and surplus pools
     // assumes _coll1.tokens = all whitelisted tokens
     function _leftSumColls(
-        LibHexaDiamond.newColls memory _coll1,
+        LibMojoDiamond.newColls memory _coll1,
         address[] calldata _tokens,
         uint256[] calldata _amounts
     ) internal view returns (uint256[] memory) {
         uint256[] memory sumAmounts = _getArrayCopy(_coll1.amounts);
 
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         uint256 coll1Len = _tokens.length;
@@ -113,13 +113,13 @@ contract HexaCustomBase is BaseMath {
 
     // Function for summing colls when one list is all tokens. Used in active, default, stability, and surplus pools
     function _leftSubColls(
-        LibHexaDiamond.newColls calldata _coll1,
+        LibMojoDiamond.newColls calldata _coll1,
         address[] calldata _subTokens,
         uint256[] calldata _subAmounts
     ) internal view returns (uint256[] memory) {
         uint256[] memory diffAmounts = _getArrayCopy(_coll1.amounts);
 
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         //assumes that coll1.tokens = whitelist tokens. Keeps all of coll1's tokens, and subtracts coll2's amounts
@@ -134,18 +134,18 @@ contract HexaCustomBase is BaseMath {
     // Returns _coll1 minus _tokens and _amounts
     // will error if _tokens include a token not in _coll1.tokens
     function _subColls(
-        LibHexaDiamond.newColls calldata _coll1,
+        LibMojoDiamond.newColls calldata _coll1,
         address[] calldata _tokens,
         uint256[] calldata _amounts
-    ) internal view returns (LibHexaDiamond.newColls memory finalColls) {
+    ) internal view returns (LibMojoDiamond.newColls memory finalColls) {
         uint256 coll1Len = _coll1.tokens.length;
         uint256 tokensLen = _tokens.length;
         require(tokensLen == _amounts.length, "SubColls invalid input");
 
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
-        LibHexaDiamond.newColls memory coll3;
+        LibMojoDiamond.newColls memory coll3;
         coll3.tokens = ds.whitelist.getValidCollateral();
         uint256 coll3Len = coll3.tokens.length;
         coll3.amounts = new uint256[](coll3Len);

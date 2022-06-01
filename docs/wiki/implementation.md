@@ -15,10 +15,10 @@ struct Trove {
 * Change the solidity version from `0.6.11` to `0.8.6`.
 * Modified the paths of files imported.
 * Removed the usage of "SafeMath.sol". So, arithmetic functions like `add`, `sub` is removed.
-* All the storage variables used are prefixed with `diamondStorage()` function of "LibHexaDiamond.sol" file.
+* All the storage variables used are prefixed with `diamondStorage()` function of "LibMojoDiamond.sol" file.
 * File formatted as per "Solidity+Hardhat".
 
-**"LibHexaDiamond.sol"**
+**"LibMojoDiamond.sol"**
 
 * The state variables of this contract are moved here into diamond storage struct.
 
@@ -57,8 +57,8 @@ struct Trove {
 * Removed the usage of "SafeMath.sol". So, arithmetic functions like `add`, `sub` is removed.
 * renamed `YUSDDebt` to `aUSMDebt`.
 * `poolColl` state variable is replaced by `apoolColl`.
-* All the storage variables used are prefixed with `diamondStorage()` function of "LibHexaDiamond.sol" file.
-* All the require functions are referenced here from "LibHexaDiamond.sol" file.
+* All the storage variables used are prefixed with `diamondStorage()` function of "LibMojoDiamond.sol" file.
+* All the require functions are referenced here from "LibMojoDiamond.sol" file.
 * File formatted as per "Solidity+Hardhat".
 * renamed the functions:
   * `increaseUSMDebt()`
@@ -69,7 +69,7 @@ struct Trove {
 
 * Commented the events (repetitive)
 
-**"LibHexaDiamond.sol"**
+**"LibMojoDiamond.sol"**
 
 * The state variables of this contract are moved here into diamond storage struct.
 
@@ -93,11 +93,11 @@ uint256 aUSMDebt; // USM debt of active pool
 * `whitelist` storage variable is moved here.
 * `newColls` struct is moved here.
 
-**"HexaCustomBase.sol"**
+**"MojoCustomBase.sol"**
 
-* The “HexaCustomBase.sol” has been refactored to consider gas optimization. And this is achieved by using `calldata` instead of `memory` data location.
-* `whitelist` storage variable used is referenced from "LibHexaDiamond.sol".
-* `newColls` struct, used is referenced from "LibHexaDiamond.sol".
+* The “MojoCustomBase.sol” has been refactored to consider gas optimization. And this is achieved by using `calldata` instead of `memory` data location.
+* `whitelist` storage variable used is referenced from "LibMojoDiamond.sol".
+* `newColls` struct, used is referenced from "LibMojoDiamond.sol".
 
 ---
 
@@ -109,7 +109,7 @@ uint256 aUSMDebt; // USM debt of active pool
 * Removed the usage of "SafeMath.sol". So, arithmetic functions like `add`, `sub` is removed.
 * renamed `YUSDDebt` to `dUSMDebt`.
 * `poolColl` state variable is replaced by `dpoolColl`.
-* All the require functions are referenced here from "LibHexaDiamond.sol" file.
+* All the require functions are referenced here from "LibMojoDiamond.sol" file.
   * NEW: `_requireCallerIsActivePool()`
 * File formatted as per "Solidity+Hardhat".
 * renamed the functions:
@@ -121,7 +121,7 @@ uint256 aUSMDebt; // USM debt of active pool
 
 * Commented the events (repetitive)
 
-**"LibHexaDiamond.sol"**
+**"LibMojoDiamond.sol"**
 
 * The state variables of this contract are moved here into diamond storage struct.
 
@@ -146,7 +146,7 @@ uint256 dUSMDebt; // USM debt of default pool
 * `whitelist` storage variable is moved here.
 * `newColls` struct is moved here.
 
-**"HexaCustomBase.sol"**
+**"MojoCustomBase.sol"**
 
 All required changes are done during "ActivePool.sol" file modification.
 

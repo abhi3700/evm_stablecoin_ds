@@ -14,7 +14,7 @@ import "../interfaces/ICollSurplusPool.sol";
 import "../interfaces/IERC20.sol";
 import "../dependencies/LiquityMath.sol";
 import "../dependencies/CheckContract.sol";
-import "../libs/LibHexaDiamond.sol";
+import "../libs/LibMojoDiamond.sol";
 
 /**
  * Whitelist is the contract that keeps track of all the assets that the system takes as collateral.
@@ -70,7 +70,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
 
     // Calling from here makes it not inline, reducing contract size and gas.
     function _exists(address _collateral) internal view {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         if (ds.validCollateral[0] != _collateral) {
@@ -91,7 +91,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         address _collSurplusPoolAddress,
         address _borrowerOperationsAddress
     ) external override onlyOwner {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         require(!ds.addressesSet, "addresses already set");
@@ -125,7 +125,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         // If collateral list is not 0, and if the 0th index is not equal to this collateral,
         // then if index is 0 that means it is not set yet.
         require(_minRatio < 11e17, "ratio must be less than 1.10"); //=> greater than 1.1 would mean taking out more YUSD than collateral VC
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         if (ds.validCollateral.length != 0) {
@@ -137,7 +137,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         }
 
         ds.validCollateral.push(_collateral);
-        ds.collateralParams[_collateral] = LibHexaDiamond.CollateralParams(
+        ds.collateralParams[_collateral] = LibMojoDiamond.CollateralParams(
             _minRatio,
             _oracle,
             _decimals,
@@ -168,7 +168,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
     {
         checkContract(_collateral);
 
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         require(
@@ -193,7 +193,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
     {
         checkContract(_collateral);
 
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         require(
@@ -218,7 +218,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         checkContract(_collateral);
         checkContract(_oracle);
 
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         ds.collateralParams[_collateral].oracle = _oracle;
@@ -240,7 +240,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         uint256 lastFeePercent;
         uint256 lastFeeTime;
 
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         (lastFeePercent, lastFeeTime) = IPriceCurve(
@@ -264,7 +264,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         checkContract(_collateral);
         require(_ratio < 11e17, "ratio must be less than 1.10"); //=> greater than 1.1 would mean taking out more YUSD than collateral VC
 
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         require(
             ds.collateralParams[_collateral].ratio < _ratio,
@@ -286,7 +286,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
     {
         checkContract(_router);
 
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         ds.collateralParams[_collateral].defaultRouter = _router;
     }
@@ -298,7 +298,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         exists(_collateral)
         returns (address)
     {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         return ds.collateralParams[_collateral].defaultRouter;
     }
@@ -311,7 +311,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         override
         returns (bool)
     {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         return ds.validRouter[_router];
     }
@@ -322,7 +322,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         override
         returns (address[] memory)
     {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         return ds.validCollateral;
     }
@@ -334,7 +334,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         exists(_collateral)
         returns (uint256)
     {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         return ds.collateralParams[_collateral].ratio;
     }
@@ -346,7 +346,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         exists(_collateral)
         returns (address)
     {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         return ds.collateralParams[_collateral].oracle;
     }
@@ -358,7 +358,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         exists(_collateral)
         returns (address)
     {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         return ds.collateralParams[_collateral].priceCurve;
     }
@@ -370,7 +370,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         exists(_collateral)
         returns (bool)
     {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         return ds.collateralParams[_collateral].active;
     }
@@ -382,7 +382,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         exists(_collateral)
         returns (uint256)
     {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         return ds.collateralParams[_collateral].decimals;
     }
@@ -394,13 +394,13 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         exists(_collateral)
         returns (uint256)
     {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         return (ds.collateralParams[_collateral].index);
     }
 
     function isWrapped(address _collateral) external view override returns (bool) {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         return (ds.collateralParams[_collateral].isWrapped);
     }
@@ -413,7 +413,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         uint256 _totalVCBalancePre,
         uint256 _totalVCBalancePost
     ) external view override exists(_collateral) returns (uint256 fee) {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         IPriceCurve priceCurve = IPriceCurve(
             ds.collateralParams[_collateral].priceCurve
@@ -435,7 +435,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         uint256 _totalVCBalancePre,
         uint256 _totalVCBalancePost
     ) external override exists(_collateral) returns (uint256 fee) {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         require(
             msg.sender == ds.borrowerOperationsAddress,
@@ -461,7 +461,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         exists(_collateral)
         returns (uint256)
     {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         IPriceFeed collateral_priceFeed = IPriceFeed(
             ds.collateralParams[_collateral].oracle
@@ -477,7 +477,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         exists(_collateral)
         returns (uint256)
     {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         uint256 decimals = ds.collateralParams[_collateral].decimals;
         uint256 price = getPrice(_collateral);
@@ -500,7 +500,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         // div by 10**18 for price adjustment
         // and divide by 10 ** decimals for decimal adjustment
         // do inline since this function is called often
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         return
             ((getPrice(_collateral) * _amount) *

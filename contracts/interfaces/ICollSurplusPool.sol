@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.6;
 
-import "../dependencies/HexaCustomBase.sol";
+import "../dependencies/MojoCustomBase.sol";
 import "./ICollateralReceiver.sol";
 
 

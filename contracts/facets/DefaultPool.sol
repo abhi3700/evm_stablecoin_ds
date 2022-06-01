@@ -10,10 +10,10 @@ import "../interfaces/IWAsset.sol";
 // import "./dependencies/SafeMath.sol";
 import "../dependencies/Ownable.sol";
 import "../dependencies/CheckContract.sol";
-import "../dependencies/HexaCustomBase.sol";
+import "../dependencies/MojoCustomBase.sol";
 import "../dependencies/SafeERC20.sol";
 
-import "../libs/LibHexaDiamond.sol";
+import "../libs/LibMojoDiamond.sol";
 
 /*
  * The Default Pool holds the collateral and USM debt (but not USM tokens) from liquidations that have been redistributed
@@ -22,7 +22,7 @@ import "../libs/LibHexaDiamond.sol";
  * When a trove makes an operation that applies its pending collateral and USM debt, its pending collateral and USM debt is moved
  * from the Default Pool to the Active Pool.
  */
-contract DefaultPool is Ownable, CheckContract, IDefaultPool, HexaCustomBase {
+contract DefaultPool is Ownable, CheckContract, IDefaultPool, MojoCustomBase {
     // using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -61,7 +61,7 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool, HexaCustomBase {
         checkContract(_whitelistAddress);
         checkContract(_hexaTreasuryAddress);
 
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         ds.troveManagerAddress = _troveManagerAddress;
@@ -93,7 +93,7 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool, HexaCustomBase {
         override
         returns (uint256)
     {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         return ds.dpoolColl.amounts[ds.whitelist.getIndex(_collateral)];
@@ -108,7 +108,7 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool, HexaCustomBase {
         override
         returns (address[] memory, uint256[] memory)
     {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         return (ds.dpoolColl.tokens, ds.dpoolColl.amounts);
@@ -121,7 +121,7 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool, HexaCustomBase {
         override
         returns (uint256)
     {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         return ds.whitelist.getValueVC(_collateral, getCollateral(_collateral));
@@ -136,7 +136,7 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool, HexaCustomBase {
      * multiplying them by the corresponding price and ratio and then summing that
      */
     function getVC() external view override returns (uint256 totalVC) {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         uint256 tokensLen = ds.dpoolColl.tokens.length;
@@ -151,12 +151,12 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool, HexaCustomBase {
 
     // Debt that this pool holds.
     function getUSMDebt() external view override returns (uint256) {
-        return LibHexaDiamond.diamondStorage().dUSMDebt;
+        return LibMojoDiamond.diamondStorage().dUSMDebt;
     }
 
     // Internal function to send collateral to a different pool.
     function _sendCollateral(address _collateral, uint256 _amount) internal {
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         address activePool = ds.activePoolAddress;
@@ -175,12 +175,12 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool, HexaCustomBase {
         uint256[] calldata _amounts,
         address _borrower
     ) external override {
-        LibHexaDiamond._requireCallerIsTroveManager();
+        LibMojoDiamond._requireCallerIsTroveManager();
 
         uint256 tokensLen = _tokens.length;
         require(tokensLen == _amounts.length, "DP:Length mismatch");
 
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         uint256 thisAmounts;
@@ -219,9 +219,9 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool, HexaCustomBase {
 
     // Increases the USM Debt of this pool.
     function increaseUSMDebt(uint256 _amount) external override {
-        LibHexaDiamond._requireCallerIsTroveManager();
+        LibMojoDiamond._requireCallerIsTroveManager();
 
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         ds.dUSMDebt += _amount;
@@ -230,8 +230,8 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool, HexaCustomBase {
 
     // Decreases the USM Debt of this pool.
     function decreaseUSMDebt(uint256 _amount) external override {
-        LibHexaDiamond._requireCallerIsTroveManager();
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond._requireCallerIsTroveManager();
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         ds.dUSMDebt = _amount;
@@ -239,7 +239,7 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool, HexaCustomBase {
     }
 
     //======================================================
-    // `require` functions shifted to "LibHexaDiamond.sol"
+    // `require` functions shifted to "LibMojoDiamond.sol"
     //======================================================
 
     // Should be called by ActivePool
@@ -248,8 +248,8 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool, HexaCustomBase {
         address[] calldata _tokens,
         uint256[] calldata _amounts
     ) external override {
-        LibHexaDiamond._requireCallerIsActivePool();
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond._requireCallerIsActivePool();
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         ds.dpoolColl.amounts = _leftSumColls(ds.dpoolColl, _tokens, _amounts);
@@ -258,8 +258,8 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool, HexaCustomBase {
 
     // Adds collateral type from whitelist.
     function addCollateralType(address _collateral) external override {
-        LibHexaDiamond._requireCallerIsWhitelist();
-        LibHexaDiamond.DiamondStorage storage ds = LibHexaDiamond
+        LibMojoDiamond._requireCallerIsWhitelist();
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         ds.dpoolColl.tokens.push(_collateral);

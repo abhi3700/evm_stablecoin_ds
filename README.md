@@ -95,7 +95,7 @@ $ yarn clean
 2. Set addresses using `setAddresses()` function (inside Diamond Proxy SC)
    - only Owner
 
-<!-- TODO: HexaCustomBase.sol to be either set as address inside the constructor of diamond. And then create a onlyOwner function setHexaCustomBase() -->
+<!-- TODO: MojoCustomBase.sol to be either set as address inside the constructor of diamond. And then create a onlyOwner function setMojoCustomBase() -->
 
 3. Add assets as whitelisted for respective pools (active, default, stability, colSurplus) from `Whitelist::addCollateral` function. Whenever an asset is added, the asset is updated in the pools as well.
 
