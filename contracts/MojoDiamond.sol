@@ -8,7 +8,7 @@ import "./libs/Strings.sol";
 /// @title An upgradeable stablecoin/borrowing SC protocol
 /// @author abhi3700
 /// @notice Launch the lending protocol to create CDP based stablecoin
-contract HexaDiamond is IDiamondCut {
+contract MojoDiamond is IDiamondCut {
     using Strings for string;
 
     /**
