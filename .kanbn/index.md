@@ -8,9 +8,13 @@ columnSorting:
     -
       field: created
       order: ascending
+  'In Progress':
+    -
+      field: created
+      order: ascending
 ---
 
-# Mojo
+# Mojofi
 
 ## Todo
 
@@ -21,10 +25,9 @@ columnSorting:
 
 - [borrower-operations-sol](tasks/borrower-operations-sol.md)
 - [mojo-diamond-sol](tasks/mojo-diamond-sol.md)
+- [lib-mojo-diamond-sol](tasks/lib-mojo-diamond-sol.md)
 
 ## Blocker
-
-- [s-yetitoken-sol](tasks/s-yetitoken-sol.md)
 
 ## Testing
 

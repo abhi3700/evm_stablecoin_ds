@@ -4,12 +4,12 @@ pragma solidity 0.8.6;
 
 import "../interfaces/IBorrowerOperations.sol";
 import "../interfaces/ITroveManager.sol";
-import "../interfaces/IYUSDToken.sol";
+import "../interfaces/IUSMToken.sol";
 import "../interfaces/ICollSurplusPool.sol";
 import "../interfaces/ISortedTroves.sol";
-import "../interfaces/ISYETI.sol";
+import "../interfaces/ISMOJO.sol";
 import "../interfaces/IWhitelist.sol";
-import "../interfaces/IYetiRouter.sol";
+import "../interfaces/IYetiRouter.sol";     // TODO
 import "../interfaces/IERC20.sol";
 import "../dependencies/LiquityBase.sol";
 import "../dependencies/Ownable.sol";
@@ -47,10 +47,10 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
     // ICollSurplusPool internal collSurplusPool;
 
-    ISYETI internal sYETI;
-    address internal sYETIAddress;
+    // ISMOJO internal sMOJO;
+    // address internal sMOJOAddress;
 
-    IYUSDToken internal yusdToken;
+    // IUSMToken internal usmToken;
 
     // uint internal constant BOOTSTRAP_PERIOD = 14 days;
     // uint deploymentTime;
@@ -64,7 +64,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     // }
 
     // struct DepositFeeCalc {
-    //     uint256 collateralYUSDFee;
+    //     uint256 collateralUSMFee;
     //     uint256 systemCollateralVC;
     //     uint256 collateralInputVC;
     //     uint256 systemTotalVC;
@@ -81,8 +81,8 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     //     address[] _collsOut;
     //     uint256[] _amountsOut;
     //     uint256[] _maxSlippages;
-    //     uint256 _YUSDChange;
-    //     uint256 _totalYUSDDebtFromLever;
+    //     uint256 _USMChange;
+    //     uint256 _totalUSMDebtFromLever;
     //     bool _isDebtIncrease;
     //     bool _isUnlever;
     //     address _upperHint;
@@ -104,8 +104,8 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     //     uint256 oldICR;
     //     uint256 newICR;
     //     uint256 newTCR;
-    //     uint256 YUSDFee;
-    //     uint256 variableYUSDFee;
+    //     uint256 USMFee;
+    //     uint256 variableUSMFee;
     //     uint256 newDebt;
     //     uint256 VCin;
     //     uint256 VCout;
@@ -115,7 +115,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     // struct LocalVariables_openTrove {
     //     address[] collaterals;
     //     uint256[] prices;
-    //     uint256 YUSDFee;
+    //     uint256 USMFee;
     //     uint256 netDebt;
     //     uint256 compositeDebt;
     //     uint256 ICR;
@@ -136,7 +136,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     // struct ContractsCache {
     //     ITroveManager troveManager;
     //     IActivePool activePool;
-    //     IYUSDToken yusdToken;
+    //     IUSMToken usmToken;
     // }
 
     // enum BorrowerOperation {
@@ -154,7 +154,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     event PriceFeedAddressChanged(address _newPriceFeedAddress);
     event SortedTrovesAddressChanged(address _sortedTrovesAddress);
     event USMTokenAddressChanged(address _usmTokenAddress);
-    event SYETIAddressChanged(address _sYETIAddress);
+    event sMOJOAddressChanged(address _sMOJOAddress);
 
     event TroveCreated(address indexed _borrower, uint256 arrayIndex);
     event TroveUpdated(
@@ -164,7 +164,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         uint256[] _amounts,
         BorrowerOperation operation
     );
-    event USMBorrowingFeePaid(address indexed _borrower, uint256 _YUSDFee);
+    event USMBorrowingFeePaid(address indexed _borrower, uint256 _USMFee);
 
     // --- Dependency setters ---
 
@@ -177,10 +177,10 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         address _collSurplusPoolAddress,
         address _sortedTrovesAddress,
         address _usmTokenAddress,
-        address _sYETIAddress,
+        address _sMOJOAddress,
         address _whitelistAddress
     ) external override onlyOwner {
-        // This makes impossible to open a trove with zero withdrawn YUSD
+        // This makes impossible to open a trove with zero withdrawn USM
         require(MIN_NET_DEBT != 0, "BO:MIN_NET_DEBT==0");
 
         deploymentTime = block.timestamp;
@@ -193,7 +193,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         checkContract(_collSurplusPoolAddress);
         checkContract(_sortedTrovesAddress);
         checkContract(_usmTokenAddress);
-        checkContract(_sYETIAddress);
+        checkContract(_sMOJOAddress);
         checkContract(_whitelistAddress);
 
         troveManager = ITroveManager(_troveManagerAddress);
@@ -204,8 +204,8 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         gasPoolAddress = _gasPoolAddress;
         collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
         sortedTroves = ISortedTroves(_sortedTrovesAddress);
-        yusdToken = IYUSDToken(_usmTokenAddress);
-        sYETIAddress = _sYETIAddress;
+        usmToken = IUSMToken(_usmTokenAddress);
+        sMOJOAddress = _sMOJOAddress;
 
         emit TroveManagerAddressChanged(_troveManagerAddress);
         emit ActivePoolAddressChanged(_activePoolAddress);
@@ -215,7 +215,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         emit CollSurplusPoolAddressChanged(_collSurplusPoolAddress);
         emit SortedTrovesAddressChanged(_sortedTrovesAddress);
         emit USMTokenAddressChanged(_usmTokenAddress);
-        emit SYETIAddressChanged(_sYETIAddress);
+        emit sMOJOAddressChanged(_sMOJOAddress);
 
         _renounceOwnership();
     }
@@ -224,7 +224,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
     function openTrove(
         uint256 _maxFeePercentage,
-        uint256 _YUSDAmount,
+        uint256 _USMAmount,
         address _upperHint,
         address _lowerHint,
         address[] calldata _colls,
@@ -240,7 +240,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         _openTroveInternal(
             msg.sender,
             _maxFeePercentage,
-            _YUSDAmount,
+            _USMAmount,
             0,
             _upperHint,
             _lowerHint,
@@ -250,7 +250,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     }
 
     // Lever up. Takes in a leverage amount (11x) and a token, and calculates the amount
-    // of that token that would be at the specific collateralization ratio. Mints YUSD
+    // of that token that would be at the specific collateralization ratio. Mints USM
     // according to the price of the token and the amount. Calls LeverUp.sol's
     // function to perform the swap through a router or our special staked tokens, depending
     // on the token. Then opens a trove with the new collateral from the swap, ensuring that
@@ -260,7 +260,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     // _leverage is like 11e18 for 11x. 
     function openTroveLeverUp(
         uint256 _maxFeePercentage,
-        uint256 _YUSDAmount,
+        uint256 _USMAmount,
         address _upperHint,
         address _lowerHint,
         address[] memory _colls,
@@ -276,11 +276,11 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         _requireLengthsEqual(collsLen, _maxSlippages.length);
         _requireNoDuplicateColls(_colls);
         uint additionalTokenAmount;
-        uint additionalYUSDDebt;
-        uint totalYUSDDebtFromLever;
+        uint additionalUSMDebt;
+        uint totalUSMDebtFromLever;
         for (uint256 i; i < collsLen; ++i) {
             if (_leverages[i] != 0) {
-                (additionalTokenAmount, additionalYUSDDebt) = _singleLeverUp(
+                (additionalTokenAmount, additionalUSMDebt) = _singleLeverUp(
                     _colls[i],
                     _amounts[i],
                     _leverages[i],
@@ -290,19 +290,19 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
                 _singleTransferCollateralIntoActivePool(msg.sender, _colls[i], _amounts[i]);
                 // additional token amount was set to the original amount * leverage. 
                 _amounts[i] = additionalTokenAmount.add(_amounts[i]);
-                totalYUSDDebtFromLever = totalYUSDDebtFromLever.add(additionalYUSDDebt);
+                totalUSMDebtFromLever = totalUSMDebtFromLever.add(additionalUSMDebt);
             } else {
                 // Otherwise skip and do normal transfer that amount into active pool. 
                 _singleTransferCollateralIntoActivePool(msg.sender, _colls[i], _amounts[i]);
             }
         }
-        _YUSDAmount = _YUSDAmount.add(totalYUSDDebtFromLever);
+        _USMAmount = _USMAmount.add(totalUSMDebtFromLever);
         
         _openTroveInternal(
             msg.sender,
             _maxFeePercentage,
-            _YUSDAmount,
-            totalYUSDDebtFromLever,
+            _USMAmount,
+            totalUSMDebtFromLever,
             _upperHint,
             _lowerHint,
             _colls,
@@ -317,13 +317,13 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         uint256 _leverage, 
         uint256 _maxSlippage) 
         internal
-        returns (uint256 _finalTokenAmount, uint256 _additionalYUSDDebt) {
+        returns (uint256 _finalTokenAmount, uint256 _additionalUSMDebt) {
         require(_leverage > 1e18, "WrongLeverage");
         require(_maxSlippage <= 1e18, "WrongSlippage");
         IYetiRouter router = IYetiRouter(whitelist.getDefaultRouterAddress(_token));
         // leverage is 5e18 for 5x leverage. Minus 1 for what the user already has in collateral value.
         uint _additionalTokenAmount = _amount.mul(_leverage.sub(1e18)).div(1e18); 
-        _additionalYUSDDebt = whitelist.getValueUSD(_token, _additionalTokenAmount);
+        _additionalUSMDebt = whitelist.getValueUSD(_token, _additionalTokenAmount);
 
         // 1/(1-1/ICR) = leverage. (1 - 1/ICR) = 1/leverage
         // 1 - 1/leverage = 1/ICR. ICR = 1/(1 - 1/leverage) = (1/((leverage-1)/leverage)) = leverage / (leverage - 1)
@@ -335,13 +335,13 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
         uint256 slippageAdjustedValue = _additionalTokenAmount.mul(DECIMAL_PRECISION.sub(_maxSlippage)).div(1e18);
         
-        yusdToken.mint(address(this), _additionalYUSDDebt);
-        yusdToken.approve(address(router), _additionalYUSDDebt);
+        usmToken.mint(address(this), _additionalUSMDebt);
+        usmToken.approve(address(router), _additionalUSMDebt);
         // route will swap the tokens and transfer it to the active pool automatically. Router will send to active pool and 
         // reward balance will be sent to the user if wrapped asset. 
         IERC20 erc20Token = IERC20(_token);
         uint256 balanceBefore = erc20Token.balanceOf(address(activePool));
-        _finalTokenAmount = router.route(address(this), address(yusdToken), _token, _additionalYUSDDebt, slippageAdjustedValue);
+        _finalTokenAmount = router.route(address(this), address(usmToken), _token, _additionalUSMDebt, slippageAdjustedValue);
         require(erc20Token.balanceOf(address(activePool)) == balanceBefore.add(_finalTokenAmount), "BO:RouteLeverUpNotSent");
     }
 
@@ -353,8 +353,8 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     function _openTroveInternal(
         address _troveOwner,
         uint256 _maxFeePercentage,
-        uint256 _YUSDAmount,
-        uint256 _totalYUSDDebtFromLever,
+        uint256 _USMAmount,
+        uint256 _totalUSMDebtFromLever,
         address _upperHint,
         address _lowerHint,
         address[] memory _colls,
@@ -364,39 +364,39 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
         vars.isRecoveryMode = _checkRecoveryMode();
 
-        ContractsCache memory contractsCache = ContractsCache(troveManager, activePool, yusdToken);
+        ContractsCache memory contractsCache = ContractsCache(troveManager, activePool, usmToken);
 
         _requireValidMaxFeePercentage(_maxFeePercentage, vars.isRecoveryMode);
         _requireTroveisNotActive(contractsCache.troveManager, _troveOwner);
 
-        vars.netDebt = _YUSDAmount;
+        vars.netDebt = _USMAmount;
 
         // For every collateral type in, calculate the VC and get the variable fee
         vars.VC = _getVC(_colls, _amounts);
 
         if (!vars.isRecoveryMode) {
             // when not in recovery mode, add in the 0.5% fee
-            vars.YUSDFee = _triggerBorrowingFee(
+            vars.USMFee = _triggerBorrowingFee(
                 contractsCache.troveManager,
-                contractsCache.yusdToken,
-                _YUSDAmount,
-                vars.VC, // here it is just VC in, which is always larger than YUSD amount
+                contractsCache.usmToken,
+                _USMAmount,
+                vars.VC, // here it is just VC in, which is always larger than USM amount
                 _maxFeePercentage
             );
-            _maxFeePercentage = _maxFeePercentage.sub(vars.YUSDFee.mul(DECIMAL_PRECISION).div(vars.VC));
+            _maxFeePercentage = _maxFeePercentage.sub(vars.USMFee.mul(DECIMAL_PRECISION).div(vars.VC));
         }
 
         // Add in variable fee. Always present, even in recovery mode.
-        vars.YUSDFee = vars.YUSDFee.add(
+        vars.USMFee = vars.USMFee.add(
             _getTotalVariableDepositFee(_colls, _amounts, vars.VC, 0, vars.VC, _maxFeePercentage, contractsCache)
         );
 
         // Adds total fees to netDebt
-        vars.netDebt = vars.netDebt.add(vars.YUSDFee); // The raw debt change includes the fee
+        vars.netDebt = vars.netDebt.add(vars.USMFee); // The raw debt change includes the fee
 
         _requireAtLeastMinNetDebt(vars.netDebt);
-        // ICR is based on the composite debt, i.e. the requested YUSD amount + YUSD borrowing fee + YUSD gas comp.
-        // _getCompositeDebt returns  vars.netDebt + YUSD gas comp.
+        // ICR is based on the composite debt, i.e. the requested USM amount + USM borrowing fee + USM gas comp.
+        // _getCompositeDebt returns  vars.netDebt + USM gas comp.
         vars.compositeDebt = _getCompositeDebt(vars.netDebt);
 
         vars.ICR = LiquityMath._computeCR(vars.VC, vars.compositeDebt);
@@ -424,21 +424,21 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
         contractsCache.activePool.receiveCollateral(_colls, _amounts);
 
-        _withdrawYUSD(
+        _withdrawUSM(
             contractsCache.activePool,
-            contractsCache.yusdToken,
+            contractsCache.usmToken,
             _troveOwner,
-            _YUSDAmount.sub(_totalYUSDDebtFromLever),
+            _USMAmount.sub(_totalUSMDebtFromLever),
             vars.netDebt
         );
 
-        // Move the YUSD gas compensation to the Gas Pool
-        _withdrawYUSD(
+        // Move the USM gas compensation to the Gas Pool
+        _withdrawUSM(
             contractsCache.activePool,
-            contractsCache.yusdToken,
+            contractsCache.usmToken,
             gasPoolAddress,
-            YUSD_GAS_COMPENSATION,
-            YUSD_GAS_COMPENSATION
+            USM_GAS_COMPENSATION,
+            USM_GAS_COMPENSATION
         );
 
         emit TroveUpdated(
@@ -448,7 +448,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
             _amounts,
             BorrowerOperation.openTrove
         );
-        emit USMBorrowingFeePaid(_troveOwner, vars.YUSDFee);
+        emit USMBorrowingFeePaid(_troveOwner, vars.USMFee);
     }
 
 
@@ -483,7 +483,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         uint256[] memory _amountsIn,
         uint256[] memory _leverages,
         uint256[] memory _maxSlippages,
-        uint256 _YUSDAmount,
+        uint256 _USMAmount,
         address _upperHint,
         address _lowerHint, 
         uint256 _maxFeePercentage
@@ -502,11 +502,11 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         _requireNoDuplicateColls(params._collsIn); // Check that there is no overlap with in or out in itself
 
         uint additionalTokenAmount;
-        uint additionalYUSDDebt;
-        uint totalYUSDDebtFromLever;
+        uint additionalUSMDebt;
+        uint totalUSMDebtFromLever;
         for (uint256 i; i < collsLen; ++i) {
             if (_leverages[i] != 0) {
-                (additionalTokenAmount, additionalYUSDDebt) = _singleLeverUp(
+                (additionalTokenAmount, additionalUSMDebt) = _singleLeverUp(
                     _collsIn[i],
                     _amountsIn[i],
                     _leverages[i],
@@ -516,16 +516,16 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
                 _singleTransferCollateralIntoActivePool(msg.sender, _collsIn[i], _amountsIn[i]);
                 // additional token amount was set to the original amount * leverage. 
                 _amountsIn[i] = additionalTokenAmount.add(_amountsIn[i]);
-                totalYUSDDebtFromLever = totalYUSDDebtFromLever.add(additionalYUSDDebt);
+                totalUSMDebtFromLever = totalUSMDebtFromLever.add(additionalUSMDebt);
             } else {
                 // Otherwise skip and do normal transfer that amount into active pool. 
                 _singleTransferCollateralIntoActivePool(msg.sender, _collsIn[i], _amountsIn[i]);
             }
         }
-        _YUSDAmount = _YUSDAmount.add(totalYUSDDebtFromLever);
-        params._totalYUSDDebtFromLever = totalYUSDDebtFromLever;
+        _USMAmount = _USMAmount.add(totalUSMDebtFromLever);
+        params._totalUSMDebtFromLever = totalUSMDebtFromLever;
 
-        params._YUSDChange = _YUSDAmount;
+        params._USMChange = _USMAmount;
         params._isDebtIncrease = true;
 
         params._collsIn = _collsIn;
@@ -553,16 +553,16 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         _adjustTrove(params);
     }
 
-    // Withdraw YUSD tokens from a trove: mint new YUSD tokens to the owner, and increase the trove's debt accordingly. 
+    // Withdraw USM tokens from a trove: mint new USM tokens to the owner, and increase the trove's debt accordingly. 
     // Calls _adjustTrove with correct params. 
-    function withdrawYUSD(
+    function withdrawUSM(
         uint256 _maxFeePercentage,
-        uint256 _YUSDAmount,
+        uint256 _USMAmount,
         address _upperHint,
         address _lowerHint
     ) external override nonReentrant {
         AdjustTrove_Params memory params;
-        params._YUSDChange = _YUSDAmount;
+        params._USMChange = _USMAmount;
         params._maxFeePercentage = _maxFeePercentage;
         params._upperHint = _upperHint;
         params._lowerHint = _lowerHint;
@@ -570,15 +570,15 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         _adjustTrove(params);
     }
 
-    // Repay YUSD tokens to a Trove: Burn the repaid YUSD tokens, and reduce the trove's debt accordingly. 
+    // Repay USM tokens to a Trove: Burn the repaid USM tokens, and reduce the trove's debt accordingly. 
     // Calls _adjustTrove with correct params. 
-    function repayYUSD(
-        uint256 _YUSDAmount,
+    function repayUSM(
+        uint256 _USMAmount,
         address _upperHint,
         address _lowerHint
     ) external override nonReentrant {
         AdjustTrove_Params memory params;
-        params._YUSDChange = _YUSDAmount;
+        params._USMChange = _USMAmount;
         params._upperHint = _upperHint;
         params._lowerHint = _lowerHint;
         params._isDebtIncrease = false;
@@ -591,7 +591,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         uint256[] memory _amountsIn,
         address[] calldata _collsOut,
         uint256[] calldata _amountsOut,
-        uint256 _YUSDChange,
+        uint256 _USMChange,
         bool _isDebtIncrease,
         address _upperHint,
         address _lowerHint,
@@ -614,7 +614,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
             _collsOut,
             _amountsOut,
             maxSlippages,
-            _YUSDChange,
+            _USMChange,
             0,
             _isDebtIncrease,
             false,
@@ -633,44 +633,44 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
      * Should be called after the collsIn has been sent to ActivePool
      */
     function _adjustTrove(AdjustTrove_Params memory params) internal {
-        ContractsCache memory contractsCache = ContractsCache(troveManager, activePool, yusdToken);
+        ContractsCache memory contractsCache = ContractsCache(troveManager, activePool, usmToken);
         LocalVariables_adjustTrove memory vars;
 
         bool isRecoveryMode = _checkRecoveryMode();
 
         if (params._isDebtIncrease) {
             _requireValidMaxFeePercentage(params._maxFeePercentage, isRecoveryMode);
-            _requireNonZeroDebtChange(params._YUSDChange);
+            _requireNonZeroDebtChange(params._USMChange);
         }
 
         // Checks that at least one array is non-empty, and also that at least one value is 1. 
-        _requireNonZeroAdjustment(params._amountsIn, params._amountsOut, params._YUSDChange);
+        _requireNonZeroAdjustment(params._amountsIn, params._amountsOut, params._USMChange);
         _requireTroveisActive(contractsCache.troveManager, msg.sender);
 
         contractsCache.troveManager.applyPendingRewards(msg.sender);
-        vars.netDebtChange = params._YUSDChange;
+        vars.netDebtChange = params._USMChange;
 
         vars.VCin = _getVC(params._collsIn, params._amountsIn);
         vars.VCout = _getVC(params._collsOut, params._amountsOut);
 
         if (params._isDebtIncrease) {
-            vars.maxFeePercentageFactor = LiquityMath._max(vars.VCin, params._YUSDChange);
+            vars.maxFeePercentageFactor = LiquityMath._max(vars.VCin, params._USMChange);
         } else {
             vars.maxFeePercentageFactor = vars.VCin;
         }
         
         // If the adjustment incorporates a debt increase and system is in Normal Mode, then trigger a borrowing fee
         if (params._isDebtIncrease && !isRecoveryMode) {
-            vars.YUSDFee = _triggerBorrowingFee(
+            vars.USMFee = _triggerBorrowingFee(
                 contractsCache.troveManager,
-                contractsCache.yusdToken,
-                params._YUSDChange,
-                vars.maxFeePercentageFactor, // max of VC in and YUSD change here to see what the max borrowing fee is triggered on.
+                contractsCache.usmToken,
+                params._USMChange,
+                vars.maxFeePercentageFactor, // max of VC in and USM change here to see what the max borrowing fee is triggered on.
                 params._maxFeePercentage
             );
             // passed in max fee minus actual fee percent applied so far
-            params._maxFeePercentage = params._maxFeePercentage.sub(vars.YUSDFee.mul(DECIMAL_PRECISION).div(vars.maxFeePercentageFactor)); 
-            vars.netDebtChange = vars.netDebtChange.add(vars.YUSDFee); // The raw debt change includes the fee
+            params._maxFeePercentage = params._maxFeePercentage.sub(vars.USMFee.mul(DECIMAL_PRECISION).div(vars.maxFeePercentageFactor)); 
+            vars.netDebtChange = vars.netDebtChange.add(vars.USMFee); // The raw debt change includes the fee
         }
 
         // get current portfolio in trove
@@ -701,7 +701,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         vars.debt = contractsCache.troveManager.getTroveDebt(msg.sender);
 
         if (params._collsIn.length != 0) {
-            vars.variableYUSDFee = _getTotalVariableDepositFee(
+            vars.variableUSMFee = _getTotalVariableDepositFee(
                     params._collsIn,
                     params._amountsIn,
                     vars.VCin,
@@ -715,10 +715,10 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         // Get the trove's old ICR before the adjustment, and what its new ICR will be after the adjustment
         vars.oldICR = LiquityMath._computeCR(vars.currVC, vars.debt);
 
-        vars.debt = vars.debt.add(vars.variableYUSDFee); 
+        vars.debt = vars.debt.add(vars.variableUSMFee); 
 
         vars.newICR = _getNewICRFromTroveChange(vars.newVC,
-            vars.debt, // with variableYUSDFee already added. 
+            vars.debt, // with variableUSMFee already added. 
             vars.netDebtChange,
             params._isDebtIncrease 
         );
@@ -731,11 +731,11 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
             vars
         );
 
-        // When the adjustment is a debt repayment, check it's a valid amount and that the caller has enough YUSD
-        if (!params._isUnlever && !params._isDebtIncrease && params._YUSDChange != 0) {
+        // When the adjustment is a debt repayment, check it's a valid amount and that the caller has enough USM
+        if (!params._isUnlever && !params._isDebtIncrease && params._USMChange != 0) {
             _requireAtLeastMinNetDebt(_getNetDebt(vars.debt).sub(vars.netDebtChange));
-            _requireValidYUSDRepayment(vars.debt, vars.netDebtChange);
-            _requireSufficientYUSDBalance(contractsCache.yusdToken, msg.sender, vars.netDebtChange);
+            _requireValidUSMRepayment(vars.debt, vars.netDebtChange);
+            _requireSufficientUSMBalance(contractsCache.usmToken, msg.sender, vars.netDebtChange);
         }
 
         if (params._collsIn.length != 0) {
@@ -750,7 +750,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
             vars.newVC,
             vars.netDebtChange,
             params._isDebtIncrease, 
-            vars.variableYUSDFee
+            vars.variableUSMFee
         );
 
         contractsCache.troveManager.updateStakeAndTotalStakes(msg.sender);
@@ -765,37 +765,37 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
             vars.newAmounts,
             BorrowerOperation.adjustTrove
         );
-        emit USMBorrowingFeePaid(msg.sender, vars.YUSDFee);
+        emit USMBorrowingFeePaid(msg.sender, vars.USMFee);
 
         // in case of unlever up
         if (params._isUnlever) {
             // 1. Withdraw the collateral from active pool and perform swap using single unlever up and corresponding router. 
             _unleverColls(contractsCache.activePool, params._collsOut, params._amountsOut, params._maxSlippages);
 
-            // 2. update the trove with the new collateral and debt, repaying the total amount of YUSD specified. 
-            // if not enough coll sold for YUSD, must cover from user balance
-            _requireAtLeastMinNetDebt(_getNetDebt(vars.debt).sub(params._YUSDChange));
-            _requireValidYUSDRepayment(vars.debt, params._YUSDChange);
-            _requireSufficientYUSDBalance(contractsCache.yusdToken, msg.sender, params._YUSDChange);
-            _repayYUSD(contractsCache.activePool, contractsCache.yusdToken, msg.sender, params._YUSDChange);
+            // 2. update the trove with the new collateral and debt, repaying the total amount of USM specified. 
+            // if not enough coll sold for USM, must cover from user balance
+            _requireAtLeastMinNetDebt(_getNetDebt(vars.debt).sub(params._USMChange));
+            _requireValidUSMRepayment(vars.debt, params._USMChange);
+            _requireSufficientUSMBalance(contractsCache.usmToken, msg.sender, params._USMChange);
+            _repayUSM(contractsCache.activePool, contractsCache.usmToken, msg.sender, params._USMChange);
         } else {
-            // Use the unmodified _YUSDChange here, as we don't send the fee to the user
-            _moveYUSD(
+            // Use the unmodified _USMChange here, as we don't send the fee to the user
+            _moveUSM(
                 contractsCache.activePool,
-                contractsCache.yusdToken,
+                contractsCache.usmToken,
                 msg.sender,
-                params._YUSDChange.sub(params._totalYUSDDebtFromLever), // 0 in non lever case
+                params._USMChange.sub(params._totalUSMDebtFromLever), // 0 in non lever case
                 params._isDebtIncrease,
                 vars.netDebtChange
             );
 
             // Additionally move the variable deposit fee to the active pool manually, as it is always an increase in debt
-            _withdrawYUSD(
+            _withdrawUSM(
                 contractsCache.activePool,
-                contractsCache.yusdToken,
+                contractsCache.usmToken,
                 msg.sender,
                 0,
-                vars.variableYUSDFee
+                vars.variableUSMFee
             );
 
             // transfer withdrawn collateral to msg.sender from ActivePool
@@ -809,21 +809,21 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         uint256 _amount, 
         uint256 _maxSlippage) 
         internal
-        returns (uint256 _finalYUSDAmount) {
+        returns (uint256 _finalUSMAmount) {
         require(_maxSlippage <= 1e18, "WrongSlippage");
         // if wrapped token, then does i t automatically transfer to active pool?
         // It should actually transfer to the owner, who will have bOps pre approved
         // cause of original approve
         IYetiRouter router = IYetiRouter(whitelist.getDefaultRouterAddress(_token));
-        // then calculate value amount of expected YUSD output based on amount of token to sell
+        // then calculate value amount of expected USM output based on amount of token to sell
 
         uint valueOfCollateral = whitelist.getValueUSD(_token, _amount);
         uint256 slippageAdjustedValue = valueOfCollateral.mul(DECIMAL_PRECISION.sub(_maxSlippage)).div(1e18);
-        IERC20 yusdTokenCached = yusdToken;
+        IERC20 usmTokenCached = usmToken;
         require(IERC20(_token).approve(address(router), valueOfCollateral));
-        uint256 balanceBefore = yusdToken.balanceOf(address(this));
-        _finalYUSDAmount = router.unRoute(address(this), _token, address(yusdTokenCached), _amount, slippageAdjustedValue);
-        require(yusdTokenCached.balanceOf(address(this)) == balanceBefore.add(_finalYUSDAmount), "BO:YUSDNotSentUnLever");
+        uint256 balanceBefore = usmToken.balanceOf(address(this));
+        _finalUSMAmount = router.unRoute(address(this), _token, address(usmTokenCached), _amount, slippageAdjustedValue);
+        require(usmTokenCached.balanceOf(address(this)) == balanceBefore.add(_finalUSMAmount), "BO:USMNotSentUnLever");
     }
 
     // Takes the colls and amounts, transfer non levered from the active pool to the user, and unlevered to this contract 
@@ -849,7 +849,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     // Withdraw collateral from a trove. Calls _adjustTrove with correct params.
     // Specifies amount of collateral to withdraw and how much debt to repay, 
     // Can withdraw coll and *only* pay back debt using this function. Will take 
-    // the collateral given and send YUSD back to user. Then they will pay back debt
+    // the collateral given and send USM back to user. Then they will pay back debt
     // first transfers amount of collateral from active pool then sells. 
     // calls _singleUnleverUp() to perform the swaps using the wrappers. 
     // should have no fees. 
@@ -857,7 +857,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         address[] calldata _collsOut,
         uint256[] calldata _amountsOut,
         uint256[] calldata _maxSlippages,
-        uint256 _YUSDAmount,
+        uint256 _USMAmount,
         address _upperHint,
         address _lowerHint
         ) external override nonReentrant {
@@ -870,7 +870,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         params._collsOut = _collsOut;
         params._amountsOut = _amountsOut;
         params._maxSlippages = _maxSlippages;
-        params._YUSDChange = _YUSDAmount;
+        params._USMChange = _USMAmount;
         params._upperHint = _upperHint;
         params._lowerHint = _lowerHint;
         params._isUnlever = true;
@@ -899,14 +899,14 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     }
 
     /** 
-     * Closes trove by applying pending rewards, making sure that the YUSD Balance is sufficient, and transferring the 
+     * Closes trove by applying pending rewards, making sure that the USM Balance is sufficient, and transferring the 
      * collateral to the owner, and repaying the debt.
      * if it is a unlever, then it will transfer the collaterals / sell before. Otherwise it will just do it last. 
      */
     function _closeTrove(
         CloseTrove_Params memory params
         ) internal {
-        ContractsCache memory contractsCache = ContractsCache(troveManager, activePool, yusdToken);
+        ContractsCache memory contractsCache = ContractsCache(troveManager, activePool, usmToken);
 
         _requireTroveisActive(contractsCache.troveManager, msg.sender);
         _requireNotInRecoveryMode();
@@ -920,16 +920,16 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         uint256 debt = contractsCache.troveManager.getTroveDebt(msg.sender);
 
         // if unlever, will do extra.
-        uint finalYUSDAmount;
-        uint YUSDAmount;
+        uint finalUSMAmount;
+        uint USMAmount;
         if (params._isUnlever) {
             // Withdraw the collateral from active pool and perform swap using single unlever up and corresponding router. 
             _unleverColls(contractsCache.activePool, colls, amounts, params._maxSlippages);
-            // tracks the amount of YUSD that is received from swaps. Will send the _YUSDAmount back to repay debt while keeping remainder.
+            // tracks the amount of USM that is received from swaps. Will send the _USMAmount back to repay debt while keeping remainder.
         }
 
         // do check after unlever (if applies)
-        _requireSufficientYUSDBalance(contractsCache.yusdToken, msg.sender, debt.sub(YUSD_GAS_COMPENSATION));
+        _requireSufficientUSMBalance(contractsCache.usmToken, msg.sender, debt.sub(USM_GAS_COMPENSATION));
         uint256 newTCR = _getNewTCRFromTroveChange(troveVC, false, debt, false);
         _requireNewTCRisAboveCCR(newTCR);
 
@@ -941,9 +941,9 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
         emit TroveUpdated(msg.sender, 0, finalColls, finalAmounts, BorrowerOperation.closeTrove);
 
-        // Burn the repaid YUSD from the user's balance and the gas compensation from the Gas Pool
-        _repayYUSD(contractsCache.activePool, contractsCache.yusdToken, msg.sender, debt.sub(YUSD_GAS_COMPENSATION));
-        _repayYUSD(contractsCache.activePool, contractsCache.yusdToken, gasPoolAddress, YUSD_GAS_COMPENSATION);
+        // Burn the repaid USM from the user's balance and the gas compensation from the Gas Pool
+        _repayUSM(contractsCache.activePool, contractsCache.usmToken, msg.sender, debt.sub(USM_GAS_COMPENSATION));
+        _repayUSM(contractsCache.activePool, contractsCache.usmToken, gasPoolAddress, USM_GAS_COMPENSATION);
 
         // Send the collateral back to the user
         // Also sends the rewards
@@ -975,7 +975,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         uint256 _maxFeePercentageFactor, 
         uint256 _maxFeePercentage,
         ContractsCache memory _contractsCache
-    ) internal returns (uint256 YUSDFee) {
+    ) internal returns (uint256 USMFee) {
         if (_VCin == 0) {
             return 0;
         }
@@ -1010,13 +1010,13 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
             if (_isBeforeFeeBootstrapPeriod()) {
                 whitelistFee = LiquityMath._min(whitelistFee, 1e16); // cap at 1%
             } 
-            vars.collateralYUSDFee = vars.collateralInputVC
+            vars.collateralUSMFee = vars.collateralInputVC
                 .mul(whitelistFee).div(1e18);
 
-            YUSDFee = YUSDFee.add(vars.collateralYUSDFee);
+            USMFee = USMFee.add(vars.collateralUSMFee);
         }
-        _requireUserAcceptsFee(YUSDFee, _maxFeePercentageFactor, _maxFeePercentage);
-        _triggerDepositFee(_contractsCache.yusdToken, YUSDFee);
+        _requireUserAcceptsFee(USMFee, _maxFeePercentageFactor, _maxFeePercentage);
+        _triggerDepositFee(_contractsCache.usmToken, USMFee);
     }
 
     // Transfer in collateral and send to ActivePool
@@ -1054,28 +1054,28 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     }
 
     /**
-     * Triggers normal borrowing fee, calculated from base rate and on YUSD amount.
+     * Triggers normal borrowing fee, calculated from base rate and on USM amount.
      */
     function _triggerBorrowingFee(
         ITroveManager _troveManager,
-        IYUSDToken _yusdToken,
-        uint256 _YUSDAmount,
+        IUSMToken _usmToken,
+        uint256 _USMAmount,
         uint256 _maxFeePercentageFactor,
         uint256 _maxFeePercentage
     ) internal returns (uint256) {
         _troveManager.decayBaseRateFromBorrowing(); // decay the baseRate state variable
-        uint256 YUSDFee = _troveManager.getBorrowingFee(_YUSDAmount);
+        uint256 USMFee = _troveManager.getBorrowingFee(_USMAmount);
 
-        _requireUserAcceptsFee(YUSDFee, _maxFeePercentageFactor, _maxFeePercentage);
+        _requireUserAcceptsFee(USMFee, _maxFeePercentageFactor, _maxFeePercentage);
 
-        // Send fee to sYETI contract
-        _yusdToken.mint(sYETIAddress, YUSDFee);
-        return YUSDFee;
+        // Send fee to sMOJO contract
+        _usmToken.mint(sMOJOAddress, USMFee);
+        return USMFee;
     }
 
-    function _triggerDepositFee(IYUSDToken _yusdToken, uint256 _YUSDFee) internal {
-        // Send fee to sYETI contract
-        _yusdToken.mint(sYETIAddress, _YUSDFee);
+    function _triggerDepositFee(IUSMToken _usmToken, uint256 _USMFee) internal {
+        // Send fee to sMOJO contract
+        _usmToken.mint(sMOJOAddress, _USMFee);
     }
 
     // Update trove's coll and debt based on whether they increase or decrease
@@ -1087,17 +1087,17 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         uint256 _newVC,
         uint256 _debtChange,
         bool _isDebtIncrease, 
-        uint256 _variableYUSDFee
+        uint256 _variableUSMFee
     ) internal returns (uint256, uint256) {
         uint256 newDebt;
         _troveManager.updateTroveColl(_borrower, _finalColls, _finalAmounts);
         if (_isDebtIncrease) { // if debt increase, increase by both amounts
-           newDebt = _troveManager.increaseTroveDebt(_borrower, _debtChange.add(_variableYUSDFee));
+           newDebt = _troveManager.increaseTroveDebt(_borrower, _debtChange.add(_variableUSMFee));
         } else {
-            if (_debtChange > _variableYUSDFee) { // if debt decrease, and greater than variable fee, decrease 
-                newDebt = _troveManager.decreaseTroveDebt(_borrower, _debtChange - _variableYUSDFee); // already checked no safemath needed
+            if (_debtChange > _variableUSMFee) { // if debt decrease, and greater than variable fee, decrease 
+                newDebt = _troveManager.decreaseTroveDebt(_borrower, _debtChange - _variableUSMFee); // already checked no safemath needed
             } else { // otherwise increase by opposite subtraction
-                newDebt = _troveManager.increaseTroveDebt(_borrower, _variableYUSDFee - _debtChange); // already checked no safemath needed
+                newDebt = _troveManager.increaseTroveDebt(_borrower, _variableUSMFee - _debtChange); // already checked no safemath needed
             }
         }
 
@@ -1130,43 +1130,43 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         return (newPortfolio.tokens, newPortfolio.amounts);
     }
 
-    // Moves the YUSD around based on whether it is an increase or decrease in debt.
-    function _moveYUSD(
+    // Moves the USM around based on whether it is an increase or decrease in debt.
+    function _moveUSM(
         IActivePool _activePool,
-        IYUSDToken _yusdToken,
+        IUSMToken _usmToken,
         address _borrower,
-        uint256 _YUSDChange,
+        uint256 _USMChange,
         bool _isDebtIncrease,
         uint256 _netDebtChange
     ) internal {
         if (_isDebtIncrease) {
-            _withdrawYUSD(_activePool, _yusdToken, _borrower, _YUSDChange, _netDebtChange);
+            _withdrawUSM(_activePool, _usmToken, _borrower, _USMChange, _netDebtChange);
         } else {
-            _repayYUSD(_activePool, _yusdToken, _borrower, _YUSDChange);
+            _repayUSM(_activePool, _usmToken, _borrower, _USMChange);
         }
     }
 
-    // Issue the specified amount of YUSD to _account and increases the total active debt (_netDebtIncrease potentially includes a YUSDFee)
-    function _withdrawYUSD(
+    // Issue the specified amount of USM to _account and increases the total active debt (_netDebtIncrease potentially includes a USMFee)
+    function _withdrawUSM(
         IActivePool _activePool,
-        IYUSDToken _yusdToken,
+        IUSMToken _usmToken,
         address _account,
-        uint256 _YUSDAmount,
+        uint256 _USMAmount,
         uint256 _netDebtIncrease
     ) internal {
-        _activePool.increaseYUSDDebt(_netDebtIncrease);
-        _yusdToken.mint(_account, _YUSDAmount);
+        _activePool.increaseUSMDebt(_netDebtIncrease);
+        _usmToken.mint(_account, _USMAmount);
     }
 
-    // Burn the specified amount of YUSD from _account and decreases the total active debt
-    function _repayYUSD(
+    // Burn the specified amount of USM from _account and decreases the total active debt
+    function _repayUSM(
         IActivePool _activePool,
-        IYUSDToken _yusdToken,
+        IUSMToken _usmToken,
         address _account,
-        uint256 _YUSD
+        uint256 _USM
     ) internal {
-        _activePool.decreaseYUSDDebt(_YUSD);
-        _yusdToken.burn(_account, _YUSD);
+        _activePool.decreaseUSMDebt(_USM);
+        _usmToken.burn(_account, _USM);
     }
 
     // --- 'Require' wrapper functions ---
@@ -1183,10 +1183,10 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     function _requireNonZeroAdjustment(
         uint256[] memory _amountsIn,
         uint256[] memory _amountsOut,
-        uint256 _YUSDChange
+        uint256 _USMChange
     ) internal pure {
         require(
-            _arrayIsNonzero(_amountsIn) || _arrayIsNonzero(_amountsOut) || _YUSDChange != 0,
+            _arrayIsNonzero(_amountsIn) || _arrayIsNonzero(_amountsOut) || _USMChange != 0,
             "BO:0Adjust"
         );
     }
@@ -1213,8 +1213,8 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         require(!_troveManager.isTroveActive(_borrower), "BO:TroveActive");
     }
 
-    function _requireNonZeroDebtChange(uint256 _YUSDChange) internal pure {
-        require(_YUSDChange != 0, "BO:NoDebtChange");
+    function _requireNonZeroDebtChange(uint256 _USMChange) internal pure {
+        require(_USMChange != 0, "BO:NoDebtChange");
     }
 
     function _requireNoOverlapColls(address[] calldata _colls1, address[] calldata _colls2)
@@ -1330,21 +1330,21 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         );
     }
 
-    function _requireValidYUSDRepayment(uint256 _currentDebt, uint256 _debtRepayment) internal pure {
+    function _requireValidUSMRepayment(uint256 _currentDebt, uint256 _debtRepayment) internal pure {
         require(
-            _debtRepayment <= _currentDebt.sub(YUSD_GAS_COMPENSATION),
-            "BO:InvalidYUSDRepay"
+            _debtRepayment <= _currentDebt.sub(USM_GAS_COMPENSATION),
+            "BO:InvalidUSMRepay"
         );
     }
 
-    function _requireSufficientYUSDBalance(
-        IYUSDToken _yusdToken,
+    function _requireSufficientUSMBalance(
+        IUSMToken _usmToken,
         address _borrower,
         uint256 _debtRepayment
     ) internal view {
         require(
-            _yusdToken.balanceOf(_borrower) >= _debtRepayment,
-            "BO:InsuffYUSDBal"
+            _usmToken.balanceOf(_borrower) >= _debtRepayment,
+            "BO:InsuffUSMBal"
         );
     }
 

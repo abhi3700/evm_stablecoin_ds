@@ -7,6 +7,9 @@ import "../interfaces/IActivePool.sol";
 import "../interfaces/IDefaultPool.sol";
 import "../interfaces/ICollSurplusPool.sol";
 import "../interfaces/ITroveManager.sol";
+import "../interfaces/ISMOJO.sol";
+import "../interfaces/IUSMToken.sol";
+
 
 library LibMojoDiamond {
     /**
@@ -71,7 +74,7 @@ library LibMojoDiamond {
     }
 
     struct DepositFeeCalc {
-        uint256 collateralYUSDFee;
+        uint256 collateralUSMFee;
         uint256 systemCollateralVC;
         uint256 collateralInputVC;
         uint256 systemTotalVC;
@@ -84,8 +87,8 @@ library LibMojoDiamond {
         address[] _collsOut;
         uint256[] _amountsOut;
         uint256[] _maxSlippages;
-        uint256 _YUSDChange;
-        uint256 _totalYUSDDebtFromLever;
+        uint256 _USMChange;
+        uint256 _totalUSMDebtFromLever;
         bool _isDebtIncrease;
         bool _isUnlever;
         address _upperHint;
@@ -107,8 +110,8 @@ library LibMojoDiamond {
         uint256 oldICR;
         uint256 newICR;
         uint256 newTCR;
-        uint256 YUSDFee;
-        uint256 variableYUSDFee;
+        uint256 USMFee;
+        uint256 variableUSMFee;
         uint256 newDebt;
         uint256 VCin;
         uint256 VCout;
@@ -118,7 +121,7 @@ library LibMojoDiamond {
     struct LocalVariables_openTrove {
         address[] collaterals;
         uint256[] prices;
-        uint256 YUSDFee;
+        uint256 USMFee;
         uint256 netDebt;
         uint256 compositeDebt;
         uint256 ICR;
@@ -139,7 +142,7 @@ library LibMojoDiamond {
     struct ContractsCache {
         ITroveManager troveManager;
         IActivePool activePool;
-        IYUSDToken yusdToken;
+        IYUSDToken usmToken;
     }
 
     enum BorrowerOperation {
@@ -175,6 +178,7 @@ library LibMojoDiamond {
         address collSurplusPoolAddress;
         address mojoFinanceTreasury;
         address whitelistAddress;
+        address sMOJOAddress;
         IWhitelist whitelist;
         IActivePool activePool;
         IDefaultPool defaultPool;
@@ -185,6 +189,7 @@ library LibMojoDiamond {
         // status of addresses set
         bool addressesSet;
         IUSMToken usmToken;
+        ISMOJO sMOJO;
         // deposited collateral tracker of each pool. Colls is always the whitelist list of all collateral tokens. Amounts
         newColls apoolColl;
         newColls dpoolColl;
