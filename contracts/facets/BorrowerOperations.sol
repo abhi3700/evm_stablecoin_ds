@@ -1119,14 +1119,14 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         _requireValidDepositCollateral(_tokensOut, _amountsOut);
 
         // Initial Colls + Input Colls
-        newColls memory cumulativeIn = _sumColls(
+        newColls memory cumulativeIn = MojoCustomBase._sumColls(
             _initialTokens,
             _initialAmounts,
             _tokensIn,
             _amountsIn
         );
 
-        newColls memory newPortfolio = _subColls(cumulativeIn, _tokensOut, _amountsOut);
+        newColls memory newPortfolio = MojoCustomBase._subColls(cumulativeIn, _tokensOut, _amountsOut);
         return (newPortfolio.tokens, newPortfolio.amounts);
     }
 

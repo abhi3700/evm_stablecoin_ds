@@ -211,6 +211,31 @@ library LibMojoDiamond {
     }
 
     uint internal constant BOOTSTRAP_PERIOD = 14 days;
+    
+    uint internal constant DECIMAL_PRECISION = 1e18;
+    uint internal constant HALF_DECIMAL_PRECISION = 5e17;
+
+    uint constant public _100pct = 1e18; // 1e18 == 100%
+
+    uint constant public _110pct = 11e17; // 1.1e18 == 110%
+
+    // Minimum collateral ratio for individual troves
+    uint constant public MCR = 11e17; // 110%
+
+    // Critical system collateral ratio. If the system's total collateral ratio (TCR) falls below the CCR, Recovery Mode is triggered.
+    uint constant public CCR = 15e17; // 150%
+
+    // Amount of MOJO to be locked in gas pool on opening troves
+    uint constant public MOJO_GAS_COMPENSATION = 200e18;
+
+    // Minimum amount of net MOJO debt a must have
+    uint constant public MIN_NET_DEBT = 1800e18;
+    // uint constant public MIN_NET_DEBT = 0; 
+
+    uint constant public PERCENT_DIVISOR = 200; // dividing by 200 yields 0.5%
+
+    uint constant public BORROWING_FEE_FLOOR = DECIMAL_PRECISION / 1000 * 5; // 0.5%
+    uint constant public REDEMPTION_FEE_FLOOR = DECIMAL_PRECISION / 1000 * 5; // 0.5%
 
     function diamondStorage()
         internal

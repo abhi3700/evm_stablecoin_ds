@@ -18,7 +18,6 @@ columnSorting:
 
 ## Todo
 
-- [liquity-base-sol](tasks/liquity-base-sol.md)
 - [trove-manager-sol](tasks/trove-manager-sol.md)
 
 ## In Progress
@@ -32,6 +31,7 @@ columnSorting:
 ## Testing
 
 - [active-pool](tasks/active-pool.md)
+- [liquity-base-sol](tasks/liquity-base-sol.md)
 - [default-pool](tasks/default-pool.md)
 - [whitelist](tasks/whitelist.md)
 

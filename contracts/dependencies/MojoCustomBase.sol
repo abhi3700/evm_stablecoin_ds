@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.6;
 
-import "./BaseMath.sol";
+// import "../libs/math/BaseMath.sol";
 // import "./SafeMath.sol";         // Not needed for compiler version >= 0.8.0
 import "../interfaces/IERC20.sol";
 
@@ -12,7 +12,8 @@ import "../libs/LibMojoDiamond.sol";
 // then create "LibMojoDiamond2.sol" & shift the `newColls` struct & 
 // `whitelist` state var to there with a new diamond storage position
 
-contract MojoCustomBase is BaseMath {
+// NOTE: contract changed to library
+library MojoCustomBase {
     // using SafeMath for uint256;          // TODO: clear
 
     // Collateral math

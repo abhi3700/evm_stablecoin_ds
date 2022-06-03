@@ -22,7 +22,7 @@ import "../libs/LibMojoDiamond.sol";
  * When a trove makes an operation that applies its pending collateral and USM debt, its pending collateral and USM debt is moved
  * from the Default Pool to the Active Pool.
  */
-contract DefaultPool is Ownable, CheckContract, IDefaultPool, MojoCustomBase {
+contract DefaultPool is Ownable, CheckContract, IDefaultPool/* , MojoCustomBase */ {
     // using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -252,7 +252,7 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool, MojoCustomBase {
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
-        ds.dpoolColl.amounts = _leftSumColls(ds.dpoolColl, _tokens, _amounts);
+        ds.dpoolColl.amounts = MojoCustomBase._leftSumColls(ds.dpoolColl, _tokens, _amounts);
         emit DefaultPoolBalancesUpdated(_tokens, _amounts);
     }
 

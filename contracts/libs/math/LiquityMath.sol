@@ -2,13 +2,14 @@
 
 pragma solidity 0.8.6;
 
-import "./SafeMath.sol";
+// import "../../dependencies/SafeMath.sol";
+import "../LibMojoDiamond.sol";
 
 library LiquityMath {
-    using SafeMath for uint;
+    // using SafeMath for uint;
 
-    uint internal constant DECIMAL_PRECISION = 1e18;
-    uint internal constant HALF_DECIMAL_PRECISION = 5e17;
+    // uint internal constant DECIMAL_PRECISION = 1e18;
+    // uint internal constant HALF_DECIMAL_PRECISION = 5e17;
 
     function _min(uint _a, uint _b) internal pure returns (uint) {
         return (_a < _b) ? _a : _b;
@@ -26,9 +27,9 @@ library LiquityMath {
     * Used only inside the exponentiation, _decPow().
     */
     function decMul(uint x, uint y) internal pure returns (uint decProd) {
-        uint prod_xy = x.mul(y);
+        uint prod_xy = x*y;
 
-        decProd = prod_xy.add(HALF_DECIMAL_PRECISION).div(DECIMAL_PRECISION);
+        decProd = (prod_xy + LibMojoDiamond.HALF_DECIMAL_PRECISION)/LibMojoDiamond.DECIMAL_PRECISION;
     }
 
     /* 
@@ -53,9 +54,9 @@ library LiquityMath {
        
         if (_minutes > 5256e5) {_minutes = 5256e5;}  // cap to avoid overflow
     
-        if (_minutes == 0) {return DECIMAL_PRECISION;}
+        if (_minutes == 0) {return LibMojoDiamond.DECIMAL_PRECISION;}
 
-        uint y = DECIMAL_PRECISION;
+        uint y = LibMojoDiamond.DECIMAL_PRECISION;
         uint x = _base;
         uint n = _minutes;
 
@@ -63,11 +64,11 @@ library LiquityMath {
         while (n > 1) {
             if (n % 2 == 0) {
                 x = decMul(x, x);
-                n = n.div(2);
+                n = n/2;
             } else { // if (n % 2 != 0)
                 y = decMul(x, y);
                 x = decMul(x, x);
-                n = (n.sub(1)).div(2);
+                n = (n-1)/2;
             }
         }
 
@@ -75,14 +76,14 @@ library LiquityMath {
     }
 
     function _getAbsoluteDifference(uint _a, uint _b) internal pure returns (uint) {
-        return (_a >= _b) ? _a.sub(_b) : _b.sub(_a);
+        return (_a >= _b) ? (_a-_b) : (_b-_a);
     }
 
-    //  _coll should be the amount of VC and _debt is debt of YUSD\
+    //  _coll should be the amount of VC and _debt is debt of USM\
     // new collateral ratio is 10**18 times the collateral ratio. (150% => 1.5e18)
     function _computeCR(uint _coll, uint _debt) internal pure returns (uint) {
         if (_debt != 0) {
-            uint newCollRatio = _coll.mul(1e18).div(_debt);
+            uint newCollRatio = (_coll*1e18)/_debt;
             return newCollRatio;
         }
         // Return the maximal value for uint256 if the Trove has a debt of 0. Represents "infinite" CR.

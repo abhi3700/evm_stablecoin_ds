@@ -22,7 +22,7 @@ import "../libs/LibMojoDiamond.sol";
  * Stability Pool, the Default Pool, or both, depending on the liquidation conditions.
  *
  */
-contract ActivePool is Ownable, CheckContract, IActivePool, MojoCustomBase {
+contract ActivePool is Ownable, CheckContract, IActivePool/* , MojoCustomBase */ {
     // using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -339,7 +339,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, MojoCustomBase {
 
         LibMojoDiamond.newColls memory _poolColl = ds.apoolColl;
 
-        ds.apoolColl.amounts = _leftSumColls(_poolColl, _tokens, _amounts);
+        ds.apoolColl.amounts = MojoCustomBase._leftSumColls(_poolColl, _tokens, _amounts);
         emit ActivePoolBalancesUpdated(_tokens, _amounts);
     }
 

@@ -11,6 +11,8 @@ struct Trove {
 
 ## Whitelist
 
+> Contains all the whitelisted collateral assets. Only these assets can be used as collateral into Troves.
+
 * Change the License from `UNLICENSED`to `MIT`.
 * Change the solidity version from `0.6.11` to `0.8.6`.
 * Modified the paths of files imported.
@@ -50,6 +52,8 @@ struct Trove {
 ```
 
 ## ActivePool
+
+> Contains all the active collateral with TCR ≥ 110% (set percentage by protocol) & active debt
 
 * Change the License from `UNLICENSED`to `MIT`.
 * Change the solidity version from `0.6.11` to `0.8.6`.
@@ -102,6 +106,8 @@ uint256 aUSMDebt; // USM debt of active pool
 ---
 
 ## DefaultPool
+
+> Contains all the liquidated collateral & closed debt
 
 * Change the License from `UNLICENSED`to `MIT`.
 * Change the solidity version from `0.6.11` to `0.8.6`.
@@ -160,6 +166,8 @@ So, we can direct the minted stablecoins (USM) to pools like Liquidity, Lending/
 
 ## BorrowerOperations
 
+> Contains all the external functions like Open/Adjust/Close trove
+> 
 > Here, the connected contracts are called here & its functions are used to change the respective state variables.
 > 
 > NO storage variables as such except:
@@ -189,3 +197,18 @@ So, we can direct the minted stablecoins (USM) to pools like Liquidity, Lending/
 **"IUSMToken.sol"**
 
 * Changed the name from "IYUSDToken.sol" to "IUSMToken.sol".
+
+**LiquityMath.sol**
+
+* changed the LICENSE to MIT
+* compiler version changed from `0.6.11` to `0.8.6`.
+* type changed from contract to library.
+* `DECIMAL_PRECISION`, `HALF_DECIMAL_PRECISION` are shifted to Diamond library file.
+
+**LiquityBase.sol**
+
+It is inherited by BorrowerOperations, TroveManager files.
+
+* changed the LICENSE to MIT
+* compiler version changed from `0.6.11` to `0.8.6`.
+* all the referenced state variables are called from Diamond lib (instead of defining here) in functions.
