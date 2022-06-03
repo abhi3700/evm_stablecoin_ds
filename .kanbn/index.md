@@ -19,6 +19,7 @@ columnSorting:
 ## Todo
 
 - [trove-manager-sol](tasks/trove-manager-sol.md)
+- [todo-after-deploy-testing](tasks/todo-after-deploy-testing.md)
 
 ## In Progress
 
