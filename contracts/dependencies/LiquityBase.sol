@@ -13,7 +13,7 @@ import "../libs/LibMojoDiamond.sol";
 * Base contract for TroveManager, BorrowerOperations and StabilityPool. Contains global system constants and
 * common functions. 
 */
-contract LiquityBase is ILiquityBase/* , MojoCustomBase */ {
+abstract contract LiquityBase is ILiquityBase/* , MojoCustomBase */ {
 
     // uint constant public _100pct = 1e18; // 1e18 == 100%
 
@@ -25,8 +25,8 @@ contract LiquityBase is ILiquityBase/* , MojoCustomBase */ {
     // // Critical system collateral ratio. If the system's total collateral ratio (TCR) falls below the CCR, Recovery Mode is triggered.
     // uint constant public CCR = 15e17; // 150%
 
-    // // Amount of MOJO to be locked in gas pool on opening troves
-    // uint constant public MOJO_GAS_COMPENSATION = 200e18;
+    // // Amount of USM to be locked in gas pool on opening troves
+    // uint constant public USM_GAS_COMPENSATION = 200e18;
 
     // // Minimum amount of net MOJO debt a must have
     // uint constant public MIN_NET_DEBT = 1800e18;
@@ -45,12 +45,12 @@ contract LiquityBase is ILiquityBase/* , MojoCustomBase */ {
 
     // Returns the composite debt (drawn debt + gas compensation) of a trove, for the purpose of ICR calculation
     function _getCompositeDebt(uint _debt) internal pure returns (uint) {
-        return (_debt + LibMojoDiamond.MOJO_GAS_COMPENSATION);
+        return (_debt + LibMojoDiamond.USM_GAS_COMPENSATION);
     }
 
 
     function _getNetDebt(uint _debt) internal pure returns (uint) {
-        return (_debt - LibMojoDiamond.MOJO_GAS_COMPENSATION);
+        return (_debt - LibMojoDiamond.USM_GAS_COMPENSATION);
     }
 
 
@@ -134,10 +134,10 @@ contract LiquityBase is ILiquityBase/* , MojoCustomBase */ {
     }
 
 
-    function _checkRecoveryMode() internal view returns (bool) {
-        uint TCR = _getTCR();
-        return TCR < LibMojoDiamond.CCR;
-    }
+    // function _checkRecoveryMode() internal view returns (bool) {
+    //     uint TCR = _getTCR();
+    //     return TCR < LibMojoDiamond.CCR;
+    // }
 
     // fee and amount are denominated in dollar
     function _requireUserAcceptsFee(uint _fee, uint _amount, uint _maxFeePercentage) internal pure {
@@ -159,15 +159,15 @@ contract LiquityBase is ILiquityBase/* , MojoCustomBase */ {
 
     // Check whether or not the system *would be* in Recovery Mode, given the entire system coll and debt.
     // returns true if the system would be in recovery mode and false if not
-    function _checkPotentialRecoveryMode(uint _entireSystemColl, uint _entireSystemDebt)
-    internal
-    pure
-    returns (bool)
-    {
-        uint TCR = LiquityMath._computeCR(_entireSystemColl, _entireSystemDebt);
+    // function _checkPotentialRecoveryMode(uint _entireSystemColl, uint _entireSystemDebt)
+    // internal
+    // pure
+    // returns (bool)
+    // {
+    //     uint TCR = LiquityMath._computeCR(_entireSystemColl, _entireSystemDebt);
 
-        return TCR < LibMojoDiamond.CCR;
-    }
+    //     return TCR < LibMojoDiamond.CCR;
+    // }
 
 
 

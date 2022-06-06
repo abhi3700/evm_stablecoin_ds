@@ -193,6 +193,30 @@ So, we can direct the minted stablecoins (USM) to pools like Liquidity, Lending/
 * Enum `BorrowerOperation` moved to "LibMojoDiamond.sol" file
 * `YUSDTokenAddressChanged` event renamed to `USMTokenAddressChanged`
 * `YUSDBorrowingFeePaid` event renamed to `USMBorrowingFeePaid`
+* `_requireValidMaxFeePercentage` modified by removing recovery mode var.
+* In `_openTroveInternal` function,
+  * disabled recovery mode check
+  * `if` condition removed for recovery mode check & the the snippet modified to:
+  ```solidity
+      vars.USMFee = _triggerBorrowingFee(
+          contractsCache.troveManager,
+          contractsCache.usmToken,
+          _USMAmount,
+          vars.VC, // here it is just VC in, which is always larger than USM amount
+          _maxFeePercentage
+      );
+      _maxFeePercentage = _maxFeePercentage.sub(vars.USMFee.mul(DECIMAL_PRECISION).div(vars.VC));
+  ```
+  * `if-else` condition removed as recovery mode is disabled:
+  ```solidity
+          if (vars.isRecoveryMode) {
+            _requireICRisAboveCCR(vars.ICR);        // ICR > CCR
+          } else {
+              _requireICRisAboveMCR(vars.ICR);        // ICR > MCR
+              vars.newTCR = _getNewTCRFromTroveChange(vars.VC, true, vars.compositeDebt, true); // bools: coll increase, debt increase
+              _requireNewTCRisAboveCCR(vars.newTCR);  // new_TCR > CCR
+          }
+  ```
 
 **"IUSMToken.sol"**
 
@@ -212,3 +236,6 @@ It is inherited by BorrowerOperations, TroveManager files.
 * changed the LICENSE to MIT
 * compiler version changed from `0.6.11` to `0.8.6`.
 * all the referenced state variables are called from Diamond lib (instead of defining here) in functions.
+* Disabled recovery mode i.e functions like `_checkPotentialRecoveryMode`, `_checkRecoveryMode`.
+* Defined as `abstract` type.
+> Note: the type `contract` type is chosen here mainly for Facets, Proxy Contract (Diamond).

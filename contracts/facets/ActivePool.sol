@@ -96,7 +96,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool/* , MojoCustomBase */
         emit DefaultPoolAddressChanged(_defaultPoolAddress);
         emit WhitelistAddressChanged(_whitelistAddress);
 
-        // In HexaFi, we aim at upgradeability feature, so the deployer should be owner
+        // In MojoFi, we aim at upgradeability functionality, so the deployer must be owner
         // & the decision is taken based on DAO voting
         // _renounceOwnership();
     }

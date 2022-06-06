@@ -18,8 +18,8 @@ library LibMojoDiamond {
      * Errors
      * ****************************************
      LIBE0: the caller is not a owner
-     LIBE1: MojoFi SC was not paused
-     LIBE2: MojoFi SC was paused
+     LIBE1: Mojo SC was not paused
+     LIBE2: Mojo SC was paused
      LIBE3: the diamond cut action is not correct
      LIBE4: the function selectors are empty
      LIBE5: the facet address can not be zero_address.
@@ -81,6 +81,7 @@ library LibMojoDiamond {
         address token;
     }
 
+    // --- Variable container structs  ---
     struct AdjustTrove_Params {
         address[] _collsIn;
         uint256[] _amountsIn;
@@ -166,7 +167,7 @@ library LibMojoDiamond {
         bool _paused;
         // chainId
         uint256 chainId;
-        // addresses
+        //==== addresses
         address borrowerOperationsAddress;
         address troveManagerAddress;
         address activePoolAddress;
@@ -178,6 +179,7 @@ library LibMojoDiamond {
         address collSurplusPoolAddress;
         address mojoFinanceTreasury;
         address whitelistAddress;
+        //==== interfaces
         address sMOJOAddress;
         IWhitelist whitelist;
         IActivePool activePool;
@@ -186,19 +188,19 @@ library LibMojoDiamond {
         ICollSurplusPool collSurplusPool;
         ITroveManager troveManager;
         ISortedTroves sortedTroves;
-        // status of addresses set
-        bool addressesSet;
         IUSMToken usmToken;
         ISMOJO sMOJO;
-        // deposited collateral tracker of each pool. Colls is always the whitelist list of all collateral tokens. Amounts
+        // status of addresses set
+        bool addressesSet;
+        //=== deposited collateral tracker of each pool. Colls is always the whitelisted list of all collateral tokens.
         newColls apoolColl;
         newColls dpoolColl;
-        newColls spoolColl;
-        // USM Debt tracker. Tracker of all debt in the system (active + default + stability).
-        // DONE: confirm if this is the sum of all pools or each pool needs to have one.
+        // newColls spoolColl;
+        //=== USM Debt tracker. Tracker of all debt in the system (active + default + stability).
+        // NOTE: For each pool, there is a separate state variable defined for tracking the Debt (active, closed).
         uint256 aUSMDebt; // USM debt of active pool
         uint256 dUSMDebt; // USM debt of default pool
-        uint256 sUSMDebt; // USM debt of stability pool
+        // uint256 sUSMDebt; // USM debt of stability pool
 
         mapping(address => CollateralParams) collateralParams;
         mapping(address => bool) validRouter;
@@ -225,10 +227,10 @@ library LibMojoDiamond {
     // Critical system collateral ratio. If the system's total collateral ratio (TCR) falls below the CCR, Recovery Mode is triggered.
     uint constant public CCR = 15e17; // 150%
 
-    // Amount of MOJO to be locked in gas pool on opening troves
-    uint constant public MOJO_GAS_COMPENSATION = 200e18;
+    // Amount of USM to be locked in gas pool on opening troves
+    uint constant public USM_GAS_COMPENSATION = 200e18;
 
-    // Minimum amount of net MOJO debt a must have
+    // Minimum amount of net USM debt a must have
     uint constant public MIN_NET_DEBT = 1800e18;
     // uint constant public MIN_NET_DEBT = 0; 
 

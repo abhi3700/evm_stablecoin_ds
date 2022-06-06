@@ -17,6 +17,7 @@ import "../dependencies/CheckContract.sol";
 // import "../dependencies/SafeMath.sol";
 import "../dependencies/ReentrancyGuard.sol";
 import "../interfaces/IWAsset.sol";
+import "../libs/LibMojoDiamond.sol";
 
 /** 
  * BorrowerOperations is the contract that handles most of external facing trove activities that 
@@ -148,7 +149,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
     event ActivePoolAddressChanged(address _activePoolAddress);
     event DefaultPoolAddressChanged(address _defaultPoolAddress);
-    event StabilityPoolAddressChanged(address _stabilityPoolAddress);
+    // event StabilityPoolAddressChanged(address _stabilityPoolAddress);
     event GasPoolAddressChanged(address _gasPoolAddress);
     event CollSurplusPoolAddressChanged(address _collSurplusPoolAddress);
     event PriceFeedAddressChanged(address _newPriceFeedAddress);
@@ -181,9 +182,12 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         address _whitelistAddress
     ) external override onlyOwner {
         // This makes impossible to open a trove with zero withdrawn USM
-        require(MIN_NET_DEBT != 0, "BO:MIN_NET_DEBT==0");
+        require(LibMojoDiamond.MIN_NET_DEBT != 0, "BO:MIN_NET_DEBT==0");
 
-        deploymentTime = block.timestamp;
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
+            .diamondStorage();
+
+        ds.deploymentTime = block.timestamp;
 
         checkContract(_troveManagerAddress);
         checkContract(_activePoolAddress);
@@ -196,28 +200,30 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         checkContract(_sMOJOAddress);
         checkContract(_whitelistAddress);
 
-        troveManager = ITroveManager(_troveManagerAddress);
-        activePool = IActivePool(_activePoolAddress);
-        defaultPool = IDefaultPool(_defaultPoolAddress);
-        whitelist = IWhitelist(_whitelistAddress);
-        stabilityPoolAddress = _stabilityPoolAddress;
-        gasPoolAddress = _gasPoolAddress;
-        collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
-        sortedTroves = ISortedTroves(_sortedTrovesAddress);
-        usmToken = IUSMToken(_usmTokenAddress);
-        sMOJOAddress = _sMOJOAddress;
+        ds.troveManager = ITroveManager(_troveManagerAddress);
+        ds.activePool = IActivePool(_activePoolAddress);
+        ds.defaultPool = IDefaultPool(_defaultPoolAddress);
+        ds.whitelist = IWhitelist(_whitelistAddress);
+        // stabilityPoolAddress = _stabilityPoolAddress;
+        ds.gasPoolAddress = _gasPoolAddress;
+        ds.collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
+        ds.sortedTroves = ISortedTroves(_sortedTrovesAddress);
+        ds.usmToken = IUSMToken(_usmTokenAddress);
+        ds.sMOJOAddress = _sMOJOAddress;
 
         emit TroveManagerAddressChanged(_troveManagerAddress);
         emit ActivePoolAddressChanged(_activePoolAddress);
         emit DefaultPoolAddressChanged(_defaultPoolAddress);
-        emit StabilityPoolAddressChanged(_stabilityPoolAddress);
+        // emit StabilityPoolAddressChanged(_stabilityPoolAddress);
         emit GasPoolAddressChanged(_gasPoolAddress);
         emit CollSurplusPoolAddressChanged(_collSurplusPoolAddress);
         emit SortedTrovesAddressChanged(_sortedTrovesAddress);
         emit USMTokenAddressChanged(_usmTokenAddress);
         emit sMOJOAddressChanged(_sMOJOAddress);
 
-        _renounceOwnership();
+        // In MojoFi, we aim at upgradeability functionality, so the deployer must be owner
+        // & the decision is taken based on DAO voting
+        // _renounceOwnership();
     }
 
     // --- Borrower Trove Operations ---
@@ -347,7 +353,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
 
     // amounts should be a uint array giving the amount of each collateral
-    // to be transferred in in order of the current whitelist
+    // to be transferred in order of the current whitelist
     // Should be called *after* collateral has been already sent to the active pool
     // Should confirm _colls, is valid collateral prior to calling this
     function _openTroveInternal(
@@ -362,11 +368,11 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
     ) internal {
         LocalVariables_openTrove memory vars;
 
-        vars.isRecoveryMode = _checkRecoveryMode();
+        // vars.isRecoveryMode = _checkRecoveryMode();      // NOTE: disabled recovery mode
 
-        ContractsCache memory contractsCache = ContractsCache(troveManager, activePool, usmToken);
+        LibMojoDiamond.ContractsCache memory contractsCache = LibMojoDiamond.ContractsCache(troveManager, activePool, usmToken);
 
-        _requireValidMaxFeePercentage(_maxFeePercentage, vars.isRecoveryMode);
+        _requireValidMaxFeePercentage(_maxFeePercentage);
         _requireTroveisNotActive(contractsCache.troveManager, _troveOwner);
 
         vars.netDebt = _USMAmount;
@@ -374,18 +380,28 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         // For every collateral type in, calculate the VC and get the variable fee
         vars.VC = _getVC(_colls, _amounts);
 
-        if (!vars.isRecoveryMode) {
-            // when not in recovery mode, add in the 0.5% fee
-            vars.USMFee = _triggerBorrowingFee(
-                contractsCache.troveManager,
-                contractsCache.usmToken,
-                _USMAmount,
-                vars.VC, // here it is just VC in, which is always larger than USM amount
-                _maxFeePercentage
-            );
-            _maxFeePercentage = _maxFeePercentage.sub(vars.USMFee.mul(DECIMAL_PRECISION).div(vars.VC));
-        }
+        // if (!vars.isRecoveryMode) {
+        //     // when not in recovery mode, add in the 0.5% fee
+        //     vars.USMFee = _triggerBorrowingFee(
+        //         contractsCache.troveManager,
+        //         contractsCache.usmToken,
+        //         _USMAmount,
+        //         vars.VC, // here it is just VC in, which is always larger than USM amount
+        //         _maxFeePercentage
+        //     );
+        //     _maxFeePercentage = _maxFeePercentage.sub(vars.USMFee.mul(DECIMAL_PRECISION).div(vars.VC));
+        // }
 
+        // when not in recovery mode, add in the 0.5% fee
+        vars.USMFee = _triggerBorrowingFee(
+            contractsCache.troveManager,
+            contractsCache.usmToken,
+            _USMAmount,
+            vars.VC, // here it is just VC in, which is always larger than USM amount
+            _maxFeePercentage
+        );
+        _maxFeePercentage = _maxFeePercentage.sub(vars.USMFee.mul(DECIMAL_PRECISION).div(vars.VC));
+        
         // Add in variable fee. Always present, even in recovery mode.
         vars.USMFee = vars.USMFee.add(
             _getTotalVariableDepositFee(_colls, _amounts, vars.VC, 0, vars.VC, _maxFeePercentage, contractsCache)
@@ -400,13 +416,18 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         vars.compositeDebt = _getCompositeDebt(vars.netDebt);
 
         vars.ICR = LiquityMath._computeCR(vars.VC, vars.compositeDebt);
-        if (vars.isRecoveryMode) {
-            _requireICRisAboveCCR(vars.ICR);
-        } else {
-            _requireICRisAboveMCR(vars.ICR);
-            vars.newTCR = _getNewTCRFromTroveChange(vars.VC, true, vars.compositeDebt, true); // bools: coll increase, debt increase
-            _requireNewTCRisAboveCCR(vars.newTCR);
-        }
+        // if (vars.isRecoveryMode) {
+        //     _requireICRisAboveCCR(vars.ICR);        // ICR > CCR
+        // } else {
+        //     _requireICRisAboveMCR(vars.ICR);        // ICR > MCR
+        //     vars.newTCR = _getNewTCRFromTroveChange(vars.VC, true, vars.compositeDebt, true); // bools: coll increase, debt increase
+        //     _requireNewTCRisAboveCCR(vars.newTCR);  // new_TCR > CCR
+        // }
+
+        // when not in Recovery mode
+        _requireICRisAboveMCR(vars.ICR);        // ICR > MCR
+        vars.newTCR = _getNewTCRFromTroveChange(vars.VC, true, vars.compositeDebt, true); // bools: coll increase, debt increase
+        _requireNewTCRisAboveCCR(vars.newTCR);  // new_TCR > CCR
 
         // Set the trove struct's properties
         contractsCache.troveManager.setTroveStatus(_troveOwner, 1);
@@ -418,7 +439,10 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
 
         contractsCache.troveManager.updateStakeAndTotalStakes(_troveOwner);
 
-        sortedTroves.insert(_troveOwner, vars.ICR, _upperHint, _lowerHint);
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
+            .diamondStorage();
+
+        ds.sortedTroves.insert(_troveOwner, vars.ICR, _upperHint, _lowerHint);
         vars.arrayIndex = contractsCache.troveManager.addTroveOwnerToArray(_troveOwner);
         emit TroveCreated(_troveOwner, vars.arrayIndex);
 
@@ -437,8 +461,8 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
             contractsCache.activePool,
             contractsCache.usmToken,
             gasPoolAddress,
-            USM_GAS_COMPENSATION,
-            USM_GAS_COMPENSATION
+            LibMojoDiamond.USM_GAS_COMPENSATION,
+            LibMojoDiamond.USM_GAS_COMPENSATION
         );
 
         emit TroveUpdated(
@@ -446,7 +470,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
             vars.compositeDebt,
             _colls,
             _amounts,
-            BorrowerOperation.openTrove
+            LibMojoDiamond.BorrowerOperation.openTrove
         );
         emit USMBorrowingFeePaid(_troveOwner, vars.USMFee);
     }
@@ -1348,12 +1372,22 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         );
     }
 
-    function _requireValidMaxFeePercentage(uint256 _maxFeePercentage, bool _isRecoveryMode)
+    // function _requireValidMaxFeePercentage(uint256 _maxFeePercentage, bool _isRecoveryMode)
+    //     internal
+    //     pure
+    // {
+    //     // Always require max fee to be less than 100%, and if not in recovery mode then max fee must be greater than 0.5%
+    //     if (_maxFeePercentage > DECIMAL_PRECISION || (!_isRecoveryMode && _maxFeePercentage < BORROWING_FEE_FLOOR)) {
+    //         revert("BO:InvalidMaxFee");
+    //     }
+    // }
+
+    function _requireValidMaxFeePercentage(uint256 _maxFeePercentage)
         internal
         pure
     {
-        // Alwawys require max fee to be less than 100%, and if not in recovery mode then max fee must be greater than 0.5%
-        if (_maxFeePercentage > DECIMAL_PRECISION || (!_isRecoveryMode && _maxFeePercentage < BORROWING_FEE_FLOOR)) {
+        // Always require max fee to be less than 100%, and if not in recovery mode then max fee must be greater than 0.5%
+        if (_maxFeePercentage > DECIMAL_PRECISION || _maxFeePercentage < BORROWING_FEE_FLOOR) {
             revert("BO:InvalidMaxFee");
         }
     }

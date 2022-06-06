@@ -20,6 +20,7 @@ columnSorting:
 
 - [trove-manager-sol](tasks/trove-manager-sol.md)
 - [todo-after-deploy-testing](tasks/todo-after-deploy-testing.md)
+- [sorted-troves-sol](tasks/sorted-troves-sol.md)
 
 ## In Progress
 
@@ -32,8 +33,8 @@ columnSorting:
 ## Testing
 
 - [active-pool](tasks/active-pool.md)
-- [liquity-base-sol](tasks/liquity-base-sol.md)
 - [default-pool](tasks/default-pool.md)
 - [whitelist](tasks/whitelist.md)
+- [liquity-base-sol](tasks/liquity-base-sol.md)
 
 ## Done

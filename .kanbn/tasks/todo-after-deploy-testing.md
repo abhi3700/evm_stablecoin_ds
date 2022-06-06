@@ -1,6 +1,6 @@
 ---
 created: 2022-06-03T15:50:37.233Z
-updated: 2022-06-03T15:53:42.146Z
+updated: 2022-06-06T08:14:11.572Z
 assigned: ""
 progress: 0
 tags: []
@@ -16,3 +16,4 @@ tags: []
 - [ ] replace `msg.sender` with `_msgSender()` in all files.
 - [ ] comment `stabilityPoolAddress`, stability pool wherever used - `require`, `setAddresses()`
 - [ ] remove SP from `_requireCallerIsBOorTroveMorTMLorSP`
+- [ ] Add NATSPEC format comment for each function

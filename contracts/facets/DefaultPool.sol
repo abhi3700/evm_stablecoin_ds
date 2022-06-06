@@ -73,7 +73,7 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool/* , MojoCustomBase 
         emit TroveManagerAddressChanged(_troveManagerAddress);
         emit ActivePoolAddressChanged(_activePoolAddress);
 
-        // In HexaFi, we aim at upgradeability feature, so the deployer should be owner
+        // In MojoFi, we aim at upgradeability functionality, so the deployer must be owner
         // & the decision is taken based on DAO voting
         // _renounceOwnership();
     }
