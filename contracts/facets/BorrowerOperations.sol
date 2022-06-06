@@ -295,8 +295,8 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
                 // Transfer into active pool, non levered amount. 
                 _singleTransferCollateralIntoActivePool(msg.sender, _colls[i], _amounts[i]);
                 // additional token amount was set to the original amount * leverage. 
-                _amounts[i] = additionalTokenAmount.add(_amounts[i]);
-                totalUSMDebtFromLever = totalUSMDebtFromLever.add(additionalUSMDebt);
+                _amounts[i] += additionalTokenAmount;
+                totalUSMDebtFromLever += additionalUSMDebt;
             } else {
                 // Otherwise skip and do normal transfer that amount into active pool. 
                 _singleTransferCollateralIntoActivePool(msg.sender, _colls[i], _amounts[i]);
@@ -316,7 +316,7 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         );
     }
 
-    // internal function for minting yusd at certain leverage and max slippage, and then performing 
+    // internal function for minting USM at certain leverage and max slippage, and then performing 
     // swap with whitelist's approved router. 
     function _singleLeverUp(address _token, 
         uint256 _amount, 
@@ -326,9 +326,10 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         returns (uint256 _finalTokenAmount, uint256 _additionalUSMDebt) {
         require(_leverage > 1e18, "WrongLeverage");
         require(_maxSlippage <= 1e18, "WrongSlippage");
+        // TODO: modify IYetiRouter --> IMojoRouter
         IYetiRouter router = IYetiRouter(whitelist.getDefaultRouterAddress(_token));
         // leverage is 5e18 for 5x leverage. Minus 1 for what the user already has in collateral value.
-        uint _additionalTokenAmount = _amount.mul(_leverage.sub(1e18)).div(1e18); 
+        uint _additionalTokenAmount = (_amount * (_leverage - 1e18)) / 1e18; 
         _additionalUSMDebt = whitelist.getValueUSD(_token, _additionalTokenAmount);
 
         // 1/(1-1/ICR) = leverage. (1 - 1/ICR) = 1/leverage
@@ -339,16 +340,18 @@ contract BorrowerOperations is LiquityBase, Ownable, CheckContract, IBorrowerOpe
         // debt = VC value of collateral / ICR.
         // debt = VC value of collateral * (leverage - 1) / leverage
 
-        uint256 slippageAdjustedValue = _additionalTokenAmount.mul(DECIMAL_PRECISION.sub(_maxSlippage)).div(1e18);
-        
-        usmToken.mint(address(this), _additionalUSMDebt);
-        usmToken.approve(address(router), _additionalUSMDebt);
+        uint256 slippageAdjustedValue = _additionalTokenAmount.mul(LibMojoDiamond.DECIMAL_PRECISION.sub(_maxSlippage)).div(1e18);
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
+            .diamondStorage();
+
+        ds.usmToken.mint(address(this), _additionalUSMDebt);
+        ds.usmToken.approve(address(router), _additionalUSMDebt);
         // route will swap the tokens and transfer it to the active pool automatically. Router will send to active pool and 
         // reward balance will be sent to the user if wrapped asset. 
         IERC20 erc20Token = IERC20(_token);
-        uint256 balanceBefore = erc20Token.balanceOf(address(activePool));
-        _finalTokenAmount = router.route(address(this), address(usmToken), _token, _additionalUSMDebt, slippageAdjustedValue);
-        require(erc20Token.balanceOf(address(activePool)) == balanceBefore.add(_finalTokenAmount), "BO:RouteLeverUpNotSent");
+        uint256 balanceBefore = erc20Token.balanceOf(address(ds.activePool));
+        _finalTokenAmount = router.route(address(this), address(ds.usmToken), _token, _additionalUSMDebt, slippageAdjustedValue);
+        require(erc20Token.balanceOf(address(ds.activePool)) == balanceBefore.add(_finalTokenAmount), "BO:RouteLeverUpNotSent");
     }
 
 
