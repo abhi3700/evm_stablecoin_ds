@@ -21,6 +21,7 @@ columnSorting:
 - [trove-manager-sol](tasks/trove-manager-sol.md)
 - [todo-after-deploy-testing](tasks/todo-after-deploy-testing.md)
 - [sorted-troves-sol](tasks/sorted-troves-sol.md)
+- [coll-surplus-pool-sol](tasks/coll-surplus-pool-sol.md)
 
 ## In Progress
 

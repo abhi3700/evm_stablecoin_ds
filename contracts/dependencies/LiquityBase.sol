@@ -9,12 +9,14 @@ import "../interfaces/ILiquityBase.sol";
 import "./MojoCustomBase.sol";
 import "../libs/LibMojoDiamond.sol";
 
-/* 
-* Base contract for TroveManager, BorrowerOperations and StabilityPool. Contains global system constants and
-* common functions. 
-*/
-abstract contract LiquityBase is ILiquityBase/* , MojoCustomBase */ {
-
+/*
+ * Base contract for TroveManager, BorrowerOperations and StabilityPool. Contains global system constants and
+ * common functions.
+ */
+// NOTE: contract changed to abstract as it is inherited by BO, TM, ... & not to be deployed.
+abstract contract LiquityBase is
+    ILiquityBase /* , MojoCustomBase */
+{
     // uint constant public _100pct = 1e18; // 1e18 == 100%
 
     // uint constant public _110pct = 11e17; // 1.1e18 == 110%
@@ -30,7 +32,7 @@ abstract contract LiquityBase is ILiquityBase/* , MojoCustomBase */ {
 
     // // Minimum amount of net MOJO debt a must have
     // uint constant public MIN_NET_DEBT = 1800e18;
-    // // uint constant public MIN_NET_DEBT = 0; 
+    // // uint constant public MIN_NET_DEBT = 0;
 
     // uint constant public PERCENT_DIVISOR = 200; // dividing by 200 yields 0.5%
 
@@ -48,12 +50,9 @@ abstract contract LiquityBase is ILiquityBase/* , MojoCustomBase */ {
         return (_debt + LibMojoDiamond.USM_GAS_COMPENSATION);
     }
 
-
     function _getNetDebt(uint _debt) internal pure returns (uint) {
         return (_debt - LibMojoDiamond.USM_GAS_COMPENSATION);
     }
-
-
 
     // Return the system's Total Virtual Coin Balance
     // Virtual Coins are a way to keep track of the system collateralization given
@@ -68,8 +67,7 @@ abstract contract LiquityBase is ILiquityBase/* , MojoCustomBase */ {
         return (activeColl + liquidatedColl);
     }
 
-
-    function getEntireSystemDebt() public override view returns (uint) {
+    function getEntireSystemDebt() public view override returns (uint) {
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
@@ -79,17 +77,23 @@ abstract contract LiquityBase is ILiquityBase/* , MojoCustomBase */ {
         return (activeDebt + closedDebt);
     }
 
-
-    function _getICRColls(newColls memory _colls, uint _debt) internal view returns (uint ICR) {
+    function _getICRColls(newColls memory _colls, uint _debt)
+        internal
+        view
+        returns (uint ICR)
+    {
         uint totalVC = _getVCColls(_colls);
         ICR = LiquityMath._computeCR(totalVC, _debt);
     }
 
-
-    function _getVC(address[] memory _tokens, uint[] memory _amounts) internal view returns (uint totalVC) {
+    function _getVC(address[] memory _tokens, uint[] memory _amounts)
+        internal
+        view
+        returns (uint totalVC)
+    {
         uint256 tokensLen = _tokens.length;
         require(tokensLen == _amounts.length, "Not same length");
-        
+
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
@@ -99,40 +103,50 @@ abstract contract LiquityBase is ILiquityBase/* , MojoCustomBase */ {
         }
     }
 
-
-    function _getVCColls(newColls memory _colls) internal view returns (uint VC) {
+    function _getVCColls(newColls memory _colls)
+        internal
+        view
+        returns (uint VC)
+    {
         uint256 tokensLen = _colls.tokens.length;
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         for (uint256 i; i < tokensLen; ++i) {
-            uint valueVC = ds.whitelist.getValueVC(_colls.tokens[i], _colls.amounts[i]);
+            uint valueVC = ds.whitelist.getValueVC(
+                _colls.tokens[i],
+                _colls.amounts[i]
+            );
             VC += valueVC;
         }
     }
 
-
-    function _getUSDColls(newColls memory _colls) internal view returns (uint USDValue) {
+    function _getUSDColls(newColls memory _colls)
+        internal
+        view
+        returns (uint USDValue)
+    {
         uint256 tokensLen = _colls.tokens.length;
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         for (uint256 i; i < tokensLen; ++i) {
-            uint valueUSD = ds.whitelist.getValueUSD(_colls.tokens[i], _colls.amounts[i]);
+            uint valueUSD = ds.whitelist.getValueUSD(
+                _colls.tokens[i],
+                _colls.amounts[i]
+            );
             USDValue += valueUSD;
         }
     }
 
-
     function _getTCR() internal view returns (uint TCR) {
         uint entireSystemColl = getEntireSystemColl();
         uint entireSystemDebt = getEntireSystemDebt();
-        
+
         TCR = LiquityMath._computeCR(entireSystemColl, entireSystemDebt);
     }
-
 
     // function _checkRecoveryMode() internal view returns (bool) {
     //     uint TCR = _getTCR();
@@ -140,13 +154,22 @@ abstract contract LiquityBase is ILiquityBase/* , MojoCustomBase */ {
     // }
 
     // fee and amount are denominated in dollar
-    function _requireUserAcceptsFee(uint _fee, uint _amount, uint _maxFeePercentage) internal pure {
-        uint feePercentage = (_fee * LibMojoDiamond.DECIMAL_PRECISION)/_amount;
+    function _requireUserAcceptsFee(
+        uint _fee,
+        uint _amount,
+        uint _maxFeePercentage
+    ) internal pure {
+        uint feePercentage = (_fee * LibMojoDiamond.DECIMAL_PRECISION) /
+            _amount;
         require(feePercentage <= _maxFeePercentage, "Fee > max");
     }
 
     // checks coll has a nonzero balance of at least one token in coll.tokens
-    function _CollsIsNonZero(newColls memory _colls) internal pure returns (bool) {
+    function _CollsIsNonZero(newColls memory _colls)
+        internal
+        pure
+        returns (bool)
+    {
         uint256 tokensLen = _colls.tokens.length;
         for (uint256 i; i < tokensLen; ++i) {
             if (_colls.amounts[i] != 0) {
@@ -155,7 +178,6 @@ abstract contract LiquityBase is ILiquityBase/* , MojoCustomBase */ {
         }
         return false;
     }
-
 
     // Check whether or not the system *would be* in Recovery Mode, given the entire system coll and debt.
     // returns true if the system would be in recovery mode and false if not
@@ -168,7 +190,4 @@ abstract contract LiquityBase is ILiquityBase/* , MojoCustomBase */ {
 
     //     return TCR < LibMojoDiamond.CCR;
     // }
-
-
-
 }

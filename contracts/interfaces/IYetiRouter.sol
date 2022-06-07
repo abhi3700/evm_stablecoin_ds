@@ -1,6 +1,6 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.11;
+pragma solidity 0.8.6;
 
 // Interface which handles routing of tokens to between wrapped versions etc and YUSD or other ERC20s. 
 interface IYetiRouter {
