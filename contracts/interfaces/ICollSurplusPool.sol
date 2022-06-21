@@ -2,15 +2,15 @@
 
 pragma solidity 0.8.6;
 
-import "../dependencies/MojoCustomBase.sol";
+// import "../MojoCustomBase.sol";
 import "./ICollateralReceiver.sol";
 
-
 interface ICollSurplusPool is ICollateralReceiver {
-
     // --- Events ---
-    
-    event BorrowerOperationsAddressChanged(address _newBorrowerOperationsAddress);
+
+    event BorrowerOperationsAddressChanged(
+        address _newBorrowerOperationsAddress
+    );
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
     event ActivePoolAddressChanged(address _newActivePoolAddress);
 
@@ -29,13 +29,23 @@ interface ICollSurplusPool is ICollateralReceiver {
 
     function getCollVC() external view returns (uint);
 
-    function getAmountClaimable(address _account, address _collateral) external view returns (uint);
+    function getAmountClaimable(address _account, address _collateral)
+        external
+        view
+        returns (uint);
 
     function getCollateral(address _collateral) external view returns (uint);
 
-    function getAllCollateral() external view returns (address[] memory, uint256[] memory);
+    function getAllCollateral()
+        external
+        view
+        returns (address[] memory, uint256[] memory);
 
-    function accountSurplus(address _account, address[] memory _tokens, uint[] memory _amounts) external;
+    function accountSurplus(
+        address _account,
+        address[] memory _tokens,
+        uint[] memory _amounts
+    ) external;
 
     function claimColl(address _account) external;
 

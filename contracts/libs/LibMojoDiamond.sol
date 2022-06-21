@@ -6,10 +6,6 @@ import "../interfaces/IWhitelist.sol";
 import "../interfaces/IActivePool.sol";
 import "../interfaces/IDefaultPool.sol";
 import "../interfaces/ICollSurplusPool.sol";
-import "../interfaces/ITroveManager.sol";
-import "../interfaces/ISMOJO.sol";
-import "../interfaces/IUSMToken.sol";
-
 
 library LibMojoDiamond {
     /**
@@ -34,7 +30,7 @@ library LibMojoDiamond {
      */
 
     bytes32 internal constant DIAMOND_STORAGE_POSITION =
-        keccak256("mojo.finance.diamond.storage");
+        keccak256("mojo.xyz.diamond.storage");
 
     struct FacetAddressAndPosition {
         address facetAddress;
@@ -46,15 +42,30 @@ library LibMojoDiamond {
         uint256 facetAddressPosition; // position of facetAddress in facetAddresses array
     }
 
-    
-    // ========"ActivePool.sol" | "DefaultPool.sol"======== 
+    struct AllAddresses {
+        address mojoCustomBaseAddress;
+        address borrowerOperationsAddress;
+        address troveManagerAddress;
+        address activePoolAddress;
+        // address stabilityPoolAddress;
+        address defaultPoolAddress;
+        address gasPoolAddress;
+        address troveManagerLiquidationsAddress;
+        address troveManagerRedemptionsAddress;
+        address collSurplusPoolAddress;
+        address mojoFinanceTreasury;
+        address whitelistAddress;
+        address sMOJOAddress;
+    }
+
+    // ========"ActivePool.sol" | "DefaultPool.sol"========
     struct newColls {
         // tokens and amounts should be the same length
         address[] tokens;
         uint256[] amounts;
     }
 
-    // ========"Whitelist.sol"======== 
+    // ========"Whitelist.sol"========
     struct CollateralParams {
         // Safety ratio
         uint256 ratio; // 10**18 * the ratio. i.e. ratio = .95 * 10**18 for 95%. More risky collateral has a lower ratio
@@ -67,92 +78,7 @@ library LibMojoDiamond {
         address defaultRouter;
     }
 
-    // ========"BorrowerOperations.sol"======== 
-    struct CollateralData {
-        address collateral;
-        uint256 amount;
-    }
-
-    struct DepositFeeCalc {
-        uint256 collateralUSMFee;
-        uint256 systemCollateralVC;
-        uint256 collateralInputVC;
-        uint256 systemTotalVC;
-        address token;
-    }
-
-    // --- Variable container structs  ---
-    struct AdjustTrove_Params {
-        address[] _collsIn;
-        uint256[] _amountsIn;
-        address[] _collsOut;
-        uint256[] _amountsOut;
-        uint256[] _maxSlippages;
-        uint256 _USMChange;
-        uint256 _totalUSMDebtFromLever;
-        bool _isDebtIncrease;
-        bool _isUnlever;
-        address _upperHint;
-        address _lowerHint;
-        uint256 _maxFeePercentage;
-    }
-
-    struct LocalVariables_adjustTrove {
-        uint256 netDebtChange;
-        bool isCollIncrease;
-        uint256 collChange;
-        uint256 currVC;
-        uint256 newVC;
-        uint256 debt;
-        address[] currAssets;
-        uint256[] currAmounts;
-        address[] newAssets;
-        uint256[] newAmounts;
-        uint256 oldICR;
-        uint256 newICR;
-        uint256 newTCR;
-        uint256 USMFee;
-        uint256 variableUSMFee;
-        uint256 newDebt;
-        uint256 VCin;
-        uint256 VCout;
-        uint256 maxFeePercentageFactor;
-    }
-
-    struct LocalVariables_openTrove {
-        address[] collaterals;
-        uint256[] prices;
-        uint256 USMFee;
-        uint256 netDebt;
-        uint256 compositeDebt;
-        uint256 ICR;
-        uint256 arrayIndex;
-        address collAddress;
-        uint256 VC;
-        uint256 newTCR;
-        bool isRecoveryMode;
-    }
-
-    struct CloseTrove_Params {
-        address[] _collsOut;
-        uint256[] _amountsOut;
-        uint256[] _maxSlippages;
-        bool _isUnlever;
-    }
-
-    struct ContractsCache {
-        ITroveManager troveManager;
-        IActivePool activePool;
-        IYUSDToken usmToken;
-    }
-
-    enum BorrowerOperation {
-        openTrove,
-        closeTrove,
-        adjustTrove
-    }
-
-    // ========"Diamond Storage"======== 
+    // ========"Diamond Storage"========
     struct DiamondStorage {
         // maps function selector to the facet address and
         // the position of the selector in the facetFunctionSelectors.selectors array
@@ -161,35 +87,24 @@ library LibMojoDiamond {
         mapping(address => FacetFunctionSelectors) facetFunctionSelectors;
         // facet addresses
         address[] facetAddresses;
-        // owner of the contract & project owner
+        // owner of the contract
         address contractOwner;
         // paused of the contract
         bool _paused;
         // chainId
         uint256 chainId;
         //==== addresses
-        address borrowerOperationsAddress;
-        address troveManagerAddress;
-        address activePoolAddress;
-        // address stabilityPoolAddress;
-        address defaultPoolAddress;
-        address gasPoolAddress;
-        address troveManagerLiquidationsAddress;
-        address troveManagerRedemptionsAddress;
-        address collSurplusPoolAddress;
-        address mojoFinanceTreasury;
-        address whitelistAddress;
+        AllAddresses allAddresses;
         //==== interfaces
-        address sMOJOAddress;
         IWhitelist whitelist;
         IActivePool activePool;
         IDefaultPool defaultPool;
         // IStabilityPool stabilityPool;
         ICollSurplusPool collSurplusPool;
-        ITroveManager troveManager;
-        ISortedTroves sortedTroves;
-        IUSMToken usmToken;
-        ISMOJO sMOJO;
+        // ITroveManager troveManager;
+        // ISortedTroves sortedTroves;
+        // IUSMToken usmToken;
+        // ISMOJO sMOJO;
         // status of addresses set
         bool addressesSet;
         //=== deposited collateral tracker of each pool. Colls is always the whitelisted list of all collateral tokens.
@@ -207,37 +122,37 @@ library LibMojoDiamond {
         // list of all collateral types in collateralParams (active and deprecated)
         // Addresses for easy access
         address[] validCollateral; // index maps to token address.
-        uint256 deploymentTime;     // deployment time for "BorrowerOperations.sol"
+        uint256 deploymentTime; // deployment time for "BorrowerOperations.sol"
 
         // TODO: Please add new members from end of struct
     }
 
     uint internal constant BOOTSTRAP_PERIOD = 14 days;
-    
+
     uint internal constant DECIMAL_PRECISION = 1e18;
     uint internal constant HALF_DECIMAL_PRECISION = 5e17;
 
-    uint constant public _100pct = 1e18; // 1e18 == 100%
+    uint public constant _100pct = 1e18; // 1e18 == 100%
 
-    uint constant public _110pct = 11e17; // 1.1e18 == 110%
+    uint public constant _110pct = 11e17; // 1.1e18 == 110%
 
     // Minimum collateral ratio for individual troves
-    uint constant public MCR = 11e17; // 110%
+    uint public constant MCR = 11e17; // 110%
 
     // Critical system collateral ratio. If the system's total collateral ratio (TCR) falls below the CCR, Recovery Mode is triggered.
-    uint constant public CCR = 15e17; // 150%
+    uint public constant CCR = 15e17; // 150%
 
     // Amount of USM to be locked in gas pool on opening troves
-    uint constant public USM_GAS_COMPENSATION = 200e18;
+    uint public constant USM_GAS_COMPENSATION = 200e18;
 
     // Minimum amount of net USM debt a must have
-    uint constant public MIN_NET_DEBT = 1800e18;
-    // uint constant public MIN_NET_DEBT = 0; 
+    uint public constant MIN_NET_DEBT = 1800e18;
+    // uint constant public MIN_NET_DEBT = 0;
 
-    uint constant public PERCENT_DIVISOR = 200; // dividing by 200 yields 0.5%
+    uint public constant PERCENT_DIVISOR = 200; // dividing by 200 yields 0.5%
 
-    uint constant public BORROWING_FEE_FLOOR = DECIMAL_PRECISION / 1000 * 5; // 0.5%
-    uint constant public REDEMPTION_FEE_FLOOR = DECIMAL_PRECISION / 1000 * 5; // 0.5%
+    uint public constant BORROWING_FEE_FLOOR = (DECIMAL_PRECISION / 1000) * 5; // 0.5%
+    uint public constant REDEMPTION_FEE_FLOOR = (DECIMAL_PRECISION / 1000) * 5; // 0.5%
 
     function diamondStorage()
         internal
@@ -266,7 +181,7 @@ library LibMojoDiamond {
         contractOwner_ = diamondStorage().contractOwner;
     }
 
-    function enforceIsContractOwner() internal view {
+    function checkContractOwner() internal view {
         require(msg.sender == diamondStorage().contractOwner, "LIBE0");
     }
 
@@ -530,11 +445,11 @@ library LibMojoDiamond {
         DiamondStorage storage ds = diamondStorage();
 
         if (
-            msg.sender != ds.borrowerOperationsAddress &&
-            msg.sender != ds.troveManagerAddress &&
-            // msg.sender != ds.stabilityPoolAddress &&
-            msg.sender != ds.troveManagerLiquidationsAddress &&
-            msg.sender != ds.troveManagerRedemptionsAddress
+            msg.sender != ds.allAddresses.borrowerOperationsAddress &&
+            msg.sender != ds.allAddresses.troveManagerAddress &&
+            // msg.sender != ds.allAddresses.stabilityPoolAddress &&
+            msg.sender != ds.allAddresses.troveManagerLiquidationsAddress &&
+            msg.sender != ds.allAddresses.troveManagerRedemptionsAddress
         ) {
             _revertWrongFuncCaller();
         }
@@ -544,8 +459,8 @@ library LibMojoDiamond {
         DiamondStorage storage ds = diamondStorage();
 
         if (
-            msg.sender != ds.borrowerOperationsAddress &&
-            msg.sender != ds.defaultPoolAddress
+            msg.sender != ds.allAddresses.borrowerOperationsAddress &&
+            msg.sender != ds.allAddresses.defaultPoolAddress
         ) {
             _revertWrongFuncCaller();
         }
@@ -554,7 +469,7 @@ library LibMojoDiamond {
     function _requireCallerIsBorrowerOperations() internal view {
         DiamondStorage storage ds = diamondStorage();
 
-        if (msg.sender != ds.borrowerOperationsAddress) {
+        if (msg.sender != ds.allAddresses.borrowerOperationsAddress) {
             _revertWrongFuncCaller();
         }
     }
@@ -563,10 +478,10 @@ library LibMojoDiamond {
         DiamondStorage storage ds = diamondStorage();
 
         if (
-            msg.sender != ds.borrowerOperationsAddress &&
-            msg.sender != ds.troveManagerAddress &&
-            // msg.sender != ds.stabilityPoolAddress &&
-            msg.sender != ds.troveManagerRedemptionsAddress
+            msg.sender != ds.allAddresses.borrowerOperationsAddress &&
+            msg.sender != ds.allAddresses.troveManagerAddress &&
+            // msg.sender != ds.allAddresses.stabilityPoolAddress &&
+            msg.sender != ds.allAddresses.troveManagerRedemptionsAddress
         ) {
             _revertWrongFuncCaller();
         }
@@ -576,8 +491,8 @@ library LibMojoDiamond {
         DiamondStorage storage ds = diamondStorage();
 
         if (
-            msg.sender != ds.borrowerOperationsAddress &&
-            msg.sender != ds.troveManagerAddress
+            msg.sender != ds.allAddresses.borrowerOperationsAddress &&
+            msg.sender != ds.allAddresses.troveManagerAddress
         ) {
             _revertWrongFuncCaller();
         }
@@ -587,7 +502,7 @@ library LibMojoDiamond {
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
-        if (msg.sender != ds.troveManagerAddress) {
+        if (msg.sender != ds.allAddresses.troveManagerAddress) {
             _revertWrongFuncCaller();
         }
     }
@@ -603,7 +518,7 @@ library LibMojoDiamond {
     function _requireCallerIsActivePool() internal view {
         DiamondStorage storage ds = diamondStorage();
 
-        if (msg.sender != ds.activePoolAddress) {
+        if (msg.sender != ds.allAddresses.activePoolAddress) {
             _revertWrongFuncCaller();
         }
     }

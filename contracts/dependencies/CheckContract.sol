@@ -2,7 +2,8 @@
 
 pragma solidity ^0.8.0;
 
-contract CheckContract {
+// NOTE: type changed to abstract as not uploaded.
+abstract contract CheckContract {
     /**
      * Check that the account is an already deployed non-destroyed contract.
      * See: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Address.sol#L12

@@ -4,25 +4,23 @@ pragma solidity 0.8.6;
 
 // import "../libs/math/BaseMath.sol";
 // import "./SafeMath.sol";         // Not needed for compiler version >= 0.8.0
-import "../interfaces/IERC20.sol";
+import "./interfaces/IERC20.sol";
+import "./interfaces/IMojoCustomBase.sol";
+import "./libs/LibMojoDiamond.sol";
 
-import "../libs/LibMojoDiamond.sol";
+// NOTE: if this hits the contract size limit,
+// then create "MojoCustomBase2.sol" & shift the `newColls` struct &
+// `whitelist` state var to there with a new diamond storage position & also shift the functions
 
-// NOTE: if this hits the contract size limit, 
-// then create "LibMojoDiamond2.sol" & shift the `newColls` struct & 
-// `whitelist` state var to there with a new diamond storage position
-
-// NOTE: contract changed to library
-library MojoCustomBase {
+contract MojoCustomBase is IMojoCustomBase {
     // using SafeMath for uint256;          // TODO: clear
 
     // Collateral math
     // gets the sum of _coll1 and _coll2
-    function _sumColls(LibMojoDiamond.newColls memory _coll1, LibMojoDiamond.newColls memory _coll2)
-        internal
-        view
-        returns (LibMojoDiamond.newColls memory finalColls)
-    {
+    function _sumColls(
+        LibMojoDiamond.newColls memory _coll1,
+        LibMojoDiamond.newColls memory _coll2
+    ) internal view returns (LibMojoDiamond.newColls memory finalColls) {
         LibMojoDiamond.newColls memory coll3;
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
@@ -75,7 +73,10 @@ library MojoCustomBase {
         address[] calldata tokens,
         uint256[] calldata amounts
     ) internal view returns (LibMojoDiamond.newColls memory) {
-        LibMojoDiamond.newColls memory coll2 = LibMojoDiamond.newColls(tokens, amounts);
+        LibMojoDiamond.newColls memory coll2 = LibMojoDiamond.newColls(
+            tokens,
+            amounts
+        );
         return _sumColls(_coll1, coll2);
     }
 
@@ -85,7 +86,10 @@ library MojoCustomBase {
         address[] calldata tokens2,
         uint256[] calldata amounts2
     ) internal view returns (LibMojoDiamond.newColls memory) {
-        LibMojoDiamond.newColls memory coll1 = LibMojoDiamond.newColls(tokens1, amounts1);
+        LibMojoDiamond.newColls memory coll1 = LibMojoDiamond.newColls(
+            tokens1,
+            amounts1
+        );
         return _sumColls(coll1, tokens2, amounts2);
     }
 
@@ -96,7 +100,7 @@ library MojoCustomBase {
         LibMojoDiamond.newColls memory _coll1,
         address[] calldata _tokens,
         uint256[] calldata _amounts
-    ) internal view returns (uint256[] memory) {
+    ) external view override returns (uint256[] memory) {
         uint256[] memory sumAmounts = _getArrayCopy(_coll1.amounts);
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
@@ -117,7 +121,7 @@ library MojoCustomBase {
         LibMojoDiamond.newColls calldata _coll1,
         address[] calldata _subTokens,
         uint256[] calldata _subAmounts
-    ) internal view returns (uint256[] memory) {
+    ) external view override returns (uint256[] memory) {
         uint256[] memory diffAmounts = _getArrayCopy(_coll1.amounts);
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
@@ -138,7 +142,12 @@ library MojoCustomBase {
         LibMojoDiamond.newColls calldata _coll1,
         address[] calldata _tokens,
         uint256[] calldata _amounts
-    ) internal view returns (LibMojoDiamond.newColls memory finalColls) {
+    )
+        external
+        view
+        override
+        returns (LibMojoDiamond.newColls memory finalColls)
+    {
         uint256 coll1Len = _coll1.tokens.length;
         uint256 tokensLen = _tokens.length;
         require(tokensLen == _amounts.length, "SubColls invalid input");

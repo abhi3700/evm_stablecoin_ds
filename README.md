@@ -1,4 +1,4 @@
-# stablecoin/borrowing protocol
+# Mojo
 
 Polygon's Native stablecoin
 
@@ -26,6 +26,12 @@ Build the smart contracts
 
 ```console
 $ yarn compile
+```
+
+### Contract size
+
+```console
+yarn contract-size
 ```
 
 ### Test
@@ -86,43 +92,54 @@ $ yarn clean
 
 ### Deploy
 
+Environment variables: Create a `.env` file with its values in [.env.example](./.env.example)
+
 **Sequence**:
 
-1. Deploy the "Hexadiamond.sol" contract with facets & libraries.
+1. Deploy the `MojoCustomBase` contract.
+2. Deploy the "MojoDiamond.sol" contract with facets & libraries & address of `MojoCustomBase` contract.
    - "DefaultPool.sol"
    - "ActivePool.sol"
    - "Whitelist.sol"
-2. Set addresses using `setAddresses()` function (inside Diamond Proxy SC)
+3. Set addresses using `setAddresses()` function (inside Diamond Proxy SC)
    - only Owner
 
-<!-- TODO: MojoCustomBase.sol to be either set as address inside the constructor of diamond. And then create a onlyOwner function setMojoCustomBase() -->
+<!-- TODO: MojoCustomBase.sol to be either set as address inside the constructor of diamond. And then create a `checkContractOwner` modifier based function setMojoCustomBase() -->
 
-3. Add assets as whitelisted for respective pools (active, default, stability, colSurplus) from `Whitelist::addCollateral` function. Whenever an asset is added, the asset is updated in the pools as well.
+4. Add assets as whitelisted for respective pools (active, default, stability, colSurplus) from `Whitelist::addCollateral` function. Whenever an asset is added, the asset is updated in the pools as well.
 
-#### localhost
+<!-- #### localhost
 
-<!-- ```console
+```console
 // on terminal-1
 $ npx hardhat node
 
 // on terminal-2
-$ yarn hardhat deploy:Stablecoin --network localhost
-``` -->
+$ yarn hardhat deploy:LaunchMojo --network localhost
+```
+ -->
 
 #### ETH Testnet - Rinkeby
 
-- Environment variables: Create a `.env` file with its values in [.env.example](./.env.example)
 - Deploy the contracts
 
 <!-- ```console
-yarn hardhat deploy:Stablecoin --network rinkeby
+$ yarn hardhat deploy:LaunchMojo --network rinkeby
 ``` -->
+
+```console
+$ yarn hardhat run deployment/deploy.main.ts --network rinkeby
+```
 
 #### ETH Mainnet
 
-- Environment variables: Create a `.env` file with its values in [.env.example](./.env.example)
 - Deploy the contracts
 
 <!-- ```console
-yarn hardhat deploy:Escrow --network mainnet
-``` -->
+$ yarn hardhat deploy:LaunchMojo --network ethmainnet
+```
+ -->
+
+```console
+$ yarn hardhat run deployment/deploy.main.ts --network ethmainnet
+```

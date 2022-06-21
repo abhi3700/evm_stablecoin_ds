@@ -3,12 +3,15 @@ pragma solidity 0.8.6;
 
 import {LibMojoDiamond} from "./libs/LibMojoDiamond.sol";
 import {IDiamondCut} from "./interfaces/IDiamondCut.sol";
+import "./interfaces/IActivePool.sol";
+import "./interfaces/IDefaultPool.sol";
 import "./libs/Strings.sol";
+import "./dependencies/CheckContract.sol";
 
-/// @title An upgradeable stablecoin/borrowing SC protocol
+/// @title A upgradeable Mojo protocol
 /// @author abhi3700
-/// @notice Launch the lending protocol to create CDP based stablecoin
-contract MojoDiamond is IDiamondCut {
+/// @notice Any protocol can launch a protocol (stablecoin/borrowing)
+contract MojoDiamond is IDiamondCut, CheckContract {
     using Strings for string;
 
     /**
@@ -22,8 +25,56 @@ contract MojoDiamond is IDiamondCut {
 
     // Protocol diamond constructor
     /// @dev initialize protocol's data
-    constructor() {
+    constructor(address _mojoCustomBaseAddress, FacetCut[] memory _diamondCut) {
         // set whitelist address - `whitelist`, `whitelistAddress`
+        // set deployer as the contract owner
+        LibMojoDiamond.setContractOwner(msg.sender);
+
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
+            .diamondStorage();
+
+        // Set chain ID
+        ds.chainId = block.chainid;
+
+        // Set the deployed MojoCustomBase contract address
+        ds.allAddresses.mojoCustomBaseAddress = _mojoCustomBaseAddress;
+
+        // set diamond cuts
+        LibMojoDiamond.diamondCut(_diamondCut, address(0), "");
+    }
+
+    /// @notice set Addresses of facets
+    function setAddresses(
+        address _activePoolAddress,
+        address _defaultPoolAddress,
+        address _whitelistAddress
+    ) external {
+        LibMojoDiamond.checkContractOwner();
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
+            .diamondStorage();
+        require(ds.chainId != 0, "contract not yet deployed");
+        require(!ds.addressesSet, "addresses already set");
+        checkContract(_activePoolAddress);
+        checkContract(_defaultPoolAddress);
+
+        ds.allAddresses.activePoolAddress = _activePoolAddress;
+        ds.allAddresses.defaultPoolAddress = _defaultPoolAddress;
+        ds.allAddresses.whitelistAddress = _whitelistAddress;
+
+        ds.addressesSet = true;
+    }
+
+    /// @notice Set MojoCustomBase contract
+    /// @dev set contract address after updating the logic inside contract
+    function setMojoCustomBase(address _mojoCustomBaseAddress) external {
+        LibMojoDiamond.checkContractOwner();
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
+            .diamondStorage();
+        require(ds.chainId != 0, "contract not yet deployed");
+        require(!ds.addressesSet, "addresses already set");
+        checkContract(_mojoCustomBaseAddress);
+
+        ds.allAddresses.mojoCustomBaseAddress = _mojoCustomBaseAddress;
     }
 
     // DiamondCut Actions (Add/Replace/Remove)
@@ -32,7 +83,7 @@ contract MojoDiamond is IDiamondCut {
         address _init,
         bytes calldata _calldata
     ) external override {
-        LibMojoDiamond.enforceIsContractOwner();
+        LibMojoDiamond.checkContractOwner();
         LibMojoDiamond.diamondCut(_diamondCut, _init, _calldata);
     }
 

@@ -5,13 +5,13 @@ pragma solidity 0.8.6;
 interface IWhitelist {
     function getValidCollateral() external view returns (address[] memory);
 
-    function setAddresses(
-        address _activePoolAddress,
-        address _defaultPoolAddress,
-        // address _stabilityPoolAddress,
-        address _collSurplusPoolAddress,
-        address _borrowerOperationsAddress
-    ) external;
+    // function setAddresses(
+    //     address _activePoolAddress,
+    //     address _defaultPoolAddress,
+    //     // address _stabilityPoolAddress,
+    //     address _collSurplusPoolAddress,
+    //     address _borrowerOperationsAddress
+    // ) external;
 
     function isValidRouter(address _router) external view returns (bool);
 

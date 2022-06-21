@@ -7,6 +7,13 @@
     "outDir": "dist",
     "declaration": true
   },
-  "include": ["./deployment", "./test", "./scripts"],
-  "files": ["./hardhat.config.ts"]
+  "include": [
+    "./deployment",
+    "./test",
+    "./scripts",
+    "libs/diamond.ts"
+  ],
+  "files": [
+    "./hardhat.config.ts"
+  ]
 }

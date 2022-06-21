@@ -8,21 +8,25 @@ import "../interfaces/IWhitelist.sol";
 import "../interfaces/IERC20.sol";
 import "../interfaces/IWAsset.sol";
 // import "./dependencies/SafeMath.sol";
-import "../dependencies/Ownable.sol";
+// import "../dependencies/Ownable.sol";            // facets don't need ownable, rather the diamond needs one
 import "../dependencies/CheckContract.sol";
-import "../dependencies/MojoCustomBase.sol";
+import "../MojoCustomBase.sol";
 import "../dependencies/SafeERC20.sol";
 
 import "../libs/LibMojoDiamond.sol";
+import "hardhat/console.sol"; // For debugging with Hardhat: https://hardhat.org/tutorial/debugging-with-hardhat-network
 
-/*
+/**
  * The Default Pool holds the collateral and USM debt (but not USM tokens) from liquidations that have been redistributed
  * to active troves but not yet "applied", i.e. not yet recorded on a recipient active trove's struct.
  *
  * When a trove makes an operation that applies its pending collateral and USM debt, its pending collateral and USM debt is moved
  * from the Default Pool to the Active Pool.
  */
-contract DefaultPool is Ownable, CheckContract, IDefaultPool/* , MojoCustomBase */ {
+contract DefaultPool is
+    CheckContract,
+    IDefaultPool /* , MojoCustomBase */
+{
     // using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -31,7 +35,7 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool/* , MojoCustomBase 
     // address internal troveManagerAddress;
     // address internal activePoolAddress;
     // address internal whitelistAddress;
-    // address internal hexaFinanceTreasury;
+    // address internal mojoFinanceTreasury;
 
     // // deposited collateral tracker. Colls is always the whitelist list of all collateral tokens. Amounts
     // newColls internal dpoolColl;
@@ -40,72 +44,60 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool/* , MojoCustomBase 
 
     // --- Events ---
 
-    event TroveManagerAddressChanged(address _newTroveManagerAddress);
-    event DefaultPoolUSMDebtUpdated(uint256 _USMDebt);
-    event DefaultPoolBalanceUpdated(address _collateral, uint256 _amount);
-    event DefaultPoolBalancesUpdated(
-        address[] _collaterals,
-        uint256[] _amounts
-    );
-
     // --- Dependency setters ---
 
-    function setAddresses(
-        address _troveManagerAddress,
-        address _activePoolAddress,
-        address _whitelistAddress,
-        address _hexaTreasuryAddress
-    ) external onlyOwner {
-        checkContract(_troveManagerAddress);
-        checkContract(_activePoolAddress);
-        checkContract(_whitelistAddress);
-        checkContract(_hexaTreasuryAddress);
+    // function setAddresses(
+    //     address _troveManagerAddress,
+    //     address _activePoolAddress,
+    //     address _whitelistAddress,
+    //     address _mojoTreasuryAddress
+    // ) external {
+    //     LibMojoDiamond.checkContractOwner();
 
-        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
-            .diamondStorage();
+    //     checkContract(_troveManagerAddress);
+    //     checkContract(_activePoolAddress);
+    //     checkContract(_whitelistAddress);
+    //     checkContract(_mojoTreasuryAddress);
 
-        ds.troveManagerAddress = _troveManagerAddress;
-        ds.activePoolAddress = _activePoolAddress;
-        ds.whitelist = IWhitelist(_whitelistAddress);
-        ds.whitelistAddress = _whitelistAddress;
-        ds.hexaFinanceTreasury = _hexaTreasuryAddress;
+    //     LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
+    //         .diamondStorage();
 
-        emit TroveManagerAddressChanged(_troveManagerAddress);
-        emit ActivePoolAddressChanged(_activePoolAddress);
+    //     ds.troveManagerAddress = _troveManagerAddress;
+    //     ds.activePoolAddress = _activePoolAddress;
+    //     ds.whitelist = IWhitelist(_whitelistAddress);
+    //     ds.whitelistAddress = _whitelistAddress;
+    //     ds.mojoFinanceTreasury = _mojoTreasuryAddress;
 
-        // In MojoFi, we aim at upgradeability functionality, so the deployer must be owner
-        // & the decision is taken based on DAO voting
-        // _renounceOwnership();
-    }
+    //     emit TroveManagerAddressChanged(_troveManagerAddress);
+    //     emit ActivePoolAddressChanged(_activePoolAddress);
+
+    //     // In MojoFi, we aim at upgradeability functionality, so the deployer must be owner
+    //     // & the decision is taken based on DAO voting
+    //     // _renounceOwnership();
+    // }
 
     // --- Internal Functions ---
 
     // --- Getters for public variables. Required by IPool interface ---
 
-    /*
+    /**
      * Returns the collateralBalance for a given collateral
      *
      * Returns the amount of a given collateral in state. Not necessarily the contract's actual balance.
      */
-    function getCollateral(address _collateral)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function getCollateralD(address _collateral) public view returns (uint256) {
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         return ds.dpoolColl.amounts[ds.whitelist.getIndex(_collateral)];
     }
 
-    /*
+    /**
      * Returns all collateral balances in state. Not necessarily the contract's actual balances.
      */
-    function getAllCollateral()
+    function getAllCollateralD()
         external
         view
-        override
         returns (address[] memory, uint256[] memory)
     {
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
@@ -115,7 +107,7 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool/* , MojoCustomBase 
     }
 
     // returns the VC value of a given collateralAddress in this contract
-    function getCollateralVC(address _collateral)
+    function getCollateralVCD(address _collateral)
         external
         view
         override
@@ -124,10 +116,11 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool/* , MojoCustomBase 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
-        return ds.whitelist.getValueVC(_collateral, getCollateral(_collateral));
+        return
+            ds.whitelist.getValueVC(_collateral, getCollateralD(_collateral));
     }
 
-    /*
+    /**
      * Returns the VC of the contract
      *
      * Not necessarily equal to the the contract's raw VC balance - Collateral can be forcibly sent to contracts.
@@ -135,7 +128,14 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool/* , MojoCustomBase 
      * Computed when called by taking the collateral balances and
      * multiplying them by the corresponding price and ratio and then summing that
      */
-    function getVC() external view override returns (uint256 totalVC) {
+    function getVCD()
+        external
+        view
+        returns (
+            /* override */
+            uint256 totalVC
+        )
+    {
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
@@ -150,16 +150,25 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool/* , MojoCustomBase 
     }
 
     // Debt that this pool holds.
-    function getUSMDebt() external view override returns (uint256) {
+    function getUSMDebtD()
+        external
+        view
+        returns (
+            /* override */
+            uint256
+        )
+    {
         return LibMojoDiamond.diamondStorage().dUSMDebt;
     }
+
+    // --- Pool functionality ---
 
     // Internal function to send collateral to a different pool.
     function _sendCollateral(address _collateral, uint256 _amount) internal {
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
-        address activePool = ds.activePoolAddress;
+        address activePool = ds.allAddresses.activePoolAddress;
         uint256 index = ds.whitelist.getIndex(_collateral);
         ds.dpoolColl.amounts[index] += _amount;
 
@@ -214,11 +223,14 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool/* , MojoCustomBase 
                 }
             }
         }
-        IActivePool(ds.activePoolAddress).receiveCollateral(_tokens, _amounts);
+        IActivePool(ds.allAddresses.activePoolAddress).receiveCollateral(
+            _tokens,
+            _amounts
+        );
     }
 
     // Increases the USM Debt of this pool.
-    function increaseUSMDebt(uint256 _amount) external override {
+    function increaseUSMDebtD(uint256 _amount) external {
         LibMojoDiamond._requireCallerIsTroveManager();
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
@@ -229,7 +241,7 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool/* , MojoCustomBase 
     }
 
     // Decreases the USM Debt of this pool.
-    function decreaseUSMDebt(uint256 _amount) external override {
+    function decreaseUSMDebtD(uint256 _amount) external {
         LibMojoDiamond._requireCallerIsTroveManager();
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
@@ -244,7 +256,7 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool/* , MojoCustomBase 
 
     // Should be called by ActivePool
     // __after__ collateral is transferred to this contract from Active Pool
-    function receiveCollateral(
+    function receiveCollateralD(
         address[] calldata _tokens,
         uint256[] calldata _amounts
     ) external override {
@@ -252,12 +264,14 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool/* , MojoCustomBase 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
-        ds.dpoolColl.amounts = MojoCustomBase._leftSumColls(ds.dpoolColl, _tokens, _amounts);
+        ds.dpoolColl.amounts = IMojoCustomBase(
+            ds.allAddresses.mojoCustomBaseAddress
+        )._leftSumColls(ds.dpoolColl, _tokens, _amounts);
         emit DefaultPoolBalancesUpdated(_tokens, _amounts);
     }
 
     // Adds collateral type from whitelist.
-    function addCollateralType(address _collateral) external override {
+    function addCollateralTypeD(address _collateral) external override {
         LibMojoDiamond._requireCallerIsWhitelist();
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
@@ -269,7 +283,7 @@ contract DefaultPool is Ownable, CheckContract, IDefaultPool/* , MojoCustomBase 
     //======================================================
     // Utils
     //======================================================
-    function getName() external pure returns (string memory) {
+    function getNameD() external pure returns (string memory) {
         return "DefaultPool";
     }
 }
