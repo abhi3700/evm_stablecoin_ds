@@ -6,6 +6,9 @@ import "../interfaces/IWhitelist.sol";
 import "../interfaces/IActivePool.sol";
 import "../interfaces/IDefaultPool.sol";
 import "../interfaces/ICollSurplusPool.sol";
+import "../interfaces/ITroveManager.sol";
+import "../interfaces/ISMOJO.sol";
+import "../interfaces/IUSMToken.sol";
 
 library LibMojoDiamond {
     /**
@@ -44,18 +47,20 @@ library LibMojoDiamond {
 
     struct AllAddresses {
         address mojoCustomBaseAddress;
-        address borrowerOperationsAddress;
-        address troveManagerAddress;
         address activePoolAddress;
         // address stabilityPoolAddress;
         address defaultPoolAddress;
+        address whitelistAddress;
         address gasPoolAddress;
-        address troveManagerLiquidationsAddress;
-        address troveManagerRedemptionsAddress;
         address collSurplusPoolAddress;
         address mojoFinanceTreasury;
-        address whitelistAddress;
+        address sortedTroveAddress;
+        address usmTokenAddress;
         address sMOJOAddress;
+        address borrowerOperationsAddress;
+        address troveManagerAddress;
+        address troveManagerLiquidationsAddress;
+        address troveManagerRedemptionsAddress;
     }
 
     // ========"ActivePool.sol" | "DefaultPool.sol"========
@@ -76,6 +81,91 @@ library LibMojoDiamond {
         bool active;
         bool isWrapped;
         address defaultRouter;
+    }
+
+    // ========"BorrowerOperations.sol"========
+    struct CollateralData {
+        address collateral;
+        uint256 amount;
+    }
+
+    struct DepositFeeCalc {
+        uint256 collateralUSMFee;
+        uint256 systemCollateralVC;
+        uint256 collateralInputVC;
+        uint256 systemTotalVC;
+        address token;
+    }
+
+    // --- Variable container structs  ---
+    struct AdjustTrove_Params {
+        address[] _collsIn;
+        uint256[] _amountsIn;
+        address[] _collsOut;
+        uint256[] _amountsOut;
+        uint256[] _maxSlippages;
+        uint256 _USMChange;
+        uint256 _totalUSMDebtFromLever;
+        bool _isDebtIncrease;
+        bool _isUnlever;
+        address _upperHint;
+        address _lowerHint;
+        uint256 _maxFeePercentage;
+    }
+
+    struct LocalVariables_adjustTrove {
+        uint256 netDebtChange;
+        bool isCollIncrease;
+        uint256 collChange;
+        uint256 currVC;
+        uint256 newVC;
+        uint256 debt;
+        address[] currAssets;
+        uint256[] currAmounts;
+        address[] newAssets;
+        uint256[] newAmounts;
+        uint256 oldICR;
+        uint256 newICR;
+        uint256 newTCR;
+        uint256 USMFee;
+        uint256 variableUSMFee;
+        uint256 newDebt;
+        uint256 VCin;
+        uint256 VCout;
+        uint256 maxFeePercentageFactor;
+    }
+
+    struct LocalVariables_openTrove {
+        address[] collaterals;
+        uint256[] prices;
+        uint256 USMFee;
+        uint256 netDebt;
+        uint256 compositeDebt;
+        uint256 ICR;
+        uint256 arrayIndex;
+        address collAddress;
+        uint256 VC;
+        uint256 newTCR;
+        bool isRecoveryMode;
+    }
+
+    struct CloseTrove_Params {
+        address[] _collsOut;
+        uint256[] _amountsOut;
+        uint256[] _maxSlippages;
+        bool _isUnlever;
+    }
+
+    struct ContractsCache {
+        ITroveManager troveManager;
+        IActivePool activePool;
+        IYUSDToken usmToken;
+    }
+
+    enum BorrowerOperation {
+        openTrove,
+        closeTrove,
+        adjustTrove
     }
 
     // ========"Diamond Storage"========
@@ -101,10 +191,11 @@ library LibMojoDiamond {
         IDefaultPool defaultPool;
         // IStabilityPool stabilityPool;
         ICollSurplusPool collSurplusPool;
-        // ITroveManager troveManager;
-        // ISortedTroves sortedTroves;
-        // IUSMToken usmToken;
-        // ISMOJO sMOJO;
+        ITroveManager troveManager;
+        // A doubly linked list of Troves, sorted by their collateral ratios
+        ISortedTroves sortedTroves;
+        IUSMToken usmToken;
+        ISMOJO sMOJO;
         // status of addresses set
         bool addressesSet;
         //=== deposited collateral tracker of each pool. Colls is always the whitelisted list of all collateral tokens.

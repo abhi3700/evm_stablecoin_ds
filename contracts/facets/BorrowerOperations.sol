@@ -152,16 +152,16 @@ contract BorrowerOperations is
     //     adjustTrove
     // }
 
-    event TroveManagerAddressChanged(address _newTroveManagerAddress);
-    event ActivePoolAddressChanged(address _activePoolAddress);
-    event DefaultPoolAddressChanged(address _defaultPoolAddress);
+    // event TroveManagerAddressChanged(address _newTroveManagerAddress);
+    // event ActivePoolAddressChanged(address _activePoolAddress);
+    // event DefaultPoolAddressChanged(address _defaultPoolAddress);
     // event StabilityPoolAddressChanged(address _stabilityPoolAddress);
-    event GasPoolAddressChanged(address _gasPoolAddress);
-    event CollSurplusPoolAddressChanged(address _collSurplusPoolAddress);
-    event PriceFeedAddressChanged(address _newPriceFeedAddress);
-    event SortedTrovesAddressChanged(address _sortedTrovesAddress);
-    event USMTokenAddressChanged(address _usmTokenAddress);
-    event sMOJOAddressChanged(address _sMOJOAddress);
+    // event GasPoolAddressChanged(address _gasPoolAddress);
+    // event CollSurplusPoolAddressChanged(address _collSurplusPoolAddress);
+    // event PriceFeedAddressChanged(address _newPriceFeedAddress);
+    // event SortedTrovesAddressChanged(address _sortedTrovesAddress);
+    // event USMTokenAddressChanged(address _usmTokenAddress);
+    // event sMOJOAddressChanged(address _sMOJOAddress);
 
     event TroveCreated(address indexed _borrower, uint256 arrayIndex);
     event TroveUpdated(
@@ -175,62 +175,62 @@ contract BorrowerOperations is
 
     // --- Dependency setters ---
 
-    function setAddresses(
-        address _troveManagerAddress,
-        address _activePoolAddress,
-        address _defaultPoolAddress,
-        address _stabilityPoolAddress,
-        address _gasPoolAddress,
-        address _collSurplusPoolAddress,
-        address _sortedTrovesAddress,
-        address _usmTokenAddress,
-        address _sMOJOAddress,
-        address _whitelistAddress
-    ) external override onlyOwner {
-        // This makes impossible to open a trove with zero withdrawn USM
-        require(LibMojoDiamond.MIN_NET_DEBT != 0, "BO:MIN_NET_DEBT==0");
+    // function setAddresses(
+    //     address _troveManagerAddress,
+    //     address _activePoolAddress,
+    //     address _defaultPoolAddress,
+    //     address _stabilityPoolAddress,
+    //     address _gasPoolAddress,
+    //     address _collSurplusPoolAddress,
+    //     address _sortedTrovesAddress,
+    //     address _usmTokenAddress,
+    //     address _sMOJOAddress,
+    //     address _whitelistAddress
+    // ) external override onlyOwner {
+    //     // This makes impossible to open a trove with zero withdrawn USM
+    //     require(LibMojoDiamond.MIN_NET_DEBT != 0, "BO:MIN_NET_DEBT==0");
 
-        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
-            .diamondStorage();
+    //     LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
+    //         .diamondStorage();
 
-        ds.deploymentTime = block.timestamp;
+    //     ds.deploymentTime = block.timestamp;
 
-        checkContract(_troveManagerAddress);
-        checkContract(_activePoolAddress);
-        checkContract(_defaultPoolAddress);
-        checkContract(_stabilityPoolAddress);
-        checkContract(_gasPoolAddress);
-        checkContract(_collSurplusPoolAddress);
-        checkContract(_sortedTrovesAddress);
-        checkContract(_usmTokenAddress);
-        checkContract(_sMOJOAddress);
-        checkContract(_whitelistAddress);
+    //     checkContract(_troveManagerAddress);
+    //     checkContract(_activePoolAddress);
+    //     checkContract(_defaultPoolAddress);
+    //     checkContract(_stabilityPoolAddress);
+    //     checkContract(_gasPoolAddress);
+    //     checkContract(_collSurplusPoolAddress);
+    //     checkContract(_sortedTrovesAddress);
+    //     checkContract(_usmTokenAddress);
+    //     checkContract(_sMOJOAddress);
+    //     checkContract(_whitelistAddress);
 
-        ds.troveManager = ITroveManager(_troveManagerAddress);
-        ds.activePool = IActivePool(_activePoolAddress);
-        ds.defaultPool = IDefaultPool(_defaultPoolAddress);
-        ds.whitelist = IWhitelist(_whitelistAddress);
-        // stabilityPoolAddress = _stabilityPoolAddress;
-        ds.gasPoolAddress = _gasPoolAddress;
-        ds.collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
-        ds.sortedTroves = ISortedTroves(_sortedTrovesAddress);
-        ds.usmToken = IUSMToken(_usmTokenAddress);
-        ds.sMOJOAddress = _sMOJOAddress;
+    //     ds.troveManager = ITroveManager(_troveManagerAddress);
+    //     ds.activePool = IActivePool(_activePoolAddress);
+    //     ds.defaultPool = IDefaultPool(_defaultPoolAddress);
+    //     ds.whitelist = IWhitelist(_whitelistAddress);
+    //     // stabilityPoolAddress = _stabilityPoolAddress;
+    //     ds.gasPoolAddress = _gasPoolAddress;
+    //     ds.collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
+    //     ds.sortedTroves = ISortedTroves(_sortedTrovesAddress);
+    //     ds.usmToken = IUSMToken(_usmTokenAddress);
+    //     ds.sMOJOAddress = _sMOJOAddress;
 
-        emit TroveManagerAddressChanged(_troveManagerAddress);
-        emit ActivePoolAddressChanged(_activePoolAddress);
-        emit DefaultPoolAddressChanged(_defaultPoolAddress);
-        // emit StabilityPoolAddressChanged(_stabilityPoolAddress);
-        emit GasPoolAddressChanged(_gasPoolAddress);
-        emit CollSurplusPoolAddressChanged(_collSurplusPoolAddress);
-        emit SortedTrovesAddressChanged(_sortedTrovesAddress);
-        emit USMTokenAddressChanged(_usmTokenAddress);
-        emit sMOJOAddressChanged(_sMOJOAddress);
+    //     emit TroveManagerAddressChanged(_troveManagerAddress);
+    //     emit ActivePoolAddressChanged(_activePoolAddress);
+    //     emit DefaultPoolAddressChanged(_defaultPoolAddress);
+    //     // emit StabilityPoolAddressChanged(_stabilityPoolAddress);
+    //     emit GasPoolAddressChanged(_gasPoolAddress);
+    //     emit CollSurplusPoolAddressChanged(_collSurplusPoolAddress);
+    //     emit SortedTrovesAddressChanged(_sortedTrovesAddress);
+    //     emit USMTokenAddressChanged(_usmTokenAddress);
+    //     emit sMOJOAddressChanged(_sMOJOAddress);
 
-        // In MojoFi, we aim at upgradeability functionality, so the deployer must be owner
-        // & the decision is taken based on DAO voting
-        // _renounceOwnership();
-    }
+    //     // In MojoFi, we aim at upgradeability functionality, so the deployer must be owner
+    //     // & the decision is taken based on DAO voting
+    //     // _renounceOwnership();
+    // }
 
     // --- Borrower Trove Operations ---
 
@@ -727,7 +727,9 @@ contract BorrowerOperations is
      *
      * Should be called after the collsIn has been sent to ActivePool
      */
-    function _adjustTrove(LibMojoDiamond.AdjustTrove_Params memory params) internal {
+    function _adjustTrove(LibMojoDiamond.AdjustTrove_Params memory params)
+        internal
+    {
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         LibMojoDiamond.ContractsCache memory contractsCache = LibMojoDiamond
@@ -1065,12 +1067,13 @@ contract BorrowerOperations is
         uint256[] calldata _amountsOut,
         uint256[] calldata _maxSlippages
     ) external override nonReentrant {
-        LibMojoDiamond.CloseTrove_Params memory params = LibMojoDiamond.CloseTrove_Params({
-            _collsOut: _collsOut,
-            _amountsOut: _amountsOut,
-            _maxSlippages: _maxSlippages,
-            _isUnlever: true
-        });
+        LibMojoDiamond.CloseTrove_Params memory params = LibMojoDiamond
+            .CloseTrove_Params({
+                _collsOut: _collsOut,
+                _amountsOut: _amountsOut,
+                _maxSlippages: _maxSlippages,
+                _isUnlever: true
+            });
         _closeTrove(params);
     }
 
@@ -1084,7 +1087,9 @@ contract BorrowerOperations is
      * collateral to the owner, and repaying the debt.
      * if it is a unlever, then it will transfer the collaterals / sell before. Otherwise it will just do it last.
      */
-    function _closeTrove(LibMojoDiamond.CloseTrove_Params memory params) internal {
+    function _closeTrove(LibMojoDiamond.CloseTrove_Params memory params)
+        internal
+    {
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         LibMojoDiamond.ContractsCache memory contractsCache = LibMojoDiamond

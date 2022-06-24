@@ -27,6 +27,7 @@ async function main(): Promise<void> {
   // const owner: SignerWithAddress = await ethers.utils
   //   .getAddress(cut[1].facetAddress)
   //   .owner();
+  // TODO: add all the addresses
   const txn1 = await diamond.setAddresses(
     activePoolAddress,
     defaultPoolAddress,

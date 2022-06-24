@@ -23,6 +23,20 @@ contract MojoDiamond is IDiamondCut, CheckContract {
      DE1: cannot send chain's native coins directly
     */
 
+    event ActivePoolAddressChanged(address _activePoolAddress);
+    event DefaultPoolAddressChanged(address _defaultPoolAddress);
+    // event StabilityPoolAddressChanged(address _stabilityPoolAddress);
+    event GasPoolAddressChanged(address _gasPoolAddress);
+    event CollSurplusPoolAddressChanged(address _collSurplusPoolAddress);
+    event PriceFeedAddressChanged(address _newPriceFeedAddress);
+    event SortedTrovesAddressChanged(address _sortedTrovesAddress);
+    event USMTokenAddressChanged(address _usmTokenAddress);
+    event sMOJOAddressChanged(address _sMOJOAddress);
+    event BorrowerOperationsAddressChanged(
+        address _borrowerOperationsAddressChanged
+    );
+    event TroveManagerAddressChanged(address _newTroveManagerAddress);
+
     // Protocol diamond constructor
     /// @dev initialize protocol's data
     constructor(address _mojoCustomBaseAddress, FacetCut[] memory _diamondCut) {
@@ -47,21 +61,69 @@ contract MojoDiamond is IDiamondCut, CheckContract {
     function setAddresses(
         address _activePoolAddress,
         address _defaultPoolAddress,
-        address _whitelistAddress
+        // address _stabilityPoolAddress,
+        address _whitelistAddress,
+        address _gasPoolAddress,
+        address _collSurplusPoolAddress,
+        address _sortedTrovesAddress,
+        address _usmTokenAddress,
+        address _sMOJOAddress,
+        address _borrowerOperationsAddress,
+        address _troveManagerAddress
     ) external {
         LibMojoDiamond.checkContractOwner();
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         require(ds.chainId != 0, "contract not yet deployed");
         require(!ds.addressesSet, "addresses already set");
+        // This makes impossible to open a trove with zero withdrawn USM
+        require(LibMojoDiamond.MIN_NET_DEBT != 0, "BO:MIN_NET_DEBT==0");
+
         checkContract(_activePoolAddress);
         checkContract(_defaultPoolAddress);
+        // checkContract(_stabilityPoolAddress);
+        checkContract(_whitelistAddress);
+        checkContract(_gasPoolAddress);
+        checkContract(_collSurplusPoolAddress);
+        checkContract(_sortedTrovesAddress);
+        checkContract(_usmTokenAddress);
+        checkContract(_sMOJOAddress);
+        checkContract(_borrowerOperationsAddress);
+        checkContract(_troveManagerAddress);
 
-        ds.allAddresses.activePoolAddress = _activePoolAddress;
-        ds.allAddresses.defaultPoolAddress = _defaultPoolAddress;
+        ds.AllAddresses.activePoolAddress = _activePoolAddress;
+        ds.AllAddresses.defaultPoolAddress = _defaultPoolAddress;
+        // ds.AllAddresses.stabilityPoolAddress = _stabilityPoolAddress;
         ds.allAddresses.whitelistAddress = _whitelistAddress;
+        ds.allAddresses.gasPoolAddress = _gasPoolAddress;
+        ds.allAddresses.collSurplusPoolAddress = _collSurplusPoolAddress;
+        ds.AllAddresses.sortedTroveAddress = _sortedTrovesAddress;
+        ds.AllAddresses.usmTokenAddress = _usmTokenAddress;
+        ds.AllAddresses.sMojoAddress = _sMOJOAddress;
+        ds.AllAddresses.borrowerOperationsAddress = _borrowerOperationsAddress;
+        ds.AllAddresses.troveManagerAddress = _troveManagerAddress;
+        // TODO: Add these as well
+        // ds
+        //     .AllAddresses
+        //     .troveManagerLiquidationsAddress = _troveManagerLiquidationsAddress;
+        // ds
+        //     .AllAddresses
+        //     .troveManagerRedemptionsAddress = _troveManagerRedemptionsAddress;
 
-        ds.addressesSet = true;
+        ds.allAddresses.ds.addressesSet = true;
+        ds.deploymentTime = block.timestamp;
+
+        // events
+        emit ActivePoolAddressChanged(_activePoolAddress);
+        emit DefaultPoolAddressChanged(_defaultPoolAddress);
+        // emit StabilityPoolAddressChanged(_stabilityPoolAddress);
+        emit GasPoolAddressChanged(_gasPoolAddress);
+        emit CollSurplusPoolAddressChanged(_collSurplusPoolAddress);
+        emit SortedTrovesAddressChanged(_sortedTrovesAddress);
+        emit USMTokenAddressChanged(_usmTokenAddress);
+        emit sMOJOAddressChanged(_sMOJOAddress);
+        emit BorrowerOperationsAddressChanged(_troveManagerAddress);
+        emit TroveManagerAddressChanged(_troveManagerAddress);
     }
 
     /// @notice Set MojoCustomBase contract
