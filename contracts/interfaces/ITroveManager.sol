@@ -4,9 +4,8 @@ pragma solidity 0.8.6;
 
 import "./ILiquityBase.sol";
 // import "./IStabilityPool.sol";
-import "../USMToken.sol";
+import "./IUSMToken.sol";
 
-// TODO: Add
 import "./IMOJOToken.sol";
 import "./ISMOJO.sol";
 import "./IActivePool.sol";
@@ -31,36 +30,36 @@ interface ITroveManager is ILiquityBase {
     event SYETIAddressChanged(address _sYETIAddress);
 
     event Liquidation(
-        uint liquidatedAmount,
-        uint totalYUSDGasCompensation,
+        uint256 liquidatedAmount,
+        uint256 totalYUSDGasCompensation,
         address[] totalCollTokens,
-        uint[] totalCollAmounts,
+        uint256[] totalCollAmounts,
         address[] totalCollGasCompTokens,
-        uint[] totalCollGasCompAmounts
+        uint256[] totalCollGasCompAmounts
     );
     event Redemption(
-        uint _attemptedYUSDAmount,
-        uint _actualYUSDAmount,
-        uint YUSDfee,
+        uint256 _attemptedYUSDAmount,
+        uint256 _actualYUSDAmount,
+        uint256 YUSDfee,
         address[] tokens,
-        uint[] amounts
+        uint256[] amounts
     );
     event TroveLiquidated(
         address indexed _borrower,
-        uint _debt,
-        uint _coll,
+        uint256 _debt,
+        uint256 _coll,
         uint8 operation
     );
-    event BaseRateUpdated(uint _baseRate);
-    event LastFeeOpTimeUpdated(uint _lastFeeOpTime);
-    event TotalStakesUpdated(address token, uint _newTotalStakes);
+    event BaseRateUpdated(uint256 _baseRate);
+    event LastFeeOpTimeUpdated(uint256 _lastFeeOpTime);
+    event TotalStakesUpdated(address token, uint256 _newTotalStakes);
     event SystemSnapshotsUpdated(
-        uint _totalStakesSnapshot,
-        uint _totalCollateralSnapshot
+        uint256 _totalStakesSnapshot,
+        uint256 _totalCollateralSnapshot
     );
-    event LTermsUpdated(uint _L_ETH, uint _L_YUSDDebt);
-    event TroveSnapshotsUpdated(uint _L_ETH, uint _L_YUSDDebt);
-    event TroveIndexUpdated(address _borrower, uint _newIndex);
+    event LTermsUpdated(uint256 _L_ETH, uint256 _L_YUSDDebt);
+    event TroveSnapshotsUpdated(uint256 _L_ETH, uint256 _L_YUSDDebt);
+    event TroveIndexUpdated(address _borrower, uint256 _newIndex);
 
     // --- Functions ---
 
@@ -80,22 +79,22 @@ interface ITroveManager is ILiquityBase {
     //     address _troveManagerLiquidationsAddress
     // ) external;
 
-    function stabilityPool() external view returns (IStabilityPool);
+    // function stabilityPool() external view returns (IStabilityPool);
 
-    function yusdToken() external view returns (IYUSDToken);
+    function yusdToken() external view returns (IUSMToken);
 
-    function yetiToken() external view returns (IYETIToken);
+    function yetiToken() external view returns (IMOJOToken);
 
-    function sYETI() external view returns (ISYETI);
+    function sMOJO() external view returns (ISMOJO);
 
-    function getTroveOwnersCount() external view returns (uint);
+    function getTroveOwnersCount() external view returns (uint256);
 
-    function getTroveFromTroveOwnersArray(uint _index)
+    function getTroveFromTroveOwnersArray(uint256 _index)
         external
         view
         returns (address);
 
-    function getCurrentICR(address _borrower) external view returns (uint);
+    function getCurrentICR(address _borrower) external view returns (uint256);
 
     function liquidate(address _borrower) external;
 
@@ -105,13 +104,13 @@ interface ITroveManager is ILiquityBase {
     ) external;
 
     function redeemCollateral(
-        uint _YUSDAmount,
-        uint _YUSDMaxFee,
+        uint256 _YUSDAmount,
+        uint256 _YUSDMaxFee,
         address _firstRedemptionHint,
         address _upperPartialRedemptionHint,
         address _lowerPartialRedemptionHint,
-        uint _partialRedemptionHintNICR,
-        uint _maxIterations
+        uint256 _partialRedemptionHintNICR,
+        uint256 _maxIterations
     ) external;
 
     function updateStakeAndTotalStakes(address _borrower) external;
@@ -119,35 +118,35 @@ interface ITroveManager is ILiquityBase {
     function updateTroveCollTMR(
         address _borrower,
         address[] memory addresses,
-        uint[] memory amounts
+        uint256[] memory amounts
     ) external;
 
     function updateTroveRewardSnapshots(address _borrower) external;
 
     function addTroveOwnerToArray(address _borrower)
         external
-        returns (uint index);
+        returns (uint256 index);
 
     function applyPendingRewards(address _borrower) external;
 
-    //    function getPendingETHReward(address _borrower) external view returns (uint);
+    //    function getPendingETHReward(address _borrower) external view returns (uint256);
     function getPendingCollRewards(address _borrower)
         external
         view
-        returns (address[] memory, uint[] memory);
+        returns (address[] memory, uint256[] memory);
 
     function getPendingYUSDDebtReward(address _borrower)
         external
         view
-        returns (uint);
+        returns (uint256);
 
     function hasPendingRewards(address _borrower) external view returns (bool);
 
     //    function getEntireDebtAndColl(address _borrower) external view returns (
-    //        uint debt,
-    //        uint coll,
-    //        uint pendingYUSDDebtReward,
-    //        uint pendingETHReward
+    //        uint256 debt,
+    //        uint256 coll,
+    //        uint256 pendingYUSDDebtReward,
+    //        uint256 pendingETHReward
     //    );
 
     function closeTrove(address _borrower) external;
@@ -156,91 +155,91 @@ interface ITroveManager is ILiquityBase {
 
     function removeStakeTMR(address _borrower) external;
 
-    function updateTroveDebt(address _borrower, uint debt) external;
+    function updateTroveDebt(address _borrower, uint256 debt) external;
 
-    function getRedemptionRate() external view returns (uint);
+    function getRedemptionRate() external view returns (uint256);
 
-    function getRedemptionRateWithDecay() external view returns (uint);
+    function getRedemptionRateWithDecay() external view returns (uint256);
 
-    function getRedemptionFeeWithDecay(uint _ETHDrawn)
+    function getRedemptionFeeWithDecay(uint256 _ETHDrawn)
         external
         view
-        returns (uint);
+        returns (uint256);
 
-    function getBorrowingRate() external view returns (uint);
+    function getBorrowingRate() external view returns (uint256);
 
-    function getBorrowingRateWithDecay() external view returns (uint);
+    function getBorrowingRateWithDecay() external view returns (uint256);
 
-    function getBorrowingFee(uint YUSDDebt) external view returns (uint);
+    function getBorrowingFee(uint256 YUSDDebt) external view returns (uint256);
 
-    function getBorrowingFeeWithDecay(uint _YUSDDebt)
+    function getBorrowingFeeWithDecay(uint256 _YUSDDebt)
         external
         view
-        returns (uint);
+        returns (uint256);
 
     function decayBaseRateFromBorrowing() external;
 
-    function getTroveStatus(address _borrower) external view returns (uint);
+    function getTroveStatus(address _borrower) external view returns (uint256);
 
     function isTroveActive(address _borrower) external view returns (bool);
 
     function getTroveStake(address _borrower, address _token)
         external
         view
-        returns (uint);
+        returns (uint256);
 
-    function getTotalStake(address _token) external view returns (uint);
+    function getTotalStake(address _token) external view returns (uint256);
 
-    function getTroveDebt(address _borrower) external view returns (uint);
+    function getTroveDebt(address _borrower) external view returns (uint256);
 
-    function getL_Coll(address _token) external view returns (uint);
+    function getL_Coll(address _token) external view returns (uint256);
 
-    function getL_YUSD(address _token) external view returns (uint);
+    function getL_YUSD(address _token) external view returns (uint256);
 
     function getRewardSnapshotColl(address _borrower, address _token)
         external
         view
-        returns (uint);
+        returns (uint256);
 
     function getRewardSnapshotYUSD(address _borrower, address _token)
         external
         view
-        returns (uint);
+        returns (uint256);
 
     // returns the VC value of a trove
-    function getTroveVC(address _borrower) external view returns (uint);
+    function getTroveVC(address _borrower) external view returns (uint256);
 
     function getTroveColls(address _borrower)
         external
         view
-        returns (address[] memory, uint[] memory);
+        returns (address[] memory, uint256[] memory);
 
     function getCurrentTroveState(address _borrower)
         external
         view
         returns (
             address[] memory,
-            uint[] memory,
-            uint
+            uint256[] memory,
+            uint256
         );
 
-    function setTroveStatus(address _borrower, uint num) external;
+    function setTroveStatus(address _borrower, uint256 num) external;
 
     function updateTroveColl(
         address _borrower,
         address[] memory _tokens,
-        uint[] memory _amounts
+        uint256[] memory _amounts
     ) external;
 
-    function increaseTroveDebt(address _borrower, uint _debtIncrease)
+    function increaseTroveDebt(address _borrower, uint256 _debtIncrease)
         external
-        returns (uint);
+        returns (uint256);
 
-    function decreaseTroveDebt(address _borrower, uint _collDecrease)
+    function decreaseTroveDebt(address _borrower, uint256 _collDecrease)
         external
-        returns (uint);
+        returns (uint256);
 
-    function getTCR() external view returns (uint);
+    function getTCR() external view returns (uint256);
 
     function checkRecoveryMode() external view returns (bool);
 
@@ -250,48 +249,48 @@ interface ITroveManager is ILiquityBase {
 
     function removeStakeTLR(address _borrower) external;
 
-    function updateBaseRate(uint newBaseRate) external;
+    function updateBaseRate(uint256 newBaseRate) external;
 
-    function calcDecayedBaseRate() external view returns (uint);
+    function calcDecayedBaseRate() external view returns (uint256);
 
     function redistributeDebtAndColl(
         IActivePool _activePool,
         IDefaultPool _defaultPool,
-        uint _debt,
+        uint256 _debt,
         address[] memory _tokens,
-        uint[] memory _amounts
+        uint256[] memory _amounts
     ) external;
 
     function updateSystemSnapshots_excludeCollRemainder(
         IActivePool _activePool,
         address[] memory _tokens,
-        uint[] memory _amounts
+        uint256[] memory _amounts
     ) external;
 
     function getEntireDebtAndColls(address _borrower)
         external
         view
         returns (
-            uint,
+            uint256,
             address[] memory,
-            uint[] memory,
-            uint,
+            uint256[] memory,
+            uint256,
             address[] memory,
-            uint[] memory
+            uint256[] memory
         );
 
     function movePendingTroveRewardsToActivePool(
         IActivePool _activePool,
         IDefaultPool _defaultPool,
-        uint _YUSD,
+        uint256 _YUSD,
         address[] memory _tokens,
-        uint[] memory _amounts,
+        uint256[] memory _amounts,
         address _borrower
     ) external;
 
     function collSurplusUpdate(
         address _account,
         address[] memory _tokens,
-        uint[] memory _amounts
+        uint256[] memory _amounts
     ) external;
 }

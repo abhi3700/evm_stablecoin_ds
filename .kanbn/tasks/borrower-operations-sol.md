@@ -14,7 +14,7 @@ started: 2022-06-02T00:00:00.000Z
 
 - [x] LiquityBase.sol
 - [ ] IYetiRouter.sol
-- [ ] sYETIToken.sol
+- [x] sMOJOToken.sol
 - [x] IMOJO
 - [ ] SortedTroves.sol
 - [ ] CollSurplusPool.sol

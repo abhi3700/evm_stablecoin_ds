@@ -85,7 +85,7 @@ contract MojoCustomBase is IMojoCustomBase {
         uint256[] calldata amounts1,
         address[] calldata tokens2,
         uint256[] calldata amounts2
-    ) internal view returns (LibMojoDiamond.newColls memory) {
+    ) external view override returns (LibMojoDiamond.newColls memory) {
         LibMojoDiamond.newColls memory coll1 = LibMojoDiamond.newColls(
             tokens1,
             amounts1

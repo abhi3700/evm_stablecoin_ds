@@ -128,14 +128,7 @@ contract DefaultPool is
      * Computed when called by taking the collateral balances and
      * multiplying them by the corresponding price and ratio and then summing that
      */
-    function getVCD()
-        external
-        view
-        returns (
-            /* override */
-            uint256 totalVC
-        )
-    {
+    function getVCD() external view override returns (uint256 totalVC) {
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
@@ -150,14 +143,7 @@ contract DefaultPool is
     }
 
     // Debt that this pool holds.
-    function getUSMDebtD()
-        external
-        view
-        returns (
-            /* override */
-            uint256
-        )
-    {
+    function getUSMDebtD() external view override returns (uint256) {
         return LibMojoDiamond.diamondStorage().dUSMDebt;
     }
 

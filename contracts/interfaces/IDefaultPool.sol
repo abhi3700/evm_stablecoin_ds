@@ -4,7 +4,7 @@ pragma solidity 0.8.6;
 
 interface IDefaultPool {
     // --- Events ---
-    // event DefaultPoolETHBalanceUpdated(uint _ETH);
+    // event DefaultPoolETHBalanceUpdated(uint256 _ETH);
     event ActivePoolAddressChanged(address _newActivePoolAddress);
     event CollateralSent(address _collateral, address _to, uint256 _amount);
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
@@ -34,4 +34,8 @@ interface IDefaultPool {
         address[] memory _tokens,
         uint256[] memory _amounts
     ) external;
+
+    function getVCD() external view returns (uint256 totalVC);
+
+    function getUSMDebtD() external view returns (uint256);
 }

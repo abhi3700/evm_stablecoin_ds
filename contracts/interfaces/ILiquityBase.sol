@@ -8,5 +8,5 @@ interface ILiquityBase {
     function getEntireSystemDebt()
         external
         view
-        returns (uint entireSystemDebt);
+        returns (uint256 entireSystemDebt);
 }

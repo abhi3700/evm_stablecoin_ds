@@ -95,15 +95,15 @@ const config: HardhatUserConfig = {
     compilers: [
       {
         version: "0.8.6",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 10000,
-            details: {
-              yul: false,
-            },
-          },
-        },
+        // settings: {
+        //   optimizer: {
+        //     enabled: true,
+        //     runs: 200,
+        //     details: {
+        //       yul: false,
+        //     },
+        //   },
+        // },
       },
     ],
   },

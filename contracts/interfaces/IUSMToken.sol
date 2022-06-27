@@ -14,7 +14,7 @@ interface IUSMToken is IERC20, IERC2612 {
         address _newBorrowerOperationsAddress
     );
 
-    event YUSDTokenBalanceUpdated(address _user, uint _amount);
+    event YUSDTokenBalanceUpdated(address _user, uint256 _amount);
 
     // --- Functions ---
 

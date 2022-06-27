@@ -16,6 +16,8 @@ import "../dependencies/LiquityBase.sol";
 import "../dependencies/ReentrancyGuard.sol";
 import "../interfaces/IWAsset.sol";
 import "../libs/LibMojoDiamond.sol";
+import "../dependencies/CheckContract.sol";
+import "../MojoCustomBase.sol";
 
 /**
  * BorrowerOperations is the contract that handles most of external facing trove activities that
@@ -36,7 +38,8 @@ contract BorrowerOperations is
     LiquityBase,
     CheckContract,
     IBorrowerOperations,
-    ReentrancyGuard
+    ReentrancyGuard,
+    MojoCustomBase
 {
     // using SafeMath for uint256;
     // string public constant NAME = "BorrowerOperations";
@@ -56,8 +59,8 @@ contract BorrowerOperations is
 
     // IUSMToken internal usmToken;
 
-    // uint internal constant BOOTSTRAP_PERIOD = 14 days;
-    // uint deploymentTime;
+    // uint256 internal constant BOOTSTRAP_PERIOD = 14 days;
+    // uint256 deploymentTime;
 
     // A doubly linked list of Troves, sorted by their collateral ratios
     // ISortedTroves internal sortedTroves;
@@ -166,7 +169,7 @@ contract BorrowerOperations is
         uint256 _debt,
         address[] _tokens,
         uint256[] _amounts,
-        BorrowerOperation operation
+        LibMojoDiamond.BorrowerOperation operation
     );
     event USMBorrowingFeePaid(address indexed _borrower, uint256 _USMFee);
 
@@ -284,9 +287,9 @@ contract BorrowerOperations is
         _requireLengthsEqual(collsLen, _leverages.length);
         _requireLengthsEqual(collsLen, _maxSlippages.length);
         _requireNoDuplicateColls(_colls);
-        uint additionalTokenAmount;
-        uint additionalUSMDebt;
-        uint totalUSMDebtFromLever;
+        uint256 additionalTokenAmount;
+        uint256 additionalUSMDebt;
+        uint256 totalUSMDebtFromLever;
         for (uint256 i; i < collsLen; ++i) {
             if (_leverages[i] != 0) {
                 (additionalTokenAmount, additionalUSMDebt) = _singleLeverUp(
@@ -313,7 +316,7 @@ contract BorrowerOperations is
                 );
             }
         }
-        _USMAmount = _USMAmount.add(totalUSMDebtFromLever);
+        _USMAmount += totalUSMDebtFromLever;
 
         _openTroveInternal(
             msg.sender,
@@ -337,13 +340,17 @@ contract BorrowerOperations is
     ) internal returns (uint256 _finalTokenAmount, uint256 _additionalUSMDebt) {
         require(_leverage > 1e18, "WrongLeverage");
         require(_maxSlippage <= 1e18, "WrongSlippage");
+
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
+            .diamondStorage();
+
         // TODO: modify IYetiRouter --> IMojoRouter
         IYetiRouter router = IYetiRouter(
-            whitelist.getDefaultRouterAddress(_token)
+            ds.whitelist.getDefaultRouterAddress(_token)
         );
         // leverage is 5e18 for 5x leverage. Minus 1 for what the user already has in collateral value.
-        uint _additionalTokenAmount = (_amount * (_leverage - 1e18)) / 1e18;
-        _additionalUSMDebt = whitelist.getValueUSD(
+        uint256 _additionalTokenAmount = (_amount * (_leverage - 1e18)) / 1e18;
+        _additionalUSMDebt = ds.whitelist.getValueUSD(
             _token,
             _additionalTokenAmount
         );
@@ -356,11 +363,8 @@ contract BorrowerOperations is
         // debt = VC value of collateral / ICR.
         // debt = VC value of collateral * (leverage - 1) / leverage
 
-        uint256 slippageAdjustedValue = _additionalTokenAmount
-            .mul(LibMojoDiamond.DECIMAL_PRECISION.sub(_maxSlippage))
-            .div(1e18);
-        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
-            .diamondStorage();
+        uint256 slippageAdjustedValue = (_additionalTokenAmount *
+            (LibMojoDiamond.DECIMAL_PRECISION - _maxSlippage)) / 1e18;
 
         ds.usmToken.mint(address(this), _additionalUSMDebt);
         ds.usmToken.approve(address(router), _additionalUSMDebt);
@@ -377,12 +381,12 @@ contract BorrowerOperations is
         );
         require(
             erc20Token.balanceOf(address(ds.activePool)) ==
-                balanceBefore.add(_finalTokenAmount),
+                balanceBefore + _finalTokenAmount,
             "BO:RouteLeverUpNotSent"
         );
     }
 
-    // amounts should be a uint array giving the amount of each collateral
+    // amounts should be a uint256 array giving the amount of each collateral
     // to be transferred in order of the current whitelist
     // Should be called *after* collateral has been already sent to the active pool
     // Should confirm _colls, is valid collateral prior to calling this
@@ -396,12 +400,14 @@ contract BorrowerOperations is
         address[] memory _colls,
         uint256[] memory _amounts
     ) internal {
-        LocalVariables_openTrove memory vars;
+        LibMojoDiamond.LocalVariables_openTrove memory vars;
 
         // vars.isRecoveryMode = _checkRecoveryMode();      // NOTE: disabled recovery mode
 
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
+            .diamondStorage();
         LibMojoDiamond.ContractsCache memory contractsCache = LibMojoDiamond
-            .ContractsCache(troveManager, activePool, usmToken);
+            .ContractsCache(ds.troveManager, ds.activePool, ds.usmToken);
 
         _requireValidMaxFeePercentage(_maxFeePercentage);
         _requireTroveisNotActive(contractsCache.troveManager, _troveOwner);
@@ -420,7 +426,8 @@ contract BorrowerOperations is
         //         vars.VC, // here it is just VC in, which is always larger than USM amount
         //         _maxFeePercentage
         //     );
-        //     _maxFeePercentage = _maxFeePercentage.sub(vars.USMFee.mul(DECIMAL_PRECISION).div(vars.VC));
+        // _maxFeePercentage -= ((vars.USMFee * LibMojoDiamond.DECIMAL_PRECISION) /
+        //     vars.VC);
         // }
 
         // when not in recovery mode, add in the 0.5% fee
@@ -431,12 +438,11 @@ contract BorrowerOperations is
             vars.VC, // here it is just VC in, which is always larger than USM amount
             _maxFeePercentage
         );
-        _maxFeePercentage = _maxFeePercentage.sub(
-            vars.USMFee.mul(DECIMAL_PRECISION).div(vars.VC)
-        );
+        _maxFeePercentage -= ((vars.USMFee * LibMojoDiamond.DECIMAL_PRECISION) /
+            vars.VC);
 
         // Add in variable fee. Always present, even in recovery mode.
-        vars.USMFee = vars.USMFee.add(
+        vars.USMFee += (
             _getTotalVariableDepositFee(
                 _colls,
                 _amounts,
@@ -449,7 +455,7 @@ contract BorrowerOperations is
         );
 
         // Adds total fees to netDebt
-        vars.netDebt = vars.netDebt.add(vars.USMFee); // The raw debt change includes the fee
+        vars.netDebt += vars.USMFee; // The raw debt change includes the fee
 
         _requireAtLeastMinNetDebt(vars.netDebt);
         // ICR is based on the composite debt, i.e. the requested USM amount + USM borrowing fee + USM gas comp.
@@ -492,9 +498,6 @@ contract BorrowerOperations is
 
         contractsCache.troveManager.updateStakeAndTotalStakes(_troveOwner);
 
-        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
-            .diamondStorage();
-
         ds.sortedTroves.insert(_troveOwner, vars.ICR, _upperHint, _lowerHint);
         vars.arrayIndex = contractsCache.troveManager.addTroveOwnerToArray(
             _troveOwner
@@ -507,7 +510,7 @@ contract BorrowerOperations is
             contractsCache.activePool,
             contractsCache.usmToken,
             _troveOwner,
-            _USMAmount.sub(_totalUSMDebtFromLever),
+            (_USMAmount - _totalUSMDebtFromLever),
             vars.netDebt
         );
 
@@ -515,7 +518,7 @@ contract BorrowerOperations is
         _withdrawUSM(
             contractsCache.activePool,
             contractsCache.usmToken,
-            gasPoolAddress,
+            ds.allAddresses.gasPoolAddress,
             LibMojoDiamond.USM_GAS_COMPENSATION,
             LibMojoDiamond.USM_GAS_COMPENSATION
         );
@@ -582,9 +585,9 @@ contract BorrowerOperations is
         _requireLengthsEqual(collsLen, _maxSlippages.length);
         _requireNoDuplicateColls(params._collsIn); // Check that there is no overlap with in or out in itself
 
-        uint additionalTokenAmount;
-        uint additionalUSMDebt;
-        uint totalUSMDebtFromLever;
+        uint256 additionalTokenAmount;
+        uint256 additionalUSMDebt;
+        uint256 totalUSMDebtFromLever;
         for (uint256 i; i < collsLen; ++i) {
             if (_leverages[i] != 0) {
                 (additionalTokenAmount, additionalUSMDebt) = _singleLeverUp(
@@ -600,10 +603,8 @@ contract BorrowerOperations is
                     _amountsIn[i]
                 );
                 // additional token amount was set to the original amount * leverage.
-                _amountsIn[i] = additionalTokenAmount.add(_amountsIn[i]);
-                totalUSMDebtFromLever = totalUSMDebtFromLever.add(
-                    additionalUSMDebt
-                );
+                _amountsIn[i] = additionalTokenAmount + _amountsIn[i];
+                totalUSMDebtFromLever += additionalUSMDebt;
             } else {
                 // Otherwise skip and do normal transfer that amount into active pool.
                 _singleTransferCollateralIntoActivePool(
@@ -778,11 +779,9 @@ contract BorrowerOperations is
                 params._maxFeePercentage
             );
             // passed in max fee minus actual fee percent applied so far
-            params._maxFeePercentage = params._maxFeePercentage.sub(
-                vars.USMFee.mul(LibMojoDiamond.DECIMAL_PRECISION).div(
-                    vars.maxFeePercentageFactor
-                )
-            );
+            params._maxFeePercentage -= ((vars.USMFee *
+                LibMojoDiamond.DECIMAL_PRECISION) /
+                vars.maxFeePercentageFactor);
             vars.netDebtChange = vars.netDebtChange + vars.USMFee; // The raw debt change includes the fee
         }
 
@@ -914,7 +913,7 @@ contract BorrowerOperations is
             // 2. update the trove with the new collateral and debt, repaying the total amount of USM specified.
             // if not enough coll sold for USM, must cover from user balance
             _requireAtLeastMinNetDebt(
-                _getNetDebt(vars.debt).sub(params._USMChange)
+                _getNetDebt(vars.debt) - params._USMChange
             );
             _requireValidUSMRepayment(vars.debt, params._USMChange);
             _requireSufficientUSMBalance(
@@ -979,7 +978,7 @@ contract BorrowerOperations is
         );
         // then calculate value amount of expected USM output based on amount of token to sell
 
-        uint valueOfCollateral = ds.whitelist.getValueUSD(_token, _amount);
+        uint256 valueOfCollateral = ds.whitelist.getValueUSD(_token, _amount);
         uint256 slippageAdjustedValue = (valueOfCollateral *
             (LibMojoDiamond.DECIMAL_PRECISION - _maxSlippage)) / 1e18;
         IERC20 usmTokenCached = ds.usmToken;
@@ -1104,8 +1103,8 @@ contract BorrowerOperations is
         uint256 debt = contractsCache.troveManager.getTroveDebt(msg.sender);
 
         // if unlever, will do extra.
-        uint finalUSMAmount;
-        uint USMAmount;
+        uint256 finalUSMAmount;
+        uint256 USMAmount;
         if (params._isUnlever) {
             // Withdraw the collateral from active pool and perform swap using single unlever up and corresponding router.
             _unleverColls(
@@ -1121,7 +1120,7 @@ contract BorrowerOperations is
         _requireSufficientUSMBalance(
             contractsCache.usmToken,
             msg.sender,
-            debt.sub(USM_GAS_COMPENSATION)
+            debt - LibMojoDiamond.USM_GAS_COMPENSATION
         );
         uint256 newTCR = _getNewTCRFromTroveChange(troveVC, false, debt, false);
         _requireNewTCRisAboveCCR(newTCR);
@@ -1137,7 +1136,7 @@ contract BorrowerOperations is
             0,
             finalColls,
             finalAmounts,
-            BorrowerOperation.closeTrove
+            LibMojoDiamond.BorrowerOperation.closeTrove
         );
 
         // Burn the repaid USM from the user's balance and the gas compensation from the Gas Pool
@@ -1145,13 +1144,13 @@ contract BorrowerOperations is
             contractsCache.activePool,
             contractsCache.usmToken,
             msg.sender,
-            debt.sub(USM_GAS_COMPENSATION)
+            debt - LibMojoDiamond.USM_GAS_COMPENSATION
         );
         _repayUSM(
             contractsCache.activePool,
             contractsCache.usmToken,
-            gasPoolAddress,
-            USM_GAS_COMPENSATION
+            ds.allAddresses.gasPoolAddress,
+            LibMojoDiamond.USM_GAS_COMPENSATION
         );
 
         // Send the collateral back to the user
@@ -1190,7 +1189,7 @@ contract BorrowerOperations is
         uint256 _VCout,
         uint256 _maxFeePercentageFactor,
         uint256 _maxFeePercentage,
-        ContractsCache memory _contractsCache
+        LibMojoDiamond.ContractsCache memory _contractsCache
     ) internal returns (uint256 USMFee) {
         if (_VCin == 0) {
             return 0;
@@ -1201,7 +1200,7 @@ contract BorrowerOperations is
         // active pool total VC at current state.
         vars.systemTotalVC =
             _contractsCache.activePool.getVC() +
-            defaultPool.getVC();
+            ds.defaultPool.getVCD();
         // active pool total VC post adding and removing all collaterals
         uint256 activePoolVCPost = vars.systemTotalVC + _VCin - _VCout;
         uint256 whitelistFee;
@@ -1217,7 +1216,7 @@ contract BorrowerOperations is
             // total value in VC of this collateral in active pool (post adding input)
             vars.systemCollateralVC =
                 _contractsCache.activePool.getCollateralVC(vars.token) +
-                defaultPool.getCollateralVC(vars.token);
+                ds.defaultPool.getCollateralVCD(vars.token);
 
             // (collateral VC In) * (Collateral's Fee Given Yeti Protocol Backed by Given Collateral)
             whitelistFee = ds.whitelist.getFeeAndUpdate(
@@ -1234,7 +1233,7 @@ contract BorrowerOperations is
                 (vars.collateralInputVC * whitelistFee) /
                 1e18;
 
-            USMFee = USMFee.add(vars.collateralUSMFee);
+            USMFee += vars.collateralUSMFee;
         }
         _requireUserAcceptsFee(
             USMFee,
@@ -1265,13 +1264,20 @@ contract BorrowerOperations is
         address _coll,
         uint256 _amount
     ) internal {
-        if (whitelist.isWrapped(_coll)) {
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
+            .diamondStorage();
+
+        if (ds.whitelist.isWrapped(_coll)) {
             // If wrapped asset then it wraps it and sends the wrapped version to the active pool,
             // and updates reward balance to the new owner.
-            IWAsset(_coll).wrap(_amount, _from, address(activePool), _from);
+            IWAsset(_coll).wrap(_amount, _from, address(ds.activePool), _from);
         } else {
             require(
-                IERC20(_coll).transferFrom(_from, address(activePool), _amount),
+                IERC20(_coll).transferFrom(
+                    _from,
+                    address(ds.activePool),
+                    _amount
+                ),
                 "BO:TransferCollsFailed"
             );
         }
@@ -1296,14 +1302,19 @@ contract BorrowerOperations is
             _maxFeePercentage
         );
 
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
+            .diamondStorage();
+
         // Send fee to sMOJO contract
-        _usmToken.mint(sMOJOAddress, USMFee);
+        _usmToken.mint(ds.allAddresses.sMOJOAddress, USMFee);
         return USMFee;
     }
 
     function _triggerDepositFee(IUSMToken _usmToken, uint256 _USMFee) internal {
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
+            .diamondStorage();
         // Send fee to sMOJO contract
-        _usmToken.mint(sMOJOAddress, _USMFee);
+        _usmToken.mint(ds.allAddresses.sMOJOAddress, _USMFee);
     }
 
     // Update trove's coll and debt based on whether they increase or decrease
@@ -1323,7 +1334,7 @@ contract BorrowerOperations is
             // if debt increase, increase by both amounts
             newDebt = _troveManager.increaseTroveDebt(
                 _borrower,
-                _debtChange.add(_variableUSMFee)
+                _debtChange + _variableUSMFee
             );
         } else {
             if (_debtChange > _variableUSMFee) {
@@ -1358,19 +1369,17 @@ contract BorrowerOperations is
         _requireValidDepositCollateral(_tokensIn, _amountsIn);
         _requireValidDepositCollateral(_tokensOut, _amountsOut);
 
-        // Initial Colls + Input Colls
-        newColls memory cumulativeIn = MojoCustomBase._sumColls(
-            _initialTokens,
-            _initialAmounts,
-            _tokensIn,
-            _amountsIn
-        );
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
+            .diamondStorage();
 
-        newColls memory newPortfolio = MojoCustomBase._subColls(
-            cumulativeIn,
-            _tokensOut,
-            _amountsOut
-        );
+        // Initial Colls + Input Colls
+        LibMojoDiamond.newColls memory cumulativeIn = IMojoCustomBase(
+            ds.allAddresses.mojoCustomBaseAddress
+        )._sumColls(_initialTokens, _initialAmounts, _tokensIn, _amountsIn);
+
+        LibMojoDiamond.newColls memory newPortfolio = IMojoCustomBase(
+            ds.allAddresses.mojoCustomBaseAddress
+        )._subColls(cumulativeIn, _tokensOut, _amountsOut);
         return (newPortfolio.tokens, newPortfolio.amounts);
     }
 
@@ -1468,7 +1477,9 @@ contract BorrowerOperations is
     function _isBeforeFeeBootstrapPeriod() internal view returns (bool) {
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
-        return block.timestamp < ds.deploymentTime + ds.BOOTSTRAP_PERIOD; // won't overflow
+        return
+            block.timestamp <
+            ds.deploymentTime + LibMojoDiamond.BOOTSTRAP_PERIOD; // won't overflow
     }
 
     function _requireTroveisActive(
@@ -1540,10 +1551,10 @@ contract BorrowerOperations is
         // bool _isRecoveryMode,
         uint256[] memory _collWithdrawal,
         bool _isDebtIncrease,
-        LocalVariables_adjustTrove memory _vars
+        LibMojoDiamond.LocalVariables_adjustTrove memory _vars
     ) internal view {
-        /*
-         *In Recovery Mode, only allow:
+        /**
+         * In Recovery Mode, only allow:
          *
          * - Pure collateral top-up
          * - Pure debt repayment
@@ -1585,17 +1596,11 @@ contract BorrowerOperations is
     }
 
     function _requireICRisAboveMCR(uint256 _newICR) internal pure {
-        require(
-            _newICR >= LibMojoDiamond.diamondStorage().MCR,
-            "BO:ReqICR>MCR"
-        );
+        require(_newICR >= LibMojoDiamond.MCR, "BO:ReqICR>MCR");
     }
 
     function _requireICRisAboveCCR(uint256 _newICR) internal pure {
-        require(
-            _newICR >= LibMojoDiamond.diamondStorage().CCR,
-            "BO:ReqICR>CCR"
-        );
+        require(_newICR >= LibMojoDiamond.CCR, "BO:ReqICR>CCR");
     }
 
     function _requireNewICRisAboveOldICR(uint256 _newICR, uint256 _oldICR)
@@ -1606,17 +1611,11 @@ contract BorrowerOperations is
     }
 
     function _requireNewTCRisAboveCCR(uint256 _newTCR) internal pure {
-        require(
-            _newTCR >= LibMojoDiamond.diamondStorage().CCR,
-            "BO:ReqTCR>CCR"
-        );
+        require(_newTCR >= LibMojoDiamond.CCR, "BO:ReqTCR>CCR");
     }
 
     function _requireAtLeastMinNetDebt(uint256 _netDebt) internal pure {
-        require(
-            _netDebt >= LibMojoDiamond.diamondStorage().MIN_NET_DEBT,
-            "BO:netDebt<2000"
-        );
+        require(_netDebt >= LibMojoDiamond.MIN_NET_DEBT, "BO:netDebt<2000");
     }
 
     function _requireValidUSMRepayment(
@@ -1625,8 +1624,7 @@ contract BorrowerOperations is
     ) internal pure {
         require(
             _debtRepayment <=
-                (_currentDebt -
-                    LibMojoDiamond.diamondStorage().USM_GAS_COMPENSATION),
+                (_currentDebt - LibMojoDiamond.USM_GAS_COMPENSATION),
             "BO:InvalidUSMRepay"
         );
     }
@@ -1657,11 +1655,9 @@ contract BorrowerOperations is
         pure
     {
         // Always require max fee to be less than 100%, and if not in recovery mode then max fee must be greater than 0.5%
-        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
-            .diamondStorage();
         if (
-            _maxFeePercentage > ds.DECIMAL_PRECISION ||
-            _maxFeePercentage < ds.BORROWING_FEE_FLOOR
+            _maxFeePercentage > LibMojoDiamond.DECIMAL_PRECISION ||
+            _maxFeePercentage < LibMojoDiamond.BORROWING_FEE_FLOOR
         ) {
             revert("BO:InvalidMaxFee");
         }
@@ -1670,8 +1666,8 @@ contract BorrowerOperations is
     // checks lengths are all good and that all passed in routers are valid routers
     // function _requireValidRouterParams(
     //     address[] memory _finalRoutedColls,
-    //     uint[] memory _amounts,
-    //     uint[] memory _minSwapAmounts,
+    //     uint256[] memory _amounts,
+    //     uint256[] memory _minSwapAmounts,
     //     IYetiRouter[] memory _routers) internal view {
     //     require(_finalRoutedColls.length == _amounts.length,  "_requireValidRouterParams: _finalRoutedColls length mismatch");
     //     require(_amounts.length == _routers.length, "_requireValidRouterParams: _routers length mismatch");
@@ -1682,9 +1678,9 @@ contract BorrowerOperations is
     // }
 
     // // requires that avax indices are in order
-    // function _requireRouterAVAXIndicesInOrder(uint[] memory _indices) internal pure {
+    // function _requireRouterAVAXIndicesInOrder(uint256[] memory _indices) internal pure {
     //     for (uint256 i; i < _indices.length - 1; ++i) {
-    //         require(_indices[i] < _indices[i.add(1)], "_requireRouterAVAXIndicesInOrder: indices out of order");
+    //         require(_indices[i] < _indices[i + 1], "_requireRouterAVAXIndicesInOrder: indices out of order");
     //     }
     // }
 

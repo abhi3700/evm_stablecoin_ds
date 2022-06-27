@@ -223,8 +223,17 @@ So, we can direct the minted stablecoins (USM) to pools like Liquidity, Lending/
           }
   ```
 
+**"IBorrowerOperations.sol"**
+
+- changed the LICENSE to MIT
+- compiler version changed from `0.6.11` to `0.8.6`.
+- Changed the name from "IYUSDToken.sol" to "IUSMToken.sol".
+- renamed the events & its params.
+
 **"IUSMToken.sol"**
 
+- changed the LICENSE to MIT
+- compiler version changed from `0.6.11` to `0.8.6`.
 - Changed the name from "IYUSDToken.sol" to "IUSMToken.sol".
 
 **LiquityMath.sol**
@@ -244,3 +253,8 @@ It is inherited by BorrowerOperations, TroveManager files.
 - Disabled recovery mode i.e functions like `_checkPotentialRecoveryMode`, `_checkRecoveryMode`.
 - Defined as `abstract` type.
   > Note: the type `contract` type is chosen here mainly for Facets, Proxy Contract (Diamond).
+
+**"IMOJOToken.sol"**
+
+- compiler version changed from `0.6.11` to `0.8.6`.
+- Changed the name from "IYETIToken.sol" to "IMOJOToken.sol".

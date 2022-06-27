@@ -21,7 +21,7 @@ import "../libs/LibMojoDiamond.sol";
  * curve, price feed, safety ratio, etc.
  */
 
-contract Whitelist is IWhitelist, IBaseOracle {
+contract Whitelist is IWhitelist, IBaseOracle, CheckContract {
     // using SafeMath for uint256;
 
     // struct CollateralParams {
@@ -124,9 +124,9 @@ contract Whitelist is IWhitelist, IBaseOracle {
         // If collateral list is not 0, and if the 0th index is not equal to this collateral,
         // then if index is 0 that means it is not set yet.
         require(_minRatio < 11e17, "ratio must be less than 1.10"); //=> greater than 1.1 would mean taking out more YUSD than collateral VC
+        LibMojoDiamond.checkContractOwner();
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
-        ds.checkContractOwner();
 
         if (ds.validCollateral.length != 0) {
             require(
@@ -149,7 +149,7 @@ contract Whitelist is IWhitelist, IBaseOracle {
         );
 
         ds.activePool.addCollateralType(_collateral);
-        ds.defaultPool.addCollateralType(_collateral);
+        ds.defaultPool.addCollateralTypeD(_collateral);
         // stabilityPool.addCollateralType(_collateral);
         ds.collSurplusPool.addCollateralType(_collateral);
 
@@ -169,7 +169,7 @@ contract Whitelist is IWhitelist, IBaseOracle {
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
-        ds.checkContractOwner();
+        LibMojoDiamond.checkContractOwner();
 
         require(
             ds.collateralParams[_collateral].active,
@@ -194,7 +194,7 @@ contract Whitelist is IWhitelist, IBaseOracle {
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
-        ds.checkContractOwner();
+        LibMojoDiamond.checkContractOwner();
 
         require(
             !ds.collateralParams[_collateral].active,
@@ -219,7 +219,7 @@ contract Whitelist is IWhitelist, IBaseOracle {
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
-        ds.checkContractOwner();
+        LibMojoDiamond.checkContractOwner();
 
         ds.collateralParams[_collateral].oracle = _oracle;
 
@@ -241,7 +241,7 @@ contract Whitelist is IWhitelist, IBaseOracle {
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
-        ds.checkContractOwner();
+        LibMojoDiamond.checkContractOwner();
 
         (lastFeePercent, lastFeeTime) = IPriceCurve(
             ds.collateralParams[_collateral].priceCurve
@@ -265,7 +265,7 @@ contract Whitelist is IWhitelist, IBaseOracle {
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
-        ds.checkContractOwner();
+        LibMojoDiamond.checkContractOwner();
         require(
             ds.collateralParams[_collateral].ratio < _ratio,
             "New SR must be greater than previous SR"
@@ -287,7 +287,7 @@ contract Whitelist is IWhitelist, IBaseOracle {
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
-        ds.checkContractOwner();
+        LibMojoDiamond.checkContractOwner();
         ds.collateralParams[_collateral].defaultRouter = _router;
     }
 
@@ -443,7 +443,7 @@ contract Whitelist is IWhitelist, IBaseOracle {
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         require(
-            msg.sender == ds.borrowerOperationsAddress,
+            msg.sender == ds.allAddresses.borrowerOperationsAddress,
             "caller must be BO"
         );
         IPriceCurve priceCurve = IPriceCurve(

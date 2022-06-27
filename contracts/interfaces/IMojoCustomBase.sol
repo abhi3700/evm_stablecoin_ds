@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 
 pragma solidity 0.8.6;
 
@@ -20,12 +20,12 @@ interface IMojoCustomBase {
     //     uint256[] calldata amounts
     // ) internal view returns (LibMojoDiamond.newColls memory);
 
-    // function _sumColls(
-    //     address[] calldata tokens1,
-    //     uint256[] calldata amounts1,
-    //     address[] calldata tokens2,
-    //     uint256[] calldata amounts2
-    // ) internal view returns (LibMojoDiamond.newColls memory);
+    function _sumColls(
+        address[] calldata tokens1,
+        uint256[] calldata amounts1,
+        address[] calldata tokens2,
+        uint256[] calldata amounts2
+    ) external view returns (LibMojoDiamond.newColls memory);
 
     function _leftSumColls(
         LibMojoDiamond.newColls memory _coll1,

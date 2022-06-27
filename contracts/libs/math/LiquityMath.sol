@@ -6,16 +6,16 @@ pragma solidity 0.8.6;
 import "../LibMojoDiamond.sol";
 
 library LiquityMath {
-    // using SafeMath for uint;
+    // using SafeMath for uint256;
 
-    // uint internal constant DECIMAL_PRECISION = 1e18;
-    // uint internal constant HALF_DECIMAL_PRECISION = 5e17;
+    // uint256 internal constant DECIMAL_PRECISION = 1e18;
+    // uint256 internal constant HALF_DECIMAL_PRECISION = 5e17;
 
-    function _min(uint _a, uint _b) internal pure returns (uint) {
+    function _min(uint256 _a, uint256 _b) internal pure returns (uint256) {
         return (_a < _b) ? _a : _b;
     }
 
-    function _max(uint _a, uint _b) internal pure returns (uint) {
+    function _max(uint256 _a, uint256 _b) internal pure returns (uint256) {
         return (_a >= _b) ? _a : _b;
     }
 
@@ -26,8 +26,12 @@ library LiquityMath {
      *
      * Used only inside the exponentiation, _decPow().
      */
-    function decMul(uint x, uint y) internal pure returns (uint decProd) {
-        uint prod_xy = x * y;
+    function decMul(uint256 x, uint256 y)
+        internal
+        pure
+        returns (uint256 decProd)
+    {
+        uint256 prod_xy = x * y;
 
         decProd =
             (prod_xy + LibMojoDiamond.HALF_DECIMAL_PRECISION) /
@@ -52,7 +56,11 @@ library LiquityMath {
      * In function 1), the decayed base rate will be 0 for 1000 years or > 1000 years
      * In function 2), the difference in tokens issued at 1000 years and any time > 1000 years, will be negligible
      */
-    function _decPow(uint _base, uint _minutes) internal pure returns (uint) {
+    function _decPow(uint256 _base, uint256 _minutes)
+        internal
+        pure
+        returns (uint256)
+    {
         if (_minutes > 5256e5) {
             _minutes = 5256e5;
         } // cap to avoid overflow
@@ -61,9 +69,9 @@ library LiquityMath {
             return LibMojoDiamond.DECIMAL_PRECISION;
         }
 
-        uint y = LibMojoDiamond.DECIMAL_PRECISION;
-        uint x = _base;
-        uint n = _minutes;
+        uint256 y = LibMojoDiamond.DECIMAL_PRECISION;
+        uint256 x = _base;
+        uint256 n = _minutes;
 
         // Exponentiation-by-squaring
         while (n > 1) {
@@ -81,19 +89,23 @@ library LiquityMath {
         return decMul(x, y);
     }
 
-    function _getAbsoluteDifference(uint _a, uint _b)
+    function _getAbsoluteDifference(uint256 _a, uint256 _b)
         internal
         pure
-        returns (uint)
+        returns (uint256)
     {
         return (_a >= _b) ? (_a - _b) : (_b - _a);
     }
 
     //  _coll should be the amount of VC and _debt is debt of USM\
     // new collateral ratio is 10**18 times the collateral ratio. (150% => 1.5e18)
-    function _computeCR(uint _coll, uint _debt) internal pure returns (uint) {
+    function _computeCR(uint256 _coll, uint256 _debt)
+        internal
+        pure
+        returns (uint256)
+    {
         if (_debt != 0) {
-            uint newCollRatio = (_coll * 1e18) / _debt;
+            uint256 newCollRatio = (_coll * 1e18) / _debt;
             return newCollRatio;
         }
         // Return the maximal value for uint256 if the Trove has a debt of 0. Represents "infinite" CR.

@@ -27,14 +27,14 @@ interface ICollSurplusPool is ICollateralReceiver {
         address _whitelistAddress
     ) external;
 
-    function getCollVC() external view returns (uint);
+    function getCollVC() external view returns (uint256);
 
     function getAmountClaimable(address _account, address _collateral)
         external
         view
-        returns (uint);
+        returns (uint256);
 
-    function getCollateral(address _collateral) external view returns (uint);
+    function getCollateral(address _collateral) external view returns (uint256);
 
     function getAllCollateral()
         external
@@ -44,7 +44,7 @@ interface ICollSurplusPool is ICollateralReceiver {
     function accountSurplus(
         address _account,
         address[] memory _tokens,
-        uint[] memory _amounts
+        uint256[] memory _amounts
     ) external;
 
     function claimColl(address _account) external;
