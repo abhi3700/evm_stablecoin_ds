@@ -2,7 +2,6 @@
 
 pragma solidity 0.8.6;
 
-import "../dependencies/Ownable.sol";
 import "../interfaces/IBaseOracle.sol";
 import "../interfaces/IWhitelist.sol";
 import "../interfaces/IPriceFeed.sol";
@@ -12,17 +11,17 @@ import "../interfaces/IDefaultPool.sol";
 // import "../interfaces/IStabilityPool.sol";
 import "../interfaces/ICollSurplusPool.sol";
 import "../interfaces/IERC20.sol";
-import "../dependencies/LiquityMath.sol";
+import "../libs/math/LiquityMath.sol";
 import "../dependencies/CheckContract.sol";
 import "../libs/LibMojoDiamond.sol";
 
 /**
  * Whitelist is the contract that keeps track of all the assets that the system takes as collateral.
- * It has onlyOwner functions to add or deprecate collaterals from the whitelist, change the price
+ * It has `checkContractOwner()` function (in LibMojoDiamond.sol) to add or deprecate collaterals from the whitelist, change the price
  * curve, price feed, safety ratio, etc.
  */
 
-contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
+contract Whitelist is IWhitelist, IBaseOracle {
     // using SafeMath for uint256;
 
     // struct CollateralParams {
@@ -83,31 +82,31 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
 
     // ----------Only Owner Setter Functions----------
 
-    // TODO: shift to Diamond library so as to use inside Diamond Proxy contract's constructor
-    function setAddresses(
-        address _activePoolAddress,
-        address _defaultPoolAddress,
-        // address _stabilityPoolAddress,
-        address _collSurplusPoolAddress,
-        address _borrowerOperationsAddress
-    ) external override onlyOwner {
-        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
-            .diamondStorage();
+    // DONE: shift to Diamond library so as to use inside Diamond Proxy contract's constructor
+    // function setAddresses(
+    //     address _activePoolAddress,
+    //     address _defaultPoolAddress,
+    //     // address _stabilityPoolAddress,
+    //     address _collSurplusPoolAddress,
+    //     address _borrowerOperationsAddress
+    // ) external override onlyOwner {
+    //     LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
+    //         .diamondStorage();
 
-        require(!ds.addressesSet, "addresses already set");
-        checkContract(_activePoolAddress);
-        checkContract(_defaultPoolAddress);
-        // checkContract(_stabilityPoolAddress);
-        checkContract(_collSurplusPoolAddress);
-        checkContract(_borrowerOperationsAddress);
+    //     require(!ds.addressesSet, "addresses already set");
+    //     checkContract(_activePoolAddress);
+    //     checkContract(_defaultPoolAddress);
+    //     // checkContract(_stabilityPoolAddress);
+    //     checkContract(_collSurplusPoolAddress);
+    //     checkContract(_borrowerOperationsAddress);
 
-        ds.activePool = IActivePool(_activePoolAddress);
-        ds.defaultPool = IDefaultPool(_defaultPoolAddress);
-        // stabilityPool = IStabilityPool(_stabilityPoolAddress);
-        ds.collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
-        ds.borrowerOperationsAddress = _borrowerOperationsAddress;
-        ds.addressesSet = true;
-    }
+    //     ds.activePool = IActivePool(_activePoolAddress);
+    //     ds.defaultPool = IDefaultPool(_defaultPoolAddress);
+    //     // stabilityPool = IStabilityPool(_stabilityPoolAddress);
+    //     ds.collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
+    //     ds.borrowerOperationsAddress = _borrowerOperationsAddress;
+    //     ds.addressesSet = true;
+    // }
 
     function addCollateral(
         address _collateral,
@@ -117,7 +116,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         address _priceCurve,
         bool _isWrapped,
         address _routerAddress
-    ) external onlyOwner {
+    ) external {
         checkContract(_collateral);
         checkContract(_oracle);
         checkContract(_priceCurve);
@@ -127,6 +126,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         require(_minRatio < 11e17, "ratio must be less than 1.10"); //=> greater than 1.1 would mean taking out more YUSD than collateral VC
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
+        ds.checkContractOwner();
 
         if (ds.validCollateral.length != 0) {
             require(
@@ -164,12 +164,12 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
     function deprecateCollateral(address _collateral)
         external
         exists(_collateral)
-        onlyOwner
     {
         checkContract(_collateral);
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
+        ds.checkContractOwner();
 
         require(
             ds.collateralParams[_collateral].active,
@@ -189,12 +189,12 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
     function undeprecateCollateral(address _collateral)
         external
         exists(_collateral)
-        onlyOwner
     {
         checkContract(_collateral);
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
+        ds.checkContractOwner();
 
         require(
             !ds.collateralParams[_collateral].active,
@@ -213,13 +213,13 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
     function changeOracle(address _collateral, address _oracle)
         external
         exists(_collateral)
-        onlyOwner
     {
         checkContract(_collateral);
         checkContract(_oracle);
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
+        ds.checkContractOwner();
 
         ds.collateralParams[_collateral].oracle = _oracle;
 
@@ -233,7 +233,6 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
     function changePriceCurve(address _collateral, address _priceCurve)
         external
         exists(_collateral)
-        onlyOwner
     {
         checkContract(_collateral);
         checkContract(_priceCurve);
@@ -242,6 +241,7 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
+        ds.checkContractOwner();
 
         (lastFeePercent, lastFeeTime) = IPriceCurve(
             ds.collateralParams[_collateral].priceCurve
@@ -259,13 +259,13 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
     function changeRatio(address _collateral, uint256 _ratio)
         external
         exists(_collateral)
-        onlyOwner
     {
         checkContract(_collateral);
         require(_ratio < 11e17, "ratio must be less than 1.10"); //=> greater than 1.1 would mean taking out more YUSD than collateral VC
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
+        ds.checkContractOwner();
         require(
             ds.collateralParams[_collateral].ratio < _ratio,
             "New SR must be greater than previous SR"
@@ -281,13 +281,13 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
     function setDefaultRouter(address _collateral, address _router)
         external
         override
-        onlyOwner
         exists(_collateral)
     {
         checkContract(_router);
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
+        ds.checkContractOwner();
         ds.collateralParams[_collateral].defaultRouter = _router;
     }
 
@@ -399,7 +399,12 @@ contract Whitelist is Ownable, IWhitelist, IBaseOracle, CheckContract {
         return (ds.collateralParams[_collateral].index);
     }
 
-    function isWrapped(address _collateral) external view override returns (bool) {
+    function isWrapped(address _collateral)
+        external
+        view
+        override
+        returns (bool)
+    {
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         return (ds.collateralParams[_collateral].isWrapped);

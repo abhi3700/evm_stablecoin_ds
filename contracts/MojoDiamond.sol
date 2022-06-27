@@ -26,11 +26,13 @@ contract MojoDiamond is IDiamondCut, CheckContract {
     event ActivePoolAddressChanged(address _activePoolAddress);
     event DefaultPoolAddressChanged(address _defaultPoolAddress);
     // event StabilityPoolAddressChanged(address _stabilityPoolAddress);
+    event WhitelistAddressChanged(address _whitelistAddres);
     event GasPoolAddressChanged(address _gasPoolAddress);
     event CollSurplusPoolAddressChanged(address _collSurplusPoolAddress);
     event PriceFeedAddressChanged(address _newPriceFeedAddress);
     event SortedTrovesAddressChanged(address _sortedTrovesAddress);
     event USMTokenAddressChanged(address _usmTokenAddress);
+    event MOJOTokenAddressChanged(address _mojoTokenAddress);
     event sMOJOAddressChanged(address _sMOJOAddress);
     event BorrowerOperationsAddressChanged(
         address _borrowerOperationsAddressChanged
@@ -67,6 +69,7 @@ contract MojoDiamond is IDiamondCut, CheckContract {
         address _collSurplusPoolAddress,
         address _sortedTrovesAddress,
         address _usmTokenAddress,
+        address _mojoTokenAddress,
         address _sMOJOAddress,
         address _borrowerOperationsAddress,
         address _troveManagerAddress
@@ -87,6 +90,7 @@ contract MojoDiamond is IDiamondCut, CheckContract {
         checkContract(_collSurplusPoolAddress);
         checkContract(_sortedTrovesAddress);
         checkContract(_usmTokenAddress);
+        checkContract(_mojoTokenAddress);
         checkContract(_sMOJOAddress);
         checkContract(_borrowerOperationsAddress);
         checkContract(_troveManagerAddress);
@@ -99,6 +103,7 @@ contract MojoDiamond is IDiamondCut, CheckContract {
         ds.allAddresses.collSurplusPoolAddress = _collSurplusPoolAddress;
         ds.AllAddresses.sortedTroveAddress = _sortedTrovesAddress;
         ds.AllAddresses.usmTokenAddress = _usmTokenAddress;
+        ds.AllAddresses.mojoTokenAddress = _mojoTokenAddress;
         ds.AllAddresses.sMojoAddress = _sMOJOAddress;
         ds.AllAddresses.borrowerOperationsAddress = _borrowerOperationsAddress;
         ds.AllAddresses.troveManagerAddress = _troveManagerAddress;
@@ -117,12 +122,14 @@ contract MojoDiamond is IDiamondCut, CheckContract {
         emit ActivePoolAddressChanged(_activePoolAddress);
         emit DefaultPoolAddressChanged(_defaultPoolAddress);
         // emit StabilityPoolAddressChanged(_stabilityPoolAddress);
+        emit WhitelistAddressChanged(_whitelistAddress);
         emit GasPoolAddressChanged(_gasPoolAddress);
         emit CollSurplusPoolAddressChanged(_collSurplusPoolAddress);
         emit SortedTrovesAddressChanged(_sortedTrovesAddress);
         emit USMTokenAddressChanged(_usmTokenAddress);
+        emit MojoTokenAddressChanged(_mojoTokenAddress);
         emit sMOJOAddressChanged(_sMOJOAddress);
-        emit BorrowerOperationsAddressChanged(_troveManagerAddress);
+        emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
         emit TroveManagerAddressChanged(_troveManagerAddress);
     }
 

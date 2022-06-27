@@ -12,8 +12,6 @@ import "../interfaces/IWhitelist.sol";
 import "../interfaces/IYetiRouter.sol"; // TODO
 import "../interfaces/IERC20.sol";
 import "../dependencies/LiquityBase.sol";
-import "../dependencies/Ownable.sol";
-import "../dependencies/CheckContract.sol";
 // import "../dependencies/SafeMath.sol";
 import "../dependencies/ReentrancyGuard.sol";
 import "../interfaces/IWAsset.sol";
@@ -36,7 +34,6 @@ import "../libs/LibMojoDiamond.sol";
 
 contract BorrowerOperations is
     LiquityBase,
-    Ownable,
     CheckContract,
     IBorrowerOperations,
     ReentrancyGuard

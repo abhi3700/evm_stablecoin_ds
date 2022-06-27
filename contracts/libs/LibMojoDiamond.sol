@@ -56,6 +56,7 @@ library LibMojoDiamond {
         address mojoFinanceTreasury;
         address sortedTroveAddress;
         address usmTokenAddress;
+        address mojoTokenAddress;
         address sMOJOAddress;
         address borrowerOperationsAddress;
         address troveManagerAddress;
