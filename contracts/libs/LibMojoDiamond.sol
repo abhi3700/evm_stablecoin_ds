@@ -701,8 +701,8 @@ library LibMojoDiamond {
     }
 
     function _requireNoOverlapColls(
-        address[] calldata _colls1,
-        address[] calldata _colls2
+        address[] memory _colls1,
+        address[] memory _colls2
     ) internal pure {
         uint256 colls1Len = _colls1.length;
         uint256 colls2Len = _colls2.length;

@@ -690,10 +690,10 @@ contract BorrowerOperations is
 
     // Adjusts trove with multiple colls in / out. Calls _adjustTrove with correct params.
     function adjustTrove(
-        address[] calldata _collsIn,
+        address[] memory _collsIn,
         uint256[] memory _amountsIn,
-        address[] calldata _collsOut,
-        uint256[] calldata _amountsOut,
+        address[] memory _collsOut,
+        uint256[] memory _amountsOut,
         uint256 _USMChange,
         bool _isDebtIncrease,
         address _upperHint,
