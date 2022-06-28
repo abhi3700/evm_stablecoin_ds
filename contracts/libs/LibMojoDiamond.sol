@@ -10,6 +10,7 @@ import "../interfaces/ITroveManager.sol";
 import "../interfaces/ISMOJO.sol";
 import "../interfaces/IUSMToken.sol";
 import "../interfaces/ISortedTroves.sol";
+import "../interfaces/IBorrowerOperations.sol";
 
 library LibMojoDiamond {
     /**
@@ -202,6 +203,7 @@ library LibMojoDiamond {
         ISortedTroves sortedTroves;
         IUSMToken usmToken;
         ISMOJO sMOJO;
+        IBorrowerOperations borrowerOperations;
         // status of addresses set
         bool addressesSet;
         //=== deposited collateral tracker of each pool. Colls is always the whitelisted list of all collateral tokens.
@@ -625,4 +627,212 @@ library LibMojoDiamond {
     function _revertWrongFuncCaller() internal pure {
         revert("AP: External caller not allowed");
     }
+
+    // --- BorrowerOperations Facet: 'Require' wrapper functions ---
+
+    function _requireValidDepositCollateral(
+        address[] memory _colls,
+        uint256[] memory _amounts
+    ) internal view {
+        uint256 collsLen = _colls.length;
+        _requireLengthsEqual(collsLen, _amounts.length);
+        for (uint256 i; i < collsLen; ++i) {
+            require(
+                LibMojoDiamond.diamondStorage().whitelist.getIsActive(
+                    _colls[i]
+                ),
+                "BO:BadColl"
+            );
+            require(_amounts[i] != 0, "BO:NoAmounts");
+        }
+    }
+
+    function _requireNonZeroAdjustment(
+        uint256[] memory _amountsIn,
+        uint256[] memory _amountsOut,
+        uint256 _USMChange
+    ) internal pure {
+        require(
+            _arrayIsNonzero(_amountsIn) ||
+                _arrayIsNonzero(_amountsOut) ||
+                _USMChange != 0,
+            "BO:0Adjust"
+        );
+    }
+
+    function _arrayIsNonzero(uint256[] memory arr)
+        internal
+        pure
+        returns (bool)
+    {
+        uint256 arrLen = arr.length;
+        for (uint256 i; i < arrLen; ++i) {
+            if (arr[i] != 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function _isBeforeFeeBootstrapPeriod() internal view returns (bool) {
+        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
+            .diamondStorage();
+        return
+            block.timestamp <
+            ds.deploymentTime + LibMojoDiamond.BOOTSTRAP_PERIOD; // won't overflow
+    }
+
+    function _requireTroveisActive(
+        ITroveManager _troveManager,
+        address _borrower
+    ) internal view {
+        require(_troveManager.isTroveActive(_borrower), "BO:TroveInactive");
+    }
+
+    function _requireTroveisNotActive(
+        ITroveManager _troveManager,
+        address _borrower
+    ) internal view {
+        require(!_troveManager.isTroveActive(_borrower), "BO:TroveActive");
+    }
+
+    function _requireNonZeroDebtChange(uint256 _USMChange) internal pure {
+        require(_USMChange != 0, "BO:NoDebtChange");
+    }
+
+    function _requireNoOverlapColls(
+        address[] calldata _colls1,
+        address[] calldata _colls2
+    ) internal pure {
+        uint256 colls1Len = _colls1.length;
+        uint256 colls2Len = _colls2.length;
+        for (uint256 i; i < colls1Len; ++i) {
+            for (uint256 j; j < colls2Len; j++) {
+                require(_colls1[i] != _colls2[j], "BO:OverlapColls");
+            }
+        }
+    }
+
+    function _requireNoDuplicateColls(address[] memory _colls) internal pure {
+        uint256 collsLen = _colls.length;
+        for (uint256 i; i < collsLen; ++i) {
+            for (uint256 j = (i + 1); j < collsLen; j++) {
+                require(_colls[i] != _colls[j], "BO:OverlapColls");
+            }
+        }
+    }
+
+    // As recovery mode is disabled which implies there will be always normal mode or not.
+    // function _requireNotInRecoveryMode() internal view {
+    //     require(!_checkRecoveryMode(), "BO:InRecMode");
+    // }
+
+    function _requireNoCollWithdrawal(uint256[] memory _amountOut)
+        internal
+        pure
+    {
+        require(!_arrayIsNonzero(_amountOut), "BO:InRecMode");
+    }
+
+    // Function require length nonzero, used to save contract size on revert strings.
+    function _requireLengthNonzero(uint256 length) internal pure {
+        require(length != 0, "BOps:Len0");
+    }
+
+    // Function require length equal, used to save contract size on revert strings.
+    function _requireLengthsEqual(uint256 length1, uint256 length2)
+        internal
+        pure
+    {
+        require(length1 == length2, "BO:LenMismatch");
+    }
+
+    function _requireICRisAboveMCR(uint256 _newICR) internal pure {
+        require(_newICR >= LibMojoDiamond.MCR, "BO:ReqICR>MCR");
+    }
+
+    function _requireICRisAboveCCR(uint256 _newICR) internal pure {
+        require(_newICR >= LibMojoDiamond.CCR, "BO:ReqICR>CCR");
+    }
+
+    function _requireNewICRisAboveOldICR(uint256 _newICR, uint256 _oldICR)
+        internal
+        pure
+    {
+        require(_newICR >= _oldICR, "BO:RecMode:ICR<oldICR");
+    }
+
+    function _requireNewTCRisAboveCCR(uint256 _newTCR) internal pure {
+        require(_newTCR >= LibMojoDiamond.CCR, "BO:ReqTCR>CCR");
+    }
+
+    function _requireAtLeastMinNetDebt(uint256 _netDebt) internal pure {
+        require(_netDebt >= LibMojoDiamond.MIN_NET_DEBT, "BO:netDebt<2000");
+    }
+
+    function _requireValidUSMRepayment(
+        uint256 _currentDebt,
+        uint256 _debtRepayment
+    ) internal pure {
+        require(
+            _debtRepayment <=
+                (_currentDebt - LibMojoDiamond.USM_GAS_COMPENSATION),
+            "BO:InvalidUSMRepay"
+        );
+    }
+
+    function _requireSufficientUSMBalance(
+        IUSMToken _usmToken,
+        address _borrower,
+        uint256 _debtRepayment
+    ) internal view {
+        require(
+            _usmToken.balanceOf(_borrower) >= _debtRepayment,
+            "BO:InsuffUSMBal"
+        );
+    }
+
+    // function _requireValidMaxFeePercentage(uint256 _maxFeePercentage, bool _isRecoveryMode)
+    //     internal
+    //     pure
+    // {
+    //     // Always require max fee to be less than 100%, and if not in recovery mode then max fee must be greater than 0.5%
+    //     if (_maxFeePercentage > DECIMAL_PRECISION || (!_isRecoveryMode && _maxFeePercentage < BORROWING_FEE_FLOOR)) {
+    //         revert("BO:InvalidMaxFee");
+    //     }
+    // }
+
+    function _requireValidMaxFeePercentage(uint256 _maxFeePercentage)
+        internal
+        pure
+    {
+        // Always require max fee to be less than 100%, and if not in recovery mode then max fee must be greater than 0.5%
+        if (
+            _maxFeePercentage > LibMojoDiamond.DECIMAL_PRECISION ||
+            _maxFeePercentage < LibMojoDiamond.BORROWING_FEE_FLOOR
+        ) {
+            revert("BO:InvalidMaxFee");
+        }
+    }
+
+    // checks lengths are all good and that all passed in routers are valid routers
+    // function _requireValidRouterParams(
+    //     address[] memory _finalRoutedColls,
+    //     uint256[] memory _amounts,
+    //     uint256[] memory _minSwapAmounts,
+    //     IYetiRouter[] memory _routers) internal view {
+    //     require(_finalRoutedColls.length == _amounts.length,  "_requireValidRouterParams: _finalRoutedColls length mismatch");
+    //     require(_amounts.length == _routers.length, "_requireValidRouterParams: _routers length mismatch");
+    //     require(_amounts.length == _minSwapAmounts.length, "_minSwapAmounts: finalRoutedColls length mismatch");
+    //     for (uint256 i; i < _routers.length; ++i) {
+    //         require(whitelist.isValidRouter(address(_routers[i])), "_requireValidRouterParams: not a valid router");
+    //     }
+    // }
+
+    // // requires that avax indices are in order
+    // function _requireRouterAVAXIndicesInOrder(uint256[] memory _indices) internal pure {
+    //     for (uint256 i; i < _indices.length - 1; ++i) {
+    //         require(_indices[i] < _indices[i + 1], "_requireRouterAVAXIndicesInOrder: indices out of order");
+    //     }
+    // }
 }

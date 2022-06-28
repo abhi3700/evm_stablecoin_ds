@@ -17,7 +17,10 @@ import "../dependencies/ReentrancyGuard.sol";
 import "../interfaces/IWAsset.sol";
 import "../libs/LibMojoDiamond.sol";
 import "../dependencies/CheckContract.sol";
-import "../MojoCustomBase.sol";
+
+import "../interfaces/IMojoCustomBase.sol";
+
+// import "../MojoCustomBase.sol";      // removed as it took additional 4.457 KB of contract code size
 
 /**
  * BorrowerOperations is the contract that handles most of external facing trove activities that
@@ -38,8 +41,7 @@ contract BorrowerOperations is
     LiquityBase,
     CheckContract,
     IBorrowerOperations,
-    ReentrancyGuard,
-    MojoCustomBase
+    ReentrancyGuard
 {
     // using SafeMath for uint256;
     // string public constant NAME = "BorrowerOperations";
@@ -242,9 +244,9 @@ contract BorrowerOperations is
         address[] calldata _colls,
         uint256[] calldata _amounts
     ) external override nonReentrant {
-        _requireLengthNonzero(_amounts.length);
-        _requireValidDepositCollateral(_colls, _amounts);
-        _requireNoDuplicateColls(_colls); // Check that there is no overlap in _colls
+        LibMojoDiamond._requireLengthNonzero(_amounts.length);
+        LibMojoDiamond._requireValidDepositCollateral(_colls, _amounts);
+        LibMojoDiamond._requireNoDuplicateColls(_colls); // Check that there is no overlap in _colls
 
         // transfer collateral into ActivePool
         _transferCollateralsIntoActivePool(msg.sender, _colls, _amounts);
@@ -281,12 +283,12 @@ contract BorrowerOperations is
         uint256[] calldata _maxSlippages
     ) external override nonReentrant {
         uint256 collsLen = _colls.length;
-        _requireLengthNonzero(collsLen);
-        _requireValidDepositCollateral(_colls, _amounts);
+        LibMojoDiamond._requireLengthNonzero(collsLen);
+        LibMojoDiamond._requireValidDepositCollateral(_colls, _amounts);
         // Must check additional passed in arrays
-        _requireLengthsEqual(collsLen, _leverages.length);
-        _requireLengthsEqual(collsLen, _maxSlippages.length);
-        _requireNoDuplicateColls(_colls);
+        LibMojoDiamond._requireLengthsEqual(collsLen, _leverages.length);
+        LibMojoDiamond._requireLengthsEqual(collsLen, _maxSlippages.length);
+        LibMojoDiamond._requireNoDuplicateColls(_colls);
         uint256 additionalTokenAmount;
         uint256 additionalUSMDebt;
         uint256 totalUSMDebtFromLever;
@@ -409,8 +411,11 @@ contract BorrowerOperations is
         LibMojoDiamond.ContractsCache memory contractsCache = LibMojoDiamond
             .ContractsCache(ds.troveManager, ds.activePool, ds.usmToken);
 
-        _requireValidMaxFeePercentage(_maxFeePercentage);
-        _requireTroveisNotActive(contractsCache.troveManager, _troveOwner);
+        LibMojoDiamond._requireValidMaxFeePercentage(_maxFeePercentage);
+        LibMojoDiamond._requireTroveisNotActive(
+            contractsCache.troveManager,
+            _troveOwner
+        );
 
         vars.netDebt = _USMAmount;
 
@@ -457,29 +462,29 @@ contract BorrowerOperations is
         // Adds total fees to netDebt
         vars.netDebt += vars.USMFee; // The raw debt change includes the fee
 
-        _requireAtLeastMinNetDebt(vars.netDebt);
+        LibMojoDiamond._requireAtLeastMinNetDebt(vars.netDebt);
         // ICR is based on the composite debt, i.e. the requested USM amount + USM borrowing fee + USM gas comp.
         // _getCompositeDebt returns  vars.netDebt + USM gas comp.
         vars.compositeDebt = _getCompositeDebt(vars.netDebt);
 
         vars.ICR = LiquityMath._computeCR(vars.VC, vars.compositeDebt);
         // if (vars.isRecoveryMode) {
-        //     _requireICRisAboveCCR(vars.ICR);        // ICR > CCR
+        //     LibMojoDiamond._requireICRisAboveCCR(vars.ICR);        // ICR > CCR
         // } else {
-        //     _requireICRisAboveMCR(vars.ICR);        // ICR > MCR
+        //     LibMojoDiamond._requireICRisAboveMCR(vars.ICR);        // ICR > MCR
         //     vars.newTCR = _getNewTCRFromTroveChange(vars.VC, true, vars.compositeDebt, true); // bools: coll increase, debt increase
-        //     _requireNewTCRisAboveCCR(vars.newTCR);  // new_TCR > CCR
+        //     LibMojoDiamond._requireNewTCRisAboveCCR(vars.newTCR);  // new_TCR > CCR
         // }
 
         // when not in Recovery mode
-        _requireICRisAboveMCR(vars.ICR); // ICR > MCR
+        LibMojoDiamond._requireICRisAboveMCR(vars.ICR); // ICR > MCR
         vars.newTCR = _getNewTCRFromTroveChange(
             vars.VC,
             true,
             vars.compositeDebt,
             true
         ); // bools: coll increase, debt increase
-        _requireNewTCRisAboveCCR(vars.newTCR); // new_TCR > CCR
+        LibMojoDiamond._requireNewTCRisAboveCCR(vars.newTCR); // new_TCR > CCR
 
         // Set the trove struct's properties
         contractsCache.troveManager.setTroveStatus(_troveOwner, 1);
@@ -549,8 +554,11 @@ contract BorrowerOperations is
         params._maxFeePercentage = _maxFeePercentage;
 
         // check that all _collsIn collateral types are in the whitelist
-        _requireValidDepositCollateral(_collsIn, params._amountsIn);
-        _requireNoDuplicateColls(_collsIn); // Check that there is no overlap with in or out in itself
+        LibMojoDiamond._requireValidDepositCollateral(
+            _collsIn,
+            params._amountsIn
+        );
+        LibMojoDiamond._requireNoDuplicateColls(_collsIn); // Check that there is no overlap with in or out in itself
 
         // pull in deposit collateral
         _transferCollateralsIntoActivePool(
@@ -579,11 +587,11 @@ contract BorrowerOperations is
         uint256 collsLen = _collsIn.length;
 
         // check that all _collsIn collateral types are in the whitelist
-        _requireValidDepositCollateral(_collsIn, _amountsIn);
+        LibMojoDiamond._requireValidDepositCollateral(_collsIn, _amountsIn);
         // Must check that other passed in arrays are correct length
-        _requireLengthsEqual(collsLen, _leverages.length);
-        _requireLengthsEqual(collsLen, _maxSlippages.length);
-        _requireNoDuplicateColls(params._collsIn); // Check that there is no overlap with in or out in itself
+        LibMojoDiamond._requireLengthsEqual(collsLen, _leverages.length);
+        LibMojoDiamond._requireLengthsEqual(collsLen, _maxSlippages.length);
+        LibMojoDiamond._requireNoDuplicateColls(params._collsIn); // Check that there is no overlap with in or out in itself
 
         uint256 additionalTokenAmount;
         uint256 additionalUSMDebt;
@@ -639,8 +647,11 @@ contract BorrowerOperations is
         params._lowerHint = _lowerHint;
 
         // check that all _collsOut collateral types are in the whitelist
-        _requireValidDepositCollateral(params._collsOut, params._amountsOut);
-        _requireNoDuplicateColls(params._collsOut); // Check that there is no overlap with in or out in itself
+        LibMojoDiamond._requireValidDepositCollateral(
+            params._collsOut,
+            params._amountsOut
+        );
+        LibMojoDiamond._requireNoDuplicateColls(params._collsOut); // Check that there is no overlap with in or out in itself
 
         _adjustTrove(params);
     }
@@ -690,11 +701,11 @@ contract BorrowerOperations is
         uint256 _maxFeePercentage
     ) external override nonReentrant {
         // check that all _collsIn collateral types are in the whitelist
-        _requireValidDepositCollateral(_collsIn, _amountsIn);
-        _requireValidDepositCollateral(_collsOut, _amountsOut);
-        _requireNoOverlapColls(_collsIn, _collsOut); // check that there are no overlap between _collsIn and _collsOut
-        _requireNoDuplicateColls(_collsIn);
-        _requireNoDuplicateColls(_collsOut);
+        LibMojoDiamond._requireValidDepositCollateral(_collsIn, _amountsIn);
+        LibMojoDiamond._requireValidDepositCollateral(_collsOut, _amountsOut);
+        LibMojoDiamond._requireNoOverlapColls(_collsIn, _collsOut); // check that there are no overlap between _collsIn and _collsOut
+        LibMojoDiamond._requireNoDuplicateColls(_collsIn);
+        LibMojoDiamond._requireNoDuplicateColls(_collsOut);
 
         // pull in deposit collateral
         _transferCollateralsIntoActivePool(msg.sender, _collsIn, _amountsIn);
@@ -737,20 +748,23 @@ contract BorrowerOperations is
         // bool isRecoveryMode = _checkRecoveryMode();
 
         if (params._isDebtIncrease) {
-            _requireValidMaxFeePercentage(
+            LibMojoDiamond._requireValidMaxFeePercentage(
                 params._maxFeePercentage /* ,
                 isRecoveryMode */
             );
-            _requireNonZeroDebtChange(params._USMChange);
+            LibMojoDiamond._requireNonZeroDebtChange(params._USMChange);
         }
 
         // Checks that at least one array is non-empty, and also that at least one value is 1.
-        _requireNonZeroAdjustment(
+        LibMojoDiamond._requireNonZeroAdjustment(
             params._amountsIn,
             params._amountsOut,
             params._USMChange
         );
-        _requireTroveisActive(contractsCache.troveManager, msg.sender);
+        LibMojoDiamond._requireTroveisActive(
+            contractsCache.troveManager,
+            msg.sender
+        );
 
         contractsCache.troveManager.applyPendingRewards(msg.sender);
         vars.netDebtChange = params._USMChange;
@@ -852,11 +866,14 @@ contract BorrowerOperations is
             !params._isDebtIncrease &&
             params._USMChange != 0
         ) {
-            _requireAtLeastMinNetDebt(
+            LibMojoDiamond._requireAtLeastMinNetDebt(
                 _getNetDebt(vars.debt) - vars.netDebtChange
             );
-            _requireValidUSMRepayment(vars.debt, vars.netDebtChange);
-            _requireSufficientUSMBalance(
+            LibMojoDiamond._requireValidUSMRepayment(
+                vars.debt,
+                vars.netDebtChange
+            );
+            LibMojoDiamond._requireSufficientUSMBalance(
                 contractsCache.usmToken,
                 msg.sender,
                 vars.netDebtChange
@@ -912,11 +929,14 @@ contract BorrowerOperations is
 
             // 2. update the trove with the new collateral and debt, repaying the total amount of USM specified.
             // if not enough coll sold for USM, must cover from user balance
-            _requireAtLeastMinNetDebt(
+            LibMojoDiamond._requireAtLeastMinNetDebt(
                 _getNetDebt(vars.debt) - params._USMChange
             );
-            _requireValidUSMRepayment(vars.debt, params._USMChange);
-            _requireSufficientUSMBalance(
+            LibMojoDiamond._requireValidUSMRepayment(
+                vars.debt,
+                params._USMChange
+            );
+            LibMojoDiamond._requireSufficientUSMBalance(
                 contractsCache.usmToken,
                 msg.sender,
                 params._USMChange
@@ -1042,9 +1062,12 @@ contract BorrowerOperations is
         address _lowerHint
     ) external override nonReentrant {
         // check that all _collsOut collateral types are in the whitelist
-        _requireValidDepositCollateral(_collsOut, _amountsOut);
-        _requireNoDuplicateColls(_collsOut); // Check that there is no overlap with out in itself
-        _requireLengthsEqual(_amountsOut.length, _maxSlippages.length);
+        LibMojoDiamond._requireValidDepositCollateral(_collsOut, _amountsOut);
+        LibMojoDiamond._requireNoDuplicateColls(_collsOut); // Check that there is no overlap with out in itself
+        LibMojoDiamond._requireLengthsEqual(
+            _amountsOut.length,
+            _maxSlippages.length
+        );
 
         LibMojoDiamond.AdjustTrove_Params memory params;
         params._collsOut = _collsOut;
@@ -1091,8 +1114,11 @@ contract BorrowerOperations is
         LibMojoDiamond.ContractsCache memory contractsCache = LibMojoDiamond
             .ContractsCache(ds.troveManager, ds.activePool, ds.usmToken);
 
-        _requireTroveisActive(contractsCache.troveManager, msg.sender);
-        // _requireNotInRecoveryMode();         // recovery mode is disabled, so always in normal mode or not
+        LibMojoDiamond._requireTroveisActive(
+            contractsCache.troveManager,
+            msg.sender
+        );
+        // LibMojoDiamond._requireNotInRecoveryMode();         // recovery mode is disabled, so always in normal mode or not
 
         contractsCache.troveManager.applyPendingRewards(msg.sender);
 
@@ -1103,8 +1129,8 @@ contract BorrowerOperations is
         uint256 debt = contractsCache.troveManager.getTroveDebt(msg.sender);
 
         // if unlever, will do extra.
-        uint256 finalUSMAmount;
-        uint256 USMAmount;
+        // uint256 finalUSMAmount;
+        // uint256 USMAmount;
         if (params._isUnlever) {
             // Withdraw the collateral from active pool and perform swap using single unlever up and corresponding router.
             _unleverColls(
@@ -1117,13 +1143,13 @@ contract BorrowerOperations is
         }
 
         // do check after unlever (if applies)
-        _requireSufficientUSMBalance(
+        LibMojoDiamond._requireSufficientUSMBalance(
             contractsCache.usmToken,
             msg.sender,
             debt - LibMojoDiamond.USM_GAS_COMPENSATION
         );
         uint256 newTCR = _getNewTCRFromTroveChange(troveVC, false, debt, false);
-        _requireNewTCRisAboveCCR(newTCR);
+        LibMojoDiamond._requireNewTCRisAboveCCR(newTCR);
 
         contractsCache.troveManager.removeStake(msg.sender);
         contractsCache.troveManager.closeTrove(msg.sender);
@@ -1226,7 +1252,7 @@ contract BorrowerOperations is
                 vars.systemTotalVC,
                 activePoolVCPost
             );
-            if (_isBeforeFeeBootstrapPeriod()) {
+            if (LibMojoDiamond._isBeforeFeeBootstrapPeriod()) {
                 whitelistFee = LiquityMath._min(whitelistFee, 1e16); // cap at 1%
             }
             vars.collateralUSMFee =
@@ -1366,8 +1392,8 @@ contract BorrowerOperations is
         address[] memory _tokensOut,
         uint256[] memory _amountsOut
     ) internal view returns (address[] memory, uint256[] memory) {
-        _requireValidDepositCollateral(_tokensIn, _amountsIn);
-        _requireValidDepositCollateral(_tokensOut, _amountsOut);
+        LibMojoDiamond._requireValidDepositCollateral(_tokensIn, _amountsIn);
+        LibMojoDiamond._requireValidDepositCollateral(_tokensOut, _amountsOut);
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
@@ -1428,124 +1454,9 @@ contract BorrowerOperations is
         _usmToken.burn(_account, _USM);
     }
 
-    // --- 'Require' wrapper functions ---
-
-    function _requireValidDepositCollateral(
-        address[] memory _colls,
-        uint256[] memory _amounts
-    ) internal view {
-        uint256 collsLen = _colls.length;
-        _requireLengthsEqual(collsLen, _amounts.length);
-        for (uint256 i; i < collsLen; ++i) {
-            require(
-                LibMojoDiamond.diamondStorage().whitelist.getIsActive(
-                    _colls[i]
-                ),
-                "BO:BadColl"
-            );
-            require(_amounts[i] != 0, "BO:NoAmounts");
-        }
-    }
-
-    function _requireNonZeroAdjustment(
-        uint256[] memory _amountsIn,
-        uint256[] memory _amountsOut,
-        uint256 _USMChange
-    ) internal pure {
-        require(
-            _arrayIsNonzero(_amountsIn) ||
-                _arrayIsNonzero(_amountsOut) ||
-                _USMChange != 0,
-            "BO:0Adjust"
-        );
-    }
-
-    function _arrayIsNonzero(uint256[] memory arr)
-        internal
-        pure
-        returns (bool)
-    {
-        uint256 arrLen = arr.length;
-        for (uint256 i; i < arrLen; ++i) {
-            if (arr[i] != 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    function _isBeforeFeeBootstrapPeriod() internal view returns (bool) {
-        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
-            .diamondStorage();
-        return
-            block.timestamp <
-            ds.deploymentTime + LibMojoDiamond.BOOTSTRAP_PERIOD; // won't overflow
-    }
-
-    function _requireTroveisActive(
-        ITroveManager _troveManager,
-        address _borrower
-    ) internal view {
-        require(_troveManager.isTroveActive(_borrower), "BO:TroveInactive");
-    }
-
-    function _requireTroveisNotActive(
-        ITroveManager _troveManager,
-        address _borrower
-    ) internal view {
-        require(!_troveManager.isTroveActive(_borrower), "BO:TroveActive");
-    }
-
-    function _requireNonZeroDebtChange(uint256 _USMChange) internal pure {
-        require(_USMChange != 0, "BO:NoDebtChange");
-    }
-
-    function _requireNoOverlapColls(
-        address[] calldata _colls1,
-        address[] calldata _colls2
-    ) internal pure {
-        uint256 colls1Len = _colls1.length;
-        uint256 colls2Len = _colls2.length;
-        for (uint256 i; i < colls1Len; ++i) {
-            for (uint256 j; j < colls2Len; j++) {
-                require(_colls1[i] != _colls2[j], "BO:OverlapColls");
-            }
-        }
-    }
-
-    function _requireNoDuplicateColls(address[] memory _colls) internal pure {
-        uint256 collsLen = _colls.length;
-        for (uint256 i; i < collsLen; ++i) {
-            for (uint256 j = (i + 1); j < collsLen; j++) {
-                require(_colls[i] != _colls[j], "BO:OverlapColls");
-            }
-        }
-    }
-
-    // As recovery mode is disabled which implies there will be always normal mode or not.
-    // function _requireNotInRecoveryMode() internal view {
-    //     require(!_checkRecoveryMode(), "BO:InRecMode");
-    // }
-
-    function _requireNoCollWithdrawal(uint256[] memory _amountOut)
-        internal
-        pure
-    {
-        require(!_arrayIsNonzero(_amountOut), "BO:InRecMode");
-    }
-
-    // Function require length nonzero, used to save contract size on revert strings.
-    function _requireLengthNonzero(uint256 length) internal pure {
-        require(length != 0, "BOps:Len0");
-    }
-
-    // Function require length equal, used to save contract size on revert strings.
-    function _requireLengthsEqual(uint256 length1, uint256 length2)
-        internal
-        pure
-    {
-        require(length1 == length2, "BO:LenMismatch");
-    }
+    //==================================================================================//
+    // NOTE: All the 'require' wrapper functions have been moved to "LibMojoDiamond.sol"
+    //==================================================================================//
 
     function _requireValidAdjustmentInCurrentMode(
         // bool _isRecoveryMode,
@@ -1585,104 +1496,15 @@ contract BorrowerOperations is
         // }
 
         // if Normal Mode
-        _requireICRisAboveMCR(_vars.newICR);
+        LibMojoDiamond._requireICRisAboveMCR(_vars.newICR);
         _vars.newTCR = _getNewTCRFromTroveChange(
             _vars.collChange,
             _vars.isCollIncrease,
             _vars.netDebtChange,
             _isDebtIncrease
         );
-        _requireNewTCRisAboveCCR(_vars.newTCR);
+        LibMojoDiamond._requireNewTCRisAboveCCR(_vars.newTCR);
     }
-
-    function _requireICRisAboveMCR(uint256 _newICR) internal pure {
-        require(_newICR >= LibMojoDiamond.MCR, "BO:ReqICR>MCR");
-    }
-
-    function _requireICRisAboveCCR(uint256 _newICR) internal pure {
-        require(_newICR >= LibMojoDiamond.CCR, "BO:ReqICR>CCR");
-    }
-
-    function _requireNewICRisAboveOldICR(uint256 _newICR, uint256 _oldICR)
-        internal
-        pure
-    {
-        require(_newICR >= _oldICR, "BO:RecMode:ICR<oldICR");
-    }
-
-    function _requireNewTCRisAboveCCR(uint256 _newTCR) internal pure {
-        require(_newTCR >= LibMojoDiamond.CCR, "BO:ReqTCR>CCR");
-    }
-
-    function _requireAtLeastMinNetDebt(uint256 _netDebt) internal pure {
-        require(_netDebt >= LibMojoDiamond.MIN_NET_DEBT, "BO:netDebt<2000");
-    }
-
-    function _requireValidUSMRepayment(
-        uint256 _currentDebt,
-        uint256 _debtRepayment
-    ) internal pure {
-        require(
-            _debtRepayment <=
-                (_currentDebt - LibMojoDiamond.USM_GAS_COMPENSATION),
-            "BO:InvalidUSMRepay"
-        );
-    }
-
-    function _requireSufficientUSMBalance(
-        IUSMToken _usmToken,
-        address _borrower,
-        uint256 _debtRepayment
-    ) internal view {
-        require(
-            _usmToken.balanceOf(_borrower) >= _debtRepayment,
-            "BO:InsuffUSMBal"
-        );
-    }
-
-    // function _requireValidMaxFeePercentage(uint256 _maxFeePercentage, bool _isRecoveryMode)
-    //     internal
-    //     pure
-    // {
-    //     // Always require max fee to be less than 100%, and if not in recovery mode then max fee must be greater than 0.5%
-    //     if (_maxFeePercentage > DECIMAL_PRECISION || (!_isRecoveryMode && _maxFeePercentage < BORROWING_FEE_FLOOR)) {
-    //         revert("BO:InvalidMaxFee");
-    //     }
-    // }
-
-    function _requireValidMaxFeePercentage(uint256 _maxFeePercentage)
-        internal
-        pure
-    {
-        // Always require max fee to be less than 100%, and if not in recovery mode then max fee must be greater than 0.5%
-        if (
-            _maxFeePercentage > LibMojoDiamond.DECIMAL_PRECISION ||
-            _maxFeePercentage < LibMojoDiamond.BORROWING_FEE_FLOOR
-        ) {
-            revert("BO:InvalidMaxFee");
-        }
-    }
-
-    // checks lengths are all good and that all passed in routers are valid routers
-    // function _requireValidRouterParams(
-    //     address[] memory _finalRoutedColls,
-    //     uint256[] memory _amounts,
-    //     uint256[] memory _minSwapAmounts,
-    //     IYetiRouter[] memory _routers) internal view {
-    //     require(_finalRoutedColls.length == _amounts.length,  "_requireValidRouterParams: _finalRoutedColls length mismatch");
-    //     require(_amounts.length == _routers.length, "_requireValidRouterParams: _routers length mismatch");
-    //     require(_amounts.length == _minSwapAmounts.length, "_minSwapAmounts: finalRoutedColls length mismatch");
-    //     for (uint256 i; i < _routers.length; ++i) {
-    //         require(whitelist.isValidRouter(address(_routers[i])), "_requireValidRouterParams: not a valid router");
-    //     }
-    // }
-
-    // // requires that avax indices are in order
-    // function _requireRouterAVAXIndicesInOrder(uint256[] memory _indices) internal pure {
-    //     for (uint256 i; i < _indices.length - 1; ++i) {
-    //         require(_indices[i] < _indices[i + 1], "_requireRouterAVAXIndicesInOrder: indices out of order");
-    //     }
-    // }
 
     // --- ICR and TCR getters ---
 
