@@ -443,7 +443,7 @@ contract Whitelist is IWhitelist, IBaseOracle, CheckContract {
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         require(
-            msg.sender == ds.allAddresses.borrowerOperationsAddress,
+            msg.sender == ds.allAddresses2.borrowerOperationsAddress,
             "caller must be BO"
         );
         IPriceCurve priceCurve = IPriceCurve(

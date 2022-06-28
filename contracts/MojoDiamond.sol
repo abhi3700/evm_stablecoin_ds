@@ -41,10 +41,15 @@ contract MojoDiamond is IDiamondCut, CheckContract {
 
     // Protocol diamond constructor
     /// @dev initialize protocol's data
-    constructor(address _mojoCustomBaseAddress, FacetCut[] memory _diamondCut) {
+    // M-1
+    constructor(
+        address _contractOwner,
+        address _mojoCustomBaseAddress,
+        FacetCut[] memory _diamondCut
+    ) {
         // set whitelist address - `whitelist`, `whitelistAddress`
-        // set deployer as the contract owner
-        LibMojoDiamond.setContractOwner(msg.sender);
+        // set custom address as the contract owner
+        LibMojoDiamond.setContractOwner(_contractOwner);
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
@@ -59,86 +64,118 @@ contract MojoDiamond is IDiamondCut, CheckContract {
         LibMojoDiamond.diamondCut(_diamondCut, address(0), "");
     }
 
+    // M-2
+    // constructor(
+    //     address _contractOwner,
+    //     address _mojoCustomBaseAddress,
+    //     address _diamondCutFacet
+    // ) {
+    //     // set whitelist address - `whitelist`, `whitelistAddress`
+    //     // set custom address as the contract owner
+    //     LibMojoDiamond.setContractOwner(_contractOwner);
+
+    //     LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
+    //         .diamondStorage();
+
+    //     // Set chain ID
+    //     ds.chainId = block.chainid;
+
+    //     // Set the deployed MojoCustomBase contract address
+    //     ds.allAddresses.mojoCustomBaseAddress = _mojoCustomBaseAddress;
+
+    //     // set diamond cuts
+    //     // Add the diamondCut external function from the diamondCutFacet
+    //     IDiamondCut.FacetCut[] memory cut = new IDiamondCut.FacetCut[](1);
+    //     bytes4[] memory functionSelectors = new bytes4[](1);
+    //     functionSelectors[0] = IDiamondCut.diamondCut.selector;
+    //     cut[0] = IDiamondCut.FacetCut({
+    //         facetAddress: _diamondCutFacet,
+    //         action: IDiamondCut.FacetCutAction.Add,
+    //         functionSelectors: functionSelectors
+    //     });
+    //     LibMojoDiamond.diamondCut(cut, address(0), "");
+    // }
+
     /// @notice set Addresses of facets
-    function setAddresses(
-        address _activePoolAddress,
-        address _defaultPoolAddress,
-        // address _stabilityPoolAddress,
-        address _whitelistAddress,
-        address _gasPoolAddress,
-        address _collSurplusPoolAddress,
-        address _sortedTrovesAddress,
-        address _usmTokenAddress,
-        address _mojoTokenAddress,
-        address _sMOJOAddress,
-        address _borrowerOperationsAddress,
-        address _troveManagerAddress
-    ) external {
-        LibMojoDiamond.checkContractOwner();
-        LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
-            .diamondStorage();
-        require(ds.chainId != 0, "contract not yet deployed");
-        require(!ds.addressesSet, "addresses already set");
-        // This makes impossible to open a trove with zero withdrawn USM
-        require(LibMojoDiamond.MIN_NET_DEBT != 0, "BO:MIN_NET_DEBT==0");
+    // function setAddresses(
+    //     address _activePoolAddress,
+    //     address _defaultPoolAddress,
+    //     // address _stabilityPoolAddress,
+    //     address _whitelistAddress,
+    //     address _gasPoolAddress,
+    //     address _collSurplusPoolAddress,
+    //     address _sortedTrovesAddress,
+    //     address _usmTokenAddress,
+    //     address _mojoTokenAddress,
+    //     address _sMOJOAddress,
+    //     address _borrowerOperationsAddress,
+    //     address _troveManagerAddress
+    // ) external {
+    //     LibMojoDiamond.checkContractOwner();
+    //     LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
+    //         .diamondStorage();
+    //     require(ds.chainId != 0, "contract not yet deployed");
+    //     require(!ds.addressesSet, "addresses already set");
+    //     // This makes impossible to open a trove with zero withdrawn USM
+    //     require(LibMojoDiamond.MIN_NET_DEBT != 0, "BO:MIN_NET_DEBT==0");
 
-        checkContract(_activePoolAddress);
-        checkContract(_defaultPoolAddress);
-        // checkContract(_stabilityPoolAddress);
-        checkContract(_whitelistAddress);
-        checkContract(_gasPoolAddress);
-        checkContract(_collSurplusPoolAddress);
-        checkContract(_sortedTrovesAddress);
-        checkContract(_usmTokenAddress);
-        checkContract(_mojoTokenAddress);
-        checkContract(_sMOJOAddress);
-        checkContract(_borrowerOperationsAddress);
-        checkContract(_troveManagerAddress);
+    //     checkContract(_activePoolAddress);
+    //     checkContract(_defaultPoolAddress);
+    //     // checkContract(_stabilityPoolAddress);
+    //     checkContract(_whitelistAddress);
+    //     checkContract(_gasPoolAddress);
+    //     checkContract(_collSurplusPoolAddress);
+    //     checkContract(_sortedTrovesAddress);
+    //     checkContract(_usmTokenAddress);
+    //     checkContract(_mojoTokenAddress);
+    //     checkContract(_sMOJOAddress);
+    //     checkContract(_borrowerOperationsAddress);
+    //     checkContract(_troveManagerAddress);
 
-        ds.allAddresses.activePoolAddress = _activePoolAddress;
-        ds.allAddresses.defaultPoolAddress = _defaultPoolAddress;
-        // ds.allAddresses.stabilityPoolAddress = _stabilityPoolAddress;
-        ds.allAddresses.whitelistAddress = _whitelistAddress;
-        ds.allAddresses.gasPoolAddress = _gasPoolAddress;
-        ds.allAddresses.collSurplusPoolAddress = _collSurplusPoolAddress;
-        ds.allAddresses.sortedTroveAddress = _sortedTrovesAddress;
-        ds.allAddresses.usmTokenAddress = _usmTokenAddress;
-        ds.allAddresses.mojoTokenAddress = _mojoTokenAddress;
-        ds.allAddresses.sMOJOAddress = _sMOJOAddress;
-        ds.allAddresses.borrowerOperationsAddress = _borrowerOperationsAddress;
-        ds.allAddresses.troveManagerAddress = _troveManagerAddress;
-        // TODO: Add these as well
-        // ds
-        //     .allAddresses
-        //     .troveManagerLiquidationsAddress = _troveManagerLiquidationsAddress;
-        // ds
-        //     .allAddresses
-        //     .troveManagerRedemptionsAddress = _troveManagerRedemptionsAddress;
+    //     ds.allAddresses.activePoolAddress = _activePoolAddress;
+    //     ds.allAddresses.defaultPoolAddress = _defaultPoolAddress;
+    //     // ds.allAddresses.stabilityPoolAddress = _stabilityPoolAddress;
+    //     ds.allAddresses.whitelistAddress = _whitelistAddress;
+    //     ds.allAddresses.gasPoolAddress = _gasPoolAddress;
+    //     ds.allAddresses.collSurplusPoolAddress = _collSurplusPoolAddress;
+    //     ds.allAddresses.sortedTroveAddress = _sortedTrovesAddress;
+    //     ds.allAddresses.usmTokenAddress = _usmTokenAddress;
+    //     ds.allAddresses.mojoTokenAddress = _mojoTokenAddress;
+    //     ds.allAddresses.sMOJOAddress = _sMOJOAddress;
+    //     ds.allAddresses2.borrowerOperationsAddress = _borrowerOperationsAddress;
+    //     ds.allAddresses2.troveManagerAddress = _troveManagerAddress;
+    //     // TODO: Add these as well
+    //     // ds
+    //     //     .allAddresses
+    //     //     .troveManagerLiquidationsAddress = _troveManagerLiquidationsAddress;
+    //     // ds
+    //     //     .allAddresses
+    //     //     .troveManagerRedemptionsAddress = _troveManagerRedemptionsAddress;
 
-        ds.addressesSet = true;
-        ds.deploymentTime = block.timestamp;
+    //     ds.addressesSet = true;
+    //     ds.deploymentTime = block.timestamp;
 
-        // TODO: Set the interfaces
-        /*         ds.activePool = IActivePool(_activePoolAddress);
-        ds.defaultPool = IDefaultPool(_defaultPoolAddress);
-        ds.whitelist = IWhitelist(_whitelistAddress);
-        ds.collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
-        ds.whitelist = IWhitelist(_whitelistAddress); */
+    //     // TODO: Set the interfaces
+    //     /*         ds.activePool = IActivePool(_activePoolAddress);
+    //     ds.defaultPool = IDefaultPool(_defaultPoolAddress);
+    //     ds.whitelist = IWhitelist(_whitelistAddress);
+    //     ds.collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
+    //     ds.whitelist = IWhitelist(_whitelistAddress); */
 
-        // events
-        emit ActivePoolAddressChanged(_activePoolAddress);
-        emit DefaultPoolAddressChanged(_defaultPoolAddress);
-        // emit StabilityPoolAddressChanged(_stabilityPoolAddress);
-        emit WhitelistAddressChanged(_whitelistAddress);
-        emit GasPoolAddressChanged(_gasPoolAddress);
-        emit CollSurplusPoolAddressChanged(_collSurplusPoolAddress);
-        emit SortedTrovesAddressChanged(_sortedTrovesAddress);
-        emit USMTokenAddressChanged(_usmTokenAddress);
-        emit MOJOTokenAddressChanged(_mojoTokenAddress);
-        emit sMOJOAddressChanged(_sMOJOAddress);
-        emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
-        emit TroveManagerAddressChanged(_troveManagerAddress);
-    }
+    //     // events
+    //     emit ActivePoolAddressChanged(_activePoolAddress);
+    //     emit DefaultPoolAddressChanged(_defaultPoolAddress);
+    //     // emit StabilityPoolAddressChanged(_stabilityPoolAddress);
+    //     emit WhitelistAddressChanged(_whitelistAddress);
+    //     emit GasPoolAddressChanged(_gasPoolAddress);
+    //     emit CollSurplusPoolAddressChanged(_collSurplusPoolAddress);
+    //     emit SortedTrovesAddressChanged(_sortedTrovesAddress);
+    //     emit USMTokenAddressChanged(_usmTokenAddress);
+    //     emit MOJOTokenAddressChanged(_mojoTokenAddress);
+    //     emit sMOJOAddressChanged(_sMOJOAddress);
+    //     emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
+    //     emit TroveManagerAddressChanged(_troveManagerAddress);
+    // }
 
     /// @notice Set MojoCustomBase contract
     /// @dev set contract address after updating the logic inside contract

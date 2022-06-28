@@ -46,6 +46,13 @@ library LibMojoDiamond {
         uint256 facetAddressPosition; // position of facetAddress in facetAddresses array
     }
 
+    struct AllAddresses2 {
+        address borrowerOperationsAddress;
+        address troveManagerAddress;
+        address troveManagerLiquidationsAddress;
+        address troveManagerRedemptionsAddress;
+    }
+
     struct AllAddresses {
         address mojoCustomBaseAddress;
         address activePoolAddress;
@@ -59,10 +66,6 @@ library LibMojoDiamond {
         address usmTokenAddress;
         address mojoTokenAddress;
         address sMOJOAddress;
-        address borrowerOperationsAddress;
-        address troveManagerAddress;
-        address troveManagerLiquidationsAddress;
-        address troveManagerRedemptionsAddress;
     }
 
     // ========"ActivePool.sol" | "DefaultPool.sol"========
@@ -187,6 +190,7 @@ library LibMojoDiamond {
         uint256 chainId;
         //==== addresses
         AllAddresses allAddresses;
+        AllAddresses2 allAddresses2;
         //==== interfaces
         IWhitelist whitelist;
         IActivePool activePool;
@@ -540,11 +544,11 @@ library LibMojoDiamond {
         DiamondStorage storage ds = diamondStorage();
 
         if (
-            msg.sender != ds.allAddresses.borrowerOperationsAddress &&
-            msg.sender != ds.allAddresses.troveManagerAddress &&
+            msg.sender != ds.allAddresses2.borrowerOperationsAddress &&
+            msg.sender != ds.allAddresses2.troveManagerAddress &&
             // msg.sender != ds.allAddresses.stabilityPoolAddress &&
-            msg.sender != ds.allAddresses.troveManagerLiquidationsAddress &&
-            msg.sender != ds.allAddresses.troveManagerRedemptionsAddress
+            msg.sender != ds.allAddresses2.troveManagerLiquidationsAddress &&
+            msg.sender != ds.allAddresses2.troveManagerRedemptionsAddress
         ) {
             _revertWrongFuncCaller();
         }
@@ -554,7 +558,7 @@ library LibMojoDiamond {
         DiamondStorage storage ds = diamondStorage();
 
         if (
-            msg.sender != ds.allAddresses.borrowerOperationsAddress &&
+            msg.sender != ds.allAddresses2.borrowerOperationsAddress &&
             msg.sender != ds.allAddresses.defaultPoolAddress
         ) {
             _revertWrongFuncCaller();
@@ -564,7 +568,7 @@ library LibMojoDiamond {
     function _requireCallerIsBorrowerOperations() internal view {
         DiamondStorage storage ds = diamondStorage();
 
-        if (msg.sender != ds.allAddresses.borrowerOperationsAddress) {
+        if (msg.sender != ds.allAddresses2.borrowerOperationsAddress) {
             _revertWrongFuncCaller();
         }
     }
@@ -573,10 +577,10 @@ library LibMojoDiamond {
         DiamondStorage storage ds = diamondStorage();
 
         if (
-            msg.sender != ds.allAddresses.borrowerOperationsAddress &&
-            msg.sender != ds.allAddresses.troveManagerAddress &&
+            msg.sender != ds.allAddresses2.borrowerOperationsAddress &&
+            msg.sender != ds.allAddresses2.troveManagerAddress &&
             // msg.sender != ds.allAddresses.stabilityPoolAddress &&
-            msg.sender != ds.allAddresses.troveManagerRedemptionsAddress
+            msg.sender != ds.allAddresses2.troveManagerRedemptionsAddress
         ) {
             _revertWrongFuncCaller();
         }
@@ -586,8 +590,8 @@ library LibMojoDiamond {
         DiamondStorage storage ds = diamondStorage();
 
         if (
-            msg.sender != ds.allAddresses.borrowerOperationsAddress &&
-            msg.sender != ds.allAddresses.troveManagerAddress
+            msg.sender != ds.allAddresses2.borrowerOperationsAddress &&
+            msg.sender != ds.allAddresses2.troveManagerAddress
         ) {
             _revertWrongFuncCaller();
         }
@@ -597,7 +601,7 @@ library LibMojoDiamond {
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
-        if (msg.sender != ds.allAddresses.troveManagerAddress) {
+        if (msg.sender != ds.allAddresses2.troveManagerAddress) {
             _revertWrongFuncCaller();
         }
     }
