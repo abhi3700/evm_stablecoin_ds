@@ -60,7 +60,14 @@ export async function deployDiamond(
   const Diamond: ContractFactory = await ethers.getContractFactory(
     "MojoDiamond"
   );
-  const diamond: Contract = await Diamond.deploy(mojoCustomBaseAddr, cut);
+  const accounts = await ethers.getSigners();
+  const owner = accounts[0]; // deployer
+
+  const diamond: Contract = await Diamond.deploy(
+    owner,
+    mojoCustomBaseAddr,
+    cut
+  );
   await diamond.deployed();
   console.log(
     `MojoDiamond deployed: ${diamond.address} at transaction hash: ${diamond.deployTransaction.hash}`
