@@ -222,6 +222,18 @@ So, we can direct the minted stablecoins (USM) to pools like Liquidity, Lending/
               _requireNewTCRisAboveCCR(vars.newTCR);  // new_TCR > CCR
           }
   ```
+- Solved Error:
+
+```console
+"CompilerError: Stack too deep when compiling inline assembly: Variable headStart is 1 slot(s) too deep inside the stack."
+```
+
+with this:
+
+- Manually found the function which caused this via "comment & compile" for each function. That function was `adjustTrove`. So, without this function, the file compiled successfully. But then the contract size was found to be `28.457 KB` (not deployable).
+  - All the `_require...` wrapper functions moved to 'LibMojoDiamond.sol' file.
+  - The size is reduced by commenting the `MojoCustomBase` inheritance. Refer commit: [`a403f08`](https://github.com/polygon-stablecoin/mojo/commit/a403f083a82e64687967d125487bc88e5fb1036d). Just call the function of the contract like `IMojoCustomBase(ds.mojoCustomBaseAddress)._sumColl(..)`. Hence, the size got reduced to `24.004 KB`.
+- Make `calldata` type local variables of function to `memory` type. [Source](https://forum.openzeppelin.com/t/stack-too-deep-when-compiling-inline-assembly/11391/6).
 
 **"IBorrowerOperations.sol"**
 
