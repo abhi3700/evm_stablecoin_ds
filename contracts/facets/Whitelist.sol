@@ -22,6 +22,20 @@ import "../libs/LibMojoDiamond.sol";
  */
 
 contract Whitelist is IWhitelist, IBaseOracle, CheckContract {
+    /**
+     * ****************************************
+     *
+     * Errors
+     * ****************************************
+     WE0: collateral does not exist
+     WE1: ratio must be less than 1.10
+     WE2: collateral already exists
+     WE3: collateral already deprecated
+     WE4: collateral is already active
+     WE5: New SR must be greater than previous SR
+     WE6: caller must be BO
+    */
+
     // using SafeMath for uint256;
 
     // struct CollateralParams {
@@ -68,15 +82,12 @@ contract Whitelist is IWhitelist, IBaseOracle, CheckContract {
     }
 
     // Calling from here makes it not inline, reducing contract size and gas.
-    function _exists(address _collateral) internal view {
+    function _exists(address _collateral) private view {
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
 
         if (ds.validCollateral[0] != _collateral) {
-            require(
-                ds.collateralParams[_collateral].index != 0,
-                "collateral does not exist"
-            );
+            require(ds.collateralParams[_collateral].index != 0, "WE0");
         }
     }
 
@@ -123,7 +134,7 @@ contract Whitelist is IWhitelist, IBaseOracle, CheckContract {
         checkContract(_routerAddress);
         // If collateral list is not 0, and if the 0th index is not equal to this collateral,
         // then if index is 0 that means it is not set yet.
-        require(_minRatio < 11e17, "ratio must be less than 1.10"); //=> greater than 1.1 would mean taking out more YUSD than collateral VC
+        require(_minRatio < 11e17, "WE1"); //=> greater than 1.1 would mean taking out more YUSD than collateral VC
         LibMojoDiamond.checkContractOwner();
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
@@ -132,7 +143,7 @@ contract Whitelist is IWhitelist, IBaseOracle, CheckContract {
             require(
                 ds.validCollateral[0] != _collateral &&
                     ds.collateralParams[_collateral].index == 0,
-                "collateral already exists"
+                "WE2"
             );
         }
 
@@ -171,10 +182,7 @@ contract Whitelist is IWhitelist, IBaseOracle, CheckContract {
             .diamondStorage();
         LibMojoDiamond.checkContractOwner();
 
-        require(
-            ds.collateralParams[_collateral].active,
-            "collateral already deprecated"
-        );
+        require(ds.collateralParams[_collateral].active, "WE3");
 
         ds.collateralParams[_collateral].active = false;
 
@@ -196,10 +204,7 @@ contract Whitelist is IWhitelist, IBaseOracle, CheckContract {
             .diamondStorage();
         LibMojoDiamond.checkContractOwner();
 
-        require(
-            !ds.collateralParams[_collateral].active,
-            "collateral is already active"
-        );
+        require(!ds.collateralParams[_collateral].active, "WE4");
 
         ds.collateralParams[_collateral].active = true;
 
@@ -261,15 +266,12 @@ contract Whitelist is IWhitelist, IBaseOracle, CheckContract {
         exists(_collateral)
     {
         checkContract(_collateral);
-        require(_ratio < 11e17, "ratio must be less than 1.10"); //=> greater than 1.1 would mean taking out more YUSD than collateral VC
+        require(_ratio < 11e17, "WE1"); //=> greater than 1.1 would mean taking out more YUSD than collateral VC
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
         LibMojoDiamond.checkContractOwner();
-        require(
-            ds.collateralParams[_collateral].ratio < _ratio,
-            "New SR must be greater than previous SR"
-        );
+        require(ds.collateralParams[_collateral].ratio < _ratio, "WE5");
         ds.collateralParams[_collateral].ratio = _ratio;
 
         // throw event
@@ -444,7 +446,7 @@ contract Whitelist is IWhitelist, IBaseOracle, CheckContract {
             .diamondStorage();
         require(
             msg.sender == ds.allAddresses2.borrowerOperationsAddress,
-            "caller must be BO"
+            "WE6"
         );
         IPriceCurve priceCurve = IPriceCurve(
             ds.collateralParams[_collateral].priceCurve
