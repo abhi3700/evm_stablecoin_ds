@@ -24,6 +24,7 @@ struct Trove {
 - All the storage variables used are prefixed with `diamondStorage()` function of "LibMojoDiamond.sol" file.
 - File formatted as per "Prettier".
 - Now, `setAddresses()` function is available as 1 function only, inside "MojoDiamond.sol" file.
+- Reduced the contract size by `0.177 KB` in due to changes in commit hash: [`ce07138a8908cef874fb016a9149ecb01dee2174`](https://github.com/polygon-stablecoin/mojo/commit/ce07138a8908cef874fb016a9149ecb01dee2174)
 
 **"LibMojoDiamond.sol"**
 
@@ -239,6 +240,7 @@ with this:
   - The size is reduced by commenting the `MojoCustomBase` inheritance. Refer commit: [`a403f08`](https://github.com/polygon-stablecoin/mojo/commit/a403f083a82e64687967d125487bc88e5fb1036d). Just call the function of the contract like `IMojoCustomBase(ds.mojoCustomBaseAddress)._sumColl(..)`. Hence, the size got reduced to `24.004 KB`.
   - In `require` statements in "LibMojoDiamond.sol", reduced the size by `0.139 KB` by replacing the error messages with error codes like BOE0, BOE1, ...
   - In `require` statements in "BorrowerOperations.sol", further reduced the size by `0.065 KB` by replacing the error messages with error codes like BOE18, BOE19, ...
+  - Reduced `0.308 KB` by modifying the `ReentrancyGuard` in commit: [`ce07138a8908cef874fb016a9149ecb01dee2174`](https://github.com/polygon-stablecoin/mojo/commit/ce07138a8908cef874fb016a9149ecb01dee2174)
 - Make `calldata` type local variables of function to `memory` type. [Source](https://forum.openzeppelin.com/t/stack-too-deep-when-compiling-inline-assembly/11391/6).
 
 **"IBorrowerOperations.sol"**
@@ -276,3 +278,7 @@ It is inherited by BorrowerOperations, TroveManager files.
 
 - compiler version changed from `0.6.11` to `0.8.6`.
 - Changed the name from "IYETIToken.sol" to "IMOJOToken.sol".
+
+**"ReentrancyGuard.sol"**
+
+- Made changes in the modifier by creating private functions & then calling inside ([PR-3515](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3515))
