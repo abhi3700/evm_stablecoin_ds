@@ -66,6 +66,12 @@ contract BorrowerOperations is
      BOE15: BO:InvalidUSMRepay
      BOE16: BO:InsuffUSMBal
      BOE17: BO:InvalidMaxFee
+     BOE18: BO:MIN_NET_DEBT==0
+     BOE19: WrongLeverage
+     BOE20: WrongSlippage
+     BOE21: BO:RouteLeverUpNotSent
+     BOE22: BO:USMNotSentUnLever
+     BOE23: BO:TransferCollsFailed
      */
 
     // using SafeMath for uint256;
@@ -190,15 +196,15 @@ contract BorrowerOperations is
     // event USMTokenAddressChanged(address _usmTokenAddress);
     // event sMOJOAddressChanged(address _sMOJOAddress);
 
-    // event TroveCreated(address indexed _borrower, uint256 arrayIndex);
-    // event TroveUpdated(
-    //     address indexed _borrower,
-    //     uint256 _debt,
-    //     address[] _tokens,
-    //     uint256[] _amounts,
-    //     LibMojoDiamond.BorrowerOperation operation
-    // );
-    // event USMBorrowingFeePaid(address indexed _borrower, uint256 _USMFee);
+    event TroveCreated(address indexed _borrower, uint256 arrayIndex);
+    event TroveUpdated(
+        address indexed _borrower,
+        uint256 _debt,
+        address[] _tokens,
+        uint256[] _amounts,
+        LibMojoDiamond.BorrowerOperation operation
+    );
+    event USMBorrowingFeePaid(address indexed _borrower, uint256 _USMFee);
 
     // --- Dependency setters ---
 
@@ -365,8 +371,8 @@ contract BorrowerOperations is
         uint256 _leverage,
         uint256 _maxSlippage
     ) internal returns (uint256 _finalTokenAmount, uint256 _additionalUSMDebt) {
-        require(_leverage > 1e18, "WrongLeverage");
-        require(_maxSlippage <= 1e18, "WrongSlippage");
+        require(_leverage > 1e18, "BOE19");
+        require(_maxSlippage <= 1e18, "BOE20");
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
@@ -409,7 +415,7 @@ contract BorrowerOperations is
         require(
             erc20Token.balanceOf(address(ds.activePool)) ==
                 balanceBefore + _finalTokenAmount,
-            "BO:RouteLeverUpNotSent"
+            "BOE21"
         );
     }
 
@@ -1009,7 +1015,7 @@ contract BorrowerOperations is
         uint256 _amount,
         uint256 _maxSlippage
     ) internal returns (uint256 _finalUSMAmount) {
-        require(_maxSlippage <= 1e18, "WrongSlippage");
+        require(_maxSlippage <= 1e18, "BOE20");
 
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
@@ -1039,7 +1045,7 @@ contract BorrowerOperations is
         require(
             usmTokenCached.balanceOf(address(this)) ==
                 (balanceBefore + _finalUSMAmount),
-            "BO:USMNotSentUnLever"
+            "BOE22"
         );
     }
 
@@ -1329,7 +1335,7 @@ contract BorrowerOperations is
                     address(ds.activePool),
                     _amount
                 ),
-                "BO:TransferCollsFailed"
+                "BOE23"
             );
         }
     }
