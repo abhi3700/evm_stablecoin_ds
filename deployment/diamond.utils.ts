@@ -1,14 +1,25 @@
 /* 
   Deploy Diamond Utility
 */
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { HardhatEthersHelpers } from "@nomiclabs/hardhat-ethers/types";
 import { /* BigNumber, */ Contract, ContractFactory } from "ethers";
 import { ZERO_ADDRESS, FacetCutAction, getSelectors } from "../libs/diamond";
 
-export let activePoolAddress: any;
-export let defaultPoolAddress: any;
-export let whitelistAddress: any;
-export let borrowerOperationsAddress: any;
+export let activePoolAddress: string;
+export let defaultPoolAddress: string;
+export let whitelistAddress: string;
+export let borrowerOperationsAddress: string;
+export let owner: SignerWithAddress;
+// export let cut: any[];
+
+// export async function getOwner(
+//   ethers: HardhatEthersHelpers
+// ): Promise<SignerWithAddress> {
+//   const accounts = await ethers.getSigners();
+//   owner = accounts[0]; // deployer
+//   return owner;
+// }
 
 export async function deployDiamond(
   mojoCustomBaseAddr: string,
@@ -28,26 +39,29 @@ export async function deployDiamond(
     "BorrowerOperations",
   ];
   const cut = [];
+  // owner = await getOwner(ethers);
+  const accounts = await ethers.getSigners();
+  owner = accounts[0]; // deployer
 
   for (const FacetName of FacetNames) {
     // console.log(`${FacetName}`);
     const Facet: ContractFactory = await ethers.getContractFactory(FacetName);
     // console.log("2");
-    const facet: Contract = await Facet.deploy();
+    const facet: Contract = await Facet.connect(owner).deploy();
     // console.log("3");
     await facet.deployed();
     console.log(`${FacetName} deployed: ${facet.address}`);
 
     // eslint-disable-next-line eqeqeq
-    if (FacetName == "ActivePool") {
+    if (FacetName === "ActivePool") {
       activePoolAddress = facet.address;
       // eslint-disable-next-line eqeqeq
-    } else if (FacetName == "DefaultPool") {
+    } else if (FacetName === "DefaultPool") {
       defaultPoolAddress = facet.address;
       // eslint-disable-next-line eqeqeq
-    } else if (FacetName == "Whitelist") {
+    } else if (FacetName === "Whitelist") {
       whitelistAddress = facet.address;
-    } else if (FacetName == "BorrowerOperations") {
+    } else if (FacetName === "BorrowerOperations") {
       borrowerOperationsAddress = facet.address;
     }
     // when deploying MojoDiamond, FacetCutAction should be "Add"
@@ -63,10 +77,8 @@ export async function deployDiamond(
   const Diamond: ContractFactory = await ethers.getContractFactory(
     "MojoDiamond"
   );
-  const accounts = await ethers.getSigners();
-  const owner = accounts[0]; // deployer
 
-  const diamond: Contract = await Diamond.deploy(
+  const diamond: Contract = await Diamond.connect(owner).deploy(
     owner.address,
     mojoCustomBaseAddr,
     cut
@@ -96,28 +108,33 @@ export async function deployDiamondTest(
     "ActivePool",
     "DefaultPool",
     "Whitelist",
-    // "BorrowerOperations",
+    "BorrowerOperations",
   ];
   const cut = [];
+  // owner = await getOwner(ethers);
+  const accounts = await ethers.getSigners();
+  owner = accounts[0]; // deployer
 
   for (const FacetName of FacetNames) {
     // console.log(`${FacetName}`);
     const Facet: ContractFactory = await ethers.getContractFactory(FacetName);
     // console.log("2");
-    const facet: Contract = await Facet.deploy();
+    const facet: Contract = await Facet.connect(owner).deploy();
     // console.log("3");
     await facet.deployed();
     // console.log(`${FacetName} deployed: ${facet.address}`);
 
     // eslint-disable-next-line eqeqeq
-    if (FacetName == "ActivePool") {
+    if (FacetName === "ActivePool") {
       activePoolAddress = facet.address;
       // eslint-disable-next-line eqeqeq
-    } else if (FacetName == "DefaultPool") {
+    } else if (FacetName === "DefaultPool") {
       defaultPoolAddress = facet.address;
       // eslint-disable-next-line eqeqeq
-    } else if (FacetName == "Whitelist") {
+    } else if (FacetName === "Whitelist") {
       whitelistAddress = facet.address;
+    } else if (FacetName === "BorrowerOperations") {
+      borrowerOperationsAddress = facet.address;
     }
     // when deploying MojoDiamond, FacetCutAction should be "Add"
     cut.push({
@@ -132,7 +149,12 @@ export async function deployDiamondTest(
   const Diamond: ContractFactory = await ethers.getContractFactory(
     "MojoDiamond"
   );
-  const diamond: Contract = await Diamond.deploy(mojoCustomBaseAddr, cut);
+
+  const diamond: Contract = await Diamond.connect(owner).deploy(
+    owner.address,
+    mojoCustomBaseAddr,
+    cut
+  );
   await diamond.deployed();
   // console.log(
   //   `MojoDiamond deployed: ${diamond.address} at transaction hash: ${diamond.deployTransaction.hash}`

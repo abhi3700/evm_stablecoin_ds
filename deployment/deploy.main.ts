@@ -1,13 +1,16 @@
 import { ethers } from "hardhat";
 import { Contract, ContractFactory } from "ethers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+
 import {
+  owner,
+  // cut,
   activePoolAddress,
   defaultPoolAddress,
   whitelistAddress,
   borrowerOperationsAddress,
   deployDiamond,
 } from "./diamond.utils";
-// import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 async function main(): Promise<void> {
   console.log(`---1---`);
@@ -25,16 +28,17 @@ async function main(): Promise<void> {
   ).then((result) => result);
   console.log(`---4---`);
   // ==== 4. set addresses of the facets via `setAddresses()` function
-  // const owner: SignerWithAddress = await ethers.utils
-  //   .getAddress(cut[1].facetAddress)
-  //   .owner();
+  // const owner2: any = await ethers.utils.getAddress(cut[1].facetAddress);
+  // console.log(`Owner fetched from OwnershipFacet: ${owner2}`);
   // TODO: add all the addresses
-  const txn1 = await diamond.setAddresses(
-    activePoolAddress,
-    defaultPoolAddress,
-    whitelistAddress,
-    borrowerOperationsAddress
-  );
+  const txn1 = await diamond
+    .connect(owner)
+    .setAddresses(
+      activePoolAddress,
+      defaultPoolAddress,
+      whitelistAddress,
+      borrowerOperationsAddress
+    );
   const receipt1 = await txn1.wait();
   console.log(
     `Owner set addresses & its transaction hash:
