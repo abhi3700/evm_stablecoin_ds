@@ -27,6 +27,14 @@ contract ActivePool is
     CheckContract,
     IActivePool /* , MojoCustomBase */
 {
+    /**
+     * ****************************************
+     *
+     * Errors
+     * ****************************************
+     APE0: BO:BadColl
+     */
+
     // using SafeMath for uint256;
     using SafeERC20 for IERC20;
 

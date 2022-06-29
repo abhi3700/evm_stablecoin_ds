@@ -233,6 +233,7 @@ with this:
 - Manually found the function which caused this via "comment & compile" for each function. That function was `adjustTrove`. So, without this function, the file compiled successfully. But then the contract size was found to be `28.457 KB` (not deployable).
   - All the `_require...` wrapper functions moved to 'LibMojoDiamond.sol' file.
   - The size is reduced by commenting the `MojoCustomBase` inheritance. Refer commit: [`a403f08`](https://github.com/polygon-stablecoin/mojo/commit/a403f083a82e64687967d125487bc88e5fb1036d). Just call the function of the contract like `IMojoCustomBase(ds.mojoCustomBaseAddress)._sumColl(..)`. Hence, the size got reduced to `24.004 KB`.
+  - Reduced the size by `0.139 KB` by replacing the error messages with error codes like BOE0, BOE1, ...
 - Make `calldata` type local variables of function to `memory` type. [Source](https://forum.openzeppelin.com/t/stack-too-deep-when-compiling-inline-assembly/11391/6).
 
 **"IBorrowerOperations.sol"**

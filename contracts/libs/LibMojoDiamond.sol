@@ -625,7 +625,7 @@ library LibMojoDiamond {
     }
 
     function _revertWrongFuncCaller() internal pure {
-        revert("AP: External caller not allowed");
+        revert("APE0");
     }
 
     // --- BorrowerOperations Facet: 'Require' wrapper functions ---
@@ -641,9 +641,9 @@ library LibMojoDiamond {
                 LibMojoDiamond.diamondStorage().whitelist.getIsActive(
                     _colls[i]
                 ),
-                "BO:BadColl"
+                "BOE0"
             );
-            require(_amounts[i] != 0, "BO:NoAmounts");
+            require(_amounts[i] != 0, "BOE1");
         }
     }
 
@@ -656,7 +656,7 @@ library LibMojoDiamond {
             _arrayIsNonzero(_amountsIn) ||
                 _arrayIsNonzero(_amountsOut) ||
                 _USMChange != 0,
-            "BO:0Adjust"
+            "BOE2"
         );
     }
 
@@ -686,18 +686,18 @@ library LibMojoDiamond {
         ITroveManager _troveManager,
         address _borrower
     ) internal view {
-        require(_troveManager.isTroveActive(_borrower), "BO:TroveInactive");
+        require(_troveManager.isTroveActive(_borrower), "BOE3");
     }
 
     function _requireTroveisNotActive(
         ITroveManager _troveManager,
         address _borrower
     ) internal view {
-        require(!_troveManager.isTroveActive(_borrower), "BO:TroveActive");
+        require(!_troveManager.isTroveActive(_borrower), "BOE4");
     }
 
     function _requireNonZeroDebtChange(uint256 _USMChange) internal pure {
-        require(_USMChange != 0, "BO:NoDebtChange");
+        require(_USMChange != 0, "BOE5");
     }
 
     function _requireNoOverlapColls(
@@ -708,7 +708,7 @@ library LibMojoDiamond {
         uint256 colls2Len = _colls2.length;
         for (uint256 i; i < colls1Len; ++i) {
             for (uint256 j; j < colls2Len; j++) {
-                require(_colls1[i] != _colls2[j], "BO:OverlapColls");
+                require(_colls1[i] != _colls2[j], "BOE6");
             }
         }
     }
@@ -717,7 +717,7 @@ library LibMojoDiamond {
         uint256 collsLen = _colls.length;
         for (uint256 i; i < collsLen; ++i) {
             for (uint256 j = (i + 1); j < collsLen; j++) {
-                require(_colls[i] != _colls[j], "BO:OverlapColls");
+                require(_colls[i] != _colls[j], "BOE6");
             }
         }
     }
@@ -731,12 +731,12 @@ library LibMojoDiamond {
         internal
         pure
     {
-        require(!_arrayIsNonzero(_amountOut), "BO:InRecMode");
+        require(!_arrayIsNonzero(_amountOut), "BOE7");
     }
 
     // Function require length nonzero, used to save contract size on revert strings.
     function _requireLengthNonzero(uint256 length) internal pure {
-        require(length != 0, "BOps:Len0");
+        require(length != 0, "BOE8");
     }
 
     // Function require length equal, used to save contract size on revert strings.
@@ -744,30 +744,30 @@ library LibMojoDiamond {
         internal
         pure
     {
-        require(length1 == length2, "BO:LenMismatch");
+        require(length1 == length2, "BOE9");
     }
 
     function _requireICRisAboveMCR(uint256 _newICR) internal pure {
-        require(_newICR >= LibMojoDiamond.MCR, "BO:ReqICR>MCR");
+        require(_newICR >= LibMojoDiamond.MCR, "BOE10");
     }
 
     function _requireICRisAboveCCR(uint256 _newICR) internal pure {
-        require(_newICR >= LibMojoDiamond.CCR, "BO:ReqICR>CCR");
+        require(_newICR >= LibMojoDiamond.CCR, "BOE11");
     }
 
     function _requireNewICRisAboveOldICR(uint256 _newICR, uint256 _oldICR)
         internal
         pure
     {
-        require(_newICR >= _oldICR, "BO:RecMode:ICR<oldICR");
+        require(_newICR >= _oldICR, "BOE12");
     }
 
     function _requireNewTCRisAboveCCR(uint256 _newTCR) internal pure {
-        require(_newTCR >= LibMojoDiamond.CCR, "BO:ReqTCR>CCR");
+        require(_newTCR >= LibMojoDiamond.CCR, "BOE13");
     }
 
     function _requireAtLeastMinNetDebt(uint256 _netDebt) internal pure {
-        require(_netDebt >= LibMojoDiamond.MIN_NET_DEBT, "BO:netDebt<2000");
+        require(_netDebt >= LibMojoDiamond.MIN_NET_DEBT, "BOE14");
     }
 
     function _requireValidUSMRepayment(
@@ -777,7 +777,7 @@ library LibMojoDiamond {
         require(
             _debtRepayment <=
                 (_currentDebt - LibMojoDiamond.USM_GAS_COMPENSATION),
-            "BO:InvalidUSMRepay"
+            "BOE15"
         );
     }
 
@@ -786,10 +786,7 @@ library LibMojoDiamond {
         address _borrower,
         uint256 _debtRepayment
     ) internal view {
-        require(
-            _usmToken.balanceOf(_borrower) >= _debtRepayment,
-            "BO:InsuffUSMBal"
-        );
+        require(_usmToken.balanceOf(_borrower) >= _debtRepayment, "BOE16");
     }
 
     // function _requireValidMaxFeePercentage(uint256 _maxFeePercentage, bool _isRecoveryMode)
@@ -798,7 +795,7 @@ library LibMojoDiamond {
     // {
     //     // Always require max fee to be less than 100%, and if not in recovery mode then max fee must be greater than 0.5%
     //     if (_maxFeePercentage > DECIMAL_PRECISION || (!_isRecoveryMode && _maxFeePercentage < BORROWING_FEE_FLOOR)) {
-    //         revert("BO:InvalidMaxFee");
+    //         revert("BOE17");
     //     }
     // }
 
@@ -811,7 +808,7 @@ library LibMojoDiamond {
             _maxFeePercentage > LibMojoDiamond.DECIMAL_PRECISION ||
             _maxFeePercentage < LibMojoDiamond.BORROWING_FEE_FLOOR
         ) {
-            revert("BO:InvalidMaxFee");
+            revert("BOE17");
         }
     }
 

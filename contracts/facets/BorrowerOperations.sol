@@ -43,6 +43,31 @@ contract BorrowerOperations is
     IBorrowerOperations,
     ReentrancyGuard
 {
+    /**
+     * ****************************************
+     *
+     * Errors
+     * ****************************************
+     BOE0: BO:BadColl
+     BOE1: BO:NoAmounts
+     BOE2: BO:0Adjust
+     BOE3: BO:TroveInactive
+     BOE4: BO:TroveActive
+     BOE5: BO:NoDebtChange
+     BOE6: BO:OverlapColls
+     BOE7: BO:InRecMode
+     BOE8: BOps:Len0
+     BOE9: BO:LenMismatch
+     BOE10: BO:ReqICR>MCR
+     BOE11: BO:ReqICR>CCR
+     BOE12: BO:RecMode:ICR<oldICR
+     BOE13: BO:ReqTCR>CCR
+     BOE14: BO:netDebt<2000
+     BOE15: BO:InvalidUSMRepay
+     BOE16: BO:InsuffUSMBal
+     BOE17: BO:InvalidMaxFee
+     */
+
     // using SafeMath for uint256;
     // string public constant NAME = "BorrowerOperations";
 
@@ -165,15 +190,15 @@ contract BorrowerOperations is
     // event USMTokenAddressChanged(address _usmTokenAddress);
     // event sMOJOAddressChanged(address _sMOJOAddress);
 
-    event TroveCreated(address indexed _borrower, uint256 arrayIndex);
-    event TroveUpdated(
-        address indexed _borrower,
-        uint256 _debt,
-        address[] _tokens,
-        uint256[] _amounts,
-        LibMojoDiamond.BorrowerOperation operation
-    );
-    event USMBorrowingFeePaid(address indexed _borrower, uint256 _USMFee);
+    // event TroveCreated(address indexed _borrower, uint256 arrayIndex);
+    // event TroveUpdated(
+    //     address indexed _borrower,
+    //     uint256 _debt,
+    //     address[] _tokens,
+    //     uint256[] _amounts,
+    //     LibMojoDiamond.BorrowerOperation operation
+    // );
+    // event USMBorrowingFeePaid(address indexed _borrower, uint256 _USMFee);
 
     // --- Dependency setters ---
 

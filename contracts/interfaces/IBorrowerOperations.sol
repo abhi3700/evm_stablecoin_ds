@@ -2,6 +2,8 @@
 
 pragma solidity 0.8.6;
 
+import "../libs/LibMojoDiamond.sol";
+
 // Common interface for the Trove Manager.
 interface IBorrowerOperations {
     // --- Events ---
@@ -17,14 +19,15 @@ interface IBorrowerOperations {
     // event YUSDTokenAddressChanged(address _yusdTokenAddress);
     // event sMOJOAddressChanged(address _sMOJOAddress);
 
-    // event TroveCreated(address indexed _borrower, uint256 arrayIndex);
-    // event TroveUpdated(
-    //     address indexed _borrower,
-    //     uint256 _debt,
-    //     uint256 _coll,
-    //     uint8 operation
-    // );
-    // event USMBorrowingFeePaid(address indexed _borrower, uint256 _USMFee);
+    event TroveCreated(address indexed _borrower, uint256 arrayIndex);
+    event TroveUpdated(
+        address indexed _borrower,
+        uint256 _debt,
+        address[] _tokens,
+        uint256[] _amounts,
+        LibMojoDiamond.BorrowerOperation operation
+    );
+    event USMBorrowingFeePaid(address indexed _borrower, uint256 _USMFee);
 
     // --- Functions ---
 
