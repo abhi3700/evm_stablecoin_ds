@@ -101,23 +101,23 @@ Environment variables: Create a `.env` file with its values in [.env.example](./
    - "DefaultPool.sol"
    - "ActivePool.sol"
    - "Whitelist.sol"
+   - "BorrowerOperations.sol"
 3. Set addresses using `setAddresses()` function (inside Diamond Proxy SC)
    - only Owner
 
 <!-- TODO: MojoCustomBase.sol to be either set as address inside the constructor of diamond. And then create a `checkContractOwner` modifier based function setMojoCustomBase() -->
 
-4. Add assets as whitelisted for respective pools (active, default, stability, colSurplus) from `Whitelist::addCollateral` function. Whenever an asset is added, the asset is updated in the pools as well.
+4. Add assets as whitelisted for respective pools (active, default, <!-- stability, --> collSurplus) from `Whitelist::addCollateral` function. Whenever an asset is added, the asset is updated in the pools as well.
 
-<!-- #### localhost
+#### localhost
 
 ```console
 // on terminal-1
 $ npx hardhat node
 
 // on terminal-2
-$ yarn hardhat deploy:LaunchMojo --network localhost
+$ yarn hardhat run deployment/deploy.main.ts --network rinkeby
 ```
- -->
 
 #### ETH Testnet - Rinkeby
 
