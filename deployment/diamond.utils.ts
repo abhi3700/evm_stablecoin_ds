@@ -8,6 +8,7 @@ import { ZERO_ADDRESS, FacetCutAction, getSelectors } from "../libs/diamond";
 export let activePoolAddress: any;
 export let defaultPoolAddress: any;
 export let whitelistAddress: any;
+export let borrowerOperationsAddress: any;
 
 export async function deployDiamond(
   mojoCustomBaseAddr: string,
@@ -24,7 +25,7 @@ export async function deployDiamond(
     "ActivePool",
     "DefaultPool",
     "Whitelist",
-    // "BorrowerOperations",
+    "BorrowerOperations",
   ];
   const cut = [];
 
@@ -46,6 +47,8 @@ export async function deployDiamond(
       // eslint-disable-next-line eqeqeq
     } else if (FacetName == "Whitelist") {
       whitelistAddress = facet.address;
+    } else if (FacetName == "BorrowerOperations") {
+      borrowerOperationsAddress = facet.address;
     }
     // when deploying MojoDiamond, FacetCutAction should be "Add"
     cut.push({
@@ -64,7 +67,7 @@ export async function deployDiamond(
   const owner = accounts[0]; // deployer
 
   const diamond: Contract = await Diamond.deploy(
-    owner,
+    owner.address,
     mojoCustomBaseAddr,
     cut
   );

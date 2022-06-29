@@ -7,6 +7,10 @@ import "./interfaces/IActivePool.sol";
 import "./interfaces/IDefaultPool.sol";
 import "./libs/Strings.sol";
 import "./dependencies/CheckContract.sol";
+import "./interfaces/IActivePool.sol";
+import "./interfaces/IDefaultPool.sol";
+import "./interfaces/IWhitelist.sol";
+import "./interfaces/IBorrowerOperations.sol";
 
 /// @title A upgradeable Mojo protocol
 /// @author abhi3700
@@ -36,9 +40,7 @@ contract MojoDiamond is IDiamondCut, CheckContract {
     event USMTokenAddressChanged(address _usmTokenAddress);
     event MOJOTokenAddressChanged(address _mojoTokenAddress);
     event sMOJOAddressChanged(address _sMOJOAddress);
-    event BorrowerOperationsAddressChanged(
-        address _borrowerOperationsAddressChanged
-    );
+    event BorrowerOperationsAddressChanged(address _borrowerOperationsAddress);
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
 
     // Protocol diamond constructor
@@ -104,14 +106,14 @@ contract MojoDiamond is IDiamondCut, CheckContract {
         address _defaultPoolAddress,
         // address _stabilityPoolAddress,
         address _whitelistAddress,
-        address _gasPoolAddress,
-        address _collSurplusPoolAddress,
-        address _sortedTrovesAddress,
-        address _usmTokenAddress,
-        address _mojoTokenAddress,
-        address _sMOJOAddress,
-        address _borrowerOperationsAddress,
-        address _troveManagerAddress
+        // address _gasPoolAddress,
+        // address _collSurplusPoolAddress,
+        // address _sortedTrovesAddress,
+        // address _usmTokenAddress,
+        // address _mojoTokenAddress,
+        // address _sMOJOAddress,
+        // address _troveManagerAddress,
+        address _borrowerOperationsAddress
     ) external {
         LibMojoDiamond.checkContractOwner();
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
@@ -125,27 +127,27 @@ contract MojoDiamond is IDiamondCut, CheckContract {
         checkContract(_defaultPoolAddress);
         // checkContract(_stabilityPoolAddress);
         checkContract(_whitelistAddress);
-        checkContract(_gasPoolAddress);
-        checkContract(_collSurplusPoolAddress);
-        checkContract(_sortedTrovesAddress);
-        checkContract(_usmTokenAddress);
-        checkContract(_mojoTokenAddress);
-        checkContract(_sMOJOAddress);
+        // checkContract(_gasPoolAddress);
+        // checkContract(_collSurplusPoolAddress);
+        // checkContract(_sortedTrovesAddress);
+        // checkContract(_usmTokenAddress);
+        // checkContract(_mojoTokenAddress);
+        // checkContract(_sMOJOAddress);
         checkContract(_borrowerOperationsAddress);
-        checkContract(_troveManagerAddress);
+        // checkContract(_troveManagerAddress);
 
         ds.allAddresses.activePoolAddress = _activePoolAddress;
         ds.allAddresses.defaultPoolAddress = _defaultPoolAddress;
         // ds.allAddresses.stabilityPoolAddress = _stabilityPoolAddress;
         ds.allAddresses.whitelistAddress = _whitelistAddress;
-        ds.allAddresses.gasPoolAddress = _gasPoolAddress;
-        ds.allAddresses.collSurplusPoolAddress = _collSurplusPoolAddress;
-        ds.allAddresses.sortedTroveAddress = _sortedTrovesAddress;
-        ds.allAddresses.usmTokenAddress = _usmTokenAddress;
-        ds.allAddresses.mojoTokenAddress = _mojoTokenAddress;
-        ds.allAddresses.sMOJOAddress = _sMOJOAddress;
+        // ds.allAddresses.gasPoolAddress = _gasPoolAddress;
+        // ds.allAddresses.collSurplusPoolAddress = _collSurplusPoolAddress;
+        // ds.allAddresses.sortedTroveAddress = _sortedTrovesAddress;
+        // ds.allAddresses.usmTokenAddress = _usmTokenAddress;
+        // ds.allAddresses.mojoTokenAddress = _mojoTokenAddress;
+        // ds.allAddresses.sMOJOAddress = _sMOJOAddress;
         ds.allAddresses2.borrowerOperationsAddress = _borrowerOperationsAddress;
-        ds.allAddresses2.troveManagerAddress = _troveManagerAddress;
+        // ds.allAddresses2.troveManagerAddress = _troveManagerAddress;
         // TODO: Add these as well
         // ds
         //     .allAddresses
@@ -157,26 +159,26 @@ contract MojoDiamond is IDiamondCut, CheckContract {
         ds.addressesSet = true;
         ds.deploymentTime = block.timestamp;
 
-        // TODO: Set the interfaces
-        /*         ds.activePool = IActivePool(_activePoolAddress);
+        // Set the interfaces
+        ds.activePool = IActivePool(_activePoolAddress);
         ds.defaultPool = IDefaultPool(_defaultPoolAddress);
         ds.whitelist = IWhitelist(_whitelistAddress);
-        ds.collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
-        ds.whitelist = IWhitelist(_whitelistAddress); */
+        // ds.collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
+        ds.borrowerOperations = IBorrowerOperations(_borrowerOperationsAddress);
 
         // events
         emit ActivePoolAddressChanged(_activePoolAddress);
         emit DefaultPoolAddressChanged(_defaultPoolAddress);
         // emit StabilityPoolAddressChanged(_stabilityPoolAddress);
         emit WhitelistAddressChanged(_whitelistAddress);
-        emit GasPoolAddressChanged(_gasPoolAddress);
-        emit CollSurplusPoolAddressChanged(_collSurplusPoolAddress);
-        emit SortedTrovesAddressChanged(_sortedTrovesAddress);
-        emit USMTokenAddressChanged(_usmTokenAddress);
-        emit MOJOTokenAddressChanged(_mojoTokenAddress);
-        emit sMOJOAddressChanged(_sMOJOAddress);
+        // emit GasPoolAddressChanged(_gasPoolAddress);
+        // emit CollSurplusPoolAddressChanged(_collSurplusPoolAddress);
+        // emit SortedTrovesAddressChanged(_sortedTrovesAddress);
+        // emit USMTokenAddressChanged(_usmTokenAddress);
+        // emit MOJOTokenAddressChanged(_mojoTokenAddress);
+        // emit sMOJOAddressChanged(_sMOJOAddress);
         emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
-        emit TroveManagerAddressChanged(_troveManagerAddress);
+        // emit TroveManagerAddressChanged(_troveManagerAddress);
     }
 
     /// @notice Set MojoCustomBase contract

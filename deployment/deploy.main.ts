@@ -4,6 +4,7 @@ import {
   activePoolAddress,
   defaultPoolAddress,
   whitelistAddress,
+  borrowerOperationsAddress,
   deployDiamond,
 } from "./diamond.utils";
 // import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
@@ -31,7 +32,8 @@ async function main(): Promise<void> {
   const txn1 = await diamond.setAddresses(
     activePoolAddress,
     defaultPoolAddress,
-    whitelistAddress
+    whitelistAddress,
+    borrowerOperationsAddress
   );
   const receipt1 = await txn1.wait();
   console.log(
