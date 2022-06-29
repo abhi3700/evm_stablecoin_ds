@@ -39,7 +39,7 @@ contract MojoDiamond is IDiamondCut, CheckContract {
     event SortedTrovesAddressChanged(address _sortedTrovesAddress);
     event USMTokenAddressChanged(address _usmTokenAddress);
     event MOJOTokenAddressChanged(address _mojoTokenAddress);
-    event sMOJOAddressChanged(address _sMOJOAddress);
+    event SMOJOAddressChanged(address _sMOJOAddress);
     event BorrowerOperationsAddressChanged(address _borrowerOperationsAddress);
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
 
@@ -176,7 +176,7 @@ contract MojoDiamond is IDiamondCut, CheckContract {
         // emit SortedTrovesAddressChanged(_sortedTrovesAddress);
         // emit USMTokenAddressChanged(_usmTokenAddress);
         // emit MOJOTokenAddressChanged(_mojoTokenAddress);
-        // emit sMOJOAddressChanged(_sMOJOAddress);
+        // emit SMOJOAddressChanged(_sMOJOAddress);
         emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
         // emit TroveManagerAddressChanged(_troveManagerAddress);
     }
