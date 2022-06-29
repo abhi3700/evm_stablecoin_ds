@@ -11,6 +11,7 @@ import "@nomiclabs/hardhat-ethers";
 
 import "hardhat-gas-reporter";
 import "solidity-coverage";
+import "hardhat-contract-sizer";
 
 import "@nomiclabs/hardhat-etherscan";
 import "./deployment/index";
@@ -39,9 +40,19 @@ if (!INFURA_API_KEY) {
   throw new Error("Please set your INFURA_API_KEY in a .env file");
 }
 
+const SPEEDY_API_KEY = process.env.SPEEDY_API_KEY;
+if (!SPEEDY_API_KEY) {
+  throw new Error("Please set your SPEEDY_API_KEY in a .env file");
+}
+
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 if (!ETHERSCAN_API_KEY) {
   throw new Error("Please set your ETHERSCAN_API_KEY in a .env file");
+}
+
+const BSC_API_KEY = process.env.BSC_API_KEY;
+if (!BSC_API_KEY) {
+  throw new Error("Please set your BSC_API_KEY in a .env file");
 }
 
 // This is a sample Hardhat task. To learn how to create your own go to
@@ -63,17 +74,20 @@ const config: HardhatUserConfig = {
     // coverage: {
     //   url: "http://127.0.0.1:8555",
     // },
-    mainnet: {
+    ethmainnet: {
       url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
       chainId: 1,
       accounts: [`0x${DEPLOYER_PRIVATE_KEY}`],
     },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
-      // url: "https://rinkeby.infura.io/v3/24d441e3175047bfb04c60e8221878c9",
       chainId: 4,
       accounts: [`0x${DEPLOYER_PRIVATE_KEY}`],
-      // accounts: ["0xcf2a6872928392175e383fc10f93c13eab0c050bd4dbd6b45201fad5bd9409b7"],
+    },
+    bsctestnet: {
+      url: `https://speedy-nodes-nyc.moralis.io/${SPEEDY_API_KEY}/bsc/testnet`,
+      chainId: 97,
+      accounts: [`0x${DEPLOYER_PRIVATE_KEY}`],
     },
     // rinkeby: createTestnetConfig("rinkeby"),
   },
@@ -84,7 +98,10 @@ const config: HardhatUserConfig = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 10000,
+            runs: 200,
+            details: {
+              yul: false,
+            },
           },
         },
       },
@@ -97,10 +114,12 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: ETHERSCAN_API_KEY,
+    // apiKey: BSC_API_KEY,
     // Source: https://hardhat.org/plugins/nomiclabs-hardhat-etherscan.html#multiple-api-keys-and-alternative-block-explorers
     // apiKey: {
     //   mainnet: ETHERSCAN_API_KEY,
     //   rinkeby: ETHERSCAN_API_KEY,
+    //   bsctestnet: ETHERSCAN_API_KEY,
     // },
   },
   gasReporter: {

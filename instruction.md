@@ -9,10 +9,16 @@
 
 ### Deployment params
 
+### Trove
+
+* A Trove contains a struct with 2 arrays - collateral token addresses & token amount. Both must have same lengths.
+
 ### Commission
 
 * Deposit fees
+  * It is charged during the deposit of collateral
 * Borrowing fees
+  * It is charged during the deposit of collateral, but as loan along with stablecoin
 
 ### Anyone
 
