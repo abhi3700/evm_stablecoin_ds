@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.0;
 
-// NOTE: Raised the changes done
+// NOTE: Raised the PR here: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3515
 
 /**
  * @dev Contract module that helps prevent reentrant calls to a function.
