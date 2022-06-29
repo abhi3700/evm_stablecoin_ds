@@ -21,6 +21,8 @@ contract MojoDiamond is IDiamondCut, CheckContract {
      * ****************************************
      DE0: the function does not exist
      DE1: cannot send chain's native coins directly
+     DE2: chainId not set
+     DE3: addresses already set
     */
 
     event ActivePoolAddressChanged(address _activePoolAddress);
@@ -114,10 +116,10 @@ contract MojoDiamond is IDiamondCut, CheckContract {
         LibMojoDiamond.checkContractOwner();
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
-        require(ds.chainId != 0, "contract not yet deployed");
-        require(!ds.addressesSet, "addresses already set");
+        require(ds.chainId != 0, "DE2");
+        require(!ds.addressesSet, "DE3");
         // This makes impossible to open a trove with zero withdrawn USM
-        require(LibMojoDiamond.MIN_NET_DEBT != 0, "BO:MIN_NET_DEBT==0");
+        require(LibMojoDiamond.MIN_NET_DEBT != 0, "BOE18");
 
         checkContract(_activePoolAddress);
         checkContract(_defaultPoolAddress);
@@ -183,8 +185,8 @@ contract MojoDiamond is IDiamondCut, CheckContract {
         LibMojoDiamond.checkContractOwner();
         LibMojoDiamond.DiamondStorage storage ds = LibMojoDiamond
             .diamondStorage();
-        require(ds.chainId != 0, "contract not yet deployed");
-        require(!ds.addressesSet, "addresses already set");
+        require(ds.chainId != 0, "DE2");
+        require(!ds.addressesSet, "DE3");
         checkContract(_mojoCustomBaseAddress);
 
         ds.allAddresses.mojoCustomBaseAddress = _mojoCustomBaseAddress;
