@@ -44,7 +44,10 @@ const SPEEDY_API_KEY = process.env.SPEEDY_API_KEY;
 if (!SPEEDY_API_KEY) {
   throw new Error("Please set your SPEEDY_API_KEY in a .env file");
 }
-
+const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY;
+if (!ALCHEMY_API_KEY) {
+  throw new Error("Please set your ALCHEMY_API_KEY in a .env file");
+}
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 if (!ETHERSCAN_API_KEY) {
   throw new Error("Please set your ETHERSCAN_API_KEY in a .env file");
@@ -74,7 +77,7 @@ const config: HardhatUserConfig = {
     // coverage: {
     //   url: "http://127.0.0.1:8555",
     // },
-    ethmainnet: {
+    ethereum: {
       url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
       chainId: 1,
       accounts: [`0x${DEPLOYER_PRIVATE_KEY}`],
@@ -87,6 +90,11 @@ const config: HardhatUserConfig = {
     bsctestnet: {
       url: `https://speedy-nodes-nyc.moralis.io/${SPEEDY_API_KEY}/bsc/testnet`,
       chainId: 97,
+      accounts: [`0x${DEPLOYER_PRIVATE_KEY}`],
+    },
+    mumbai: {
+      url: `https://polygon-mumbai.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      chainId: 80001,
       accounts: [`0x${DEPLOYER_PRIVATE_KEY}`],
     },
     // rinkeby: createTestnetConfig("rinkeby"),

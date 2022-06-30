@@ -136,10 +136,10 @@ $ yarn hardhat run deployment/deploy.main.ts --network rinkeby
 - Deploy the contracts
 
 <!-- ```console
-$ yarn hardhat deploy:LaunchMojo --network ethmainnet
+$ yarn hardhat deploy:LaunchMojo --network ethereum
 ```
  -->
 
 ```console
-$ yarn hardhat run deployment/deploy.main.ts --network ethmainnet
+$ yarn hardhat run deployment/deploy.main.ts --network ethereum
 ```
