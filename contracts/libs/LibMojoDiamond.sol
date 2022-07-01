@@ -174,6 +174,47 @@ library LibMojoDiamond {
         adjustTrove
     }
 
+    // ========"TroveManagerBase.sol"========
+    struct TContractsCache {
+        IActivePool activePool;
+        IDefaultPool defaultPool;
+        IUSMToken usmToken;
+        ISMOJO sYETI;
+        ISortedTroves sortedTroves;
+        ICollSurplusPool collSurplusPool;
+        address gasPoolAddress;
+    }
+
+    struct SingleRedemptionValues {
+        uint256 YUSDLot;
+        newColls CollLot;
+        bool cancelledPartial;
+    }
+
+    enum Status {
+        nonExistent,
+        active,
+        closedByOwner,
+        closedByLiquidation,
+        closedByRedemption
+    }
+
+    enum TroveManagerOperation {
+        applyPendingRewards,
+        liquidateInNormalMode,
+        liquidateInRecoveryMode,
+        redeemCollateral
+    }
+
+    // Store the necessary data for a trove
+    struct Trove {
+        newColls colls;
+        uint256 debt;
+        mapping(address => uint256) stakes;
+        Status status;
+        uint128 arrayIndex;
+    }
+
     // ========"Diamond Storage"========
     struct DiamondStorage {
         // maps function selector to the facet address and
@@ -226,6 +267,7 @@ library LibMojoDiamond {
         // TODO: Please add new members from end of struct
     }
 
+    //==========constant variables of BO, TM,============
     uint256 internal constant BOOTSTRAP_PERIOD = 14 days;
 
     uint256 internal constant DECIMAL_PRECISION = 1e18;

@@ -41,7 +41,13 @@ contract MojoDiamond is IDiamondCut, CheckContract {
     event MOJOTokenAddressChanged(address _mojoTokenAddress);
     event SMOJOAddressChanged(address _sMOJOAddress);
     event BorrowerOperationsAddressChanged(address _borrowerOperationsAddress);
-    event TroveManagerAddressChanged(address _newTroveManagerAddress);
+    event TroveManagerAddressChanged(address _troveManagerAddress);
+    event TroveManagerLiquidationsAddressChanged(
+        address _troveManagerLiquidationsAddress
+    );
+    event TroveManagerRedemptionsAddressChanged(
+        address _troveManagerRedemptionsAddress
+    );
 
     // Protocol diamond constructor
     /// @dev initialize protocol's data
@@ -113,6 +119,8 @@ contract MojoDiamond is IDiamondCut, CheckContract {
         // address _mojoTokenAddress,
         // address _sMOJOAddress,
         // address _troveManagerAddress,
+        // address _troveManagerLiquidationsAddress,
+        // address _troveManagerRedemptionsAddress,
         address _borrowerOperationsAddress
     ) external {
         LibMojoDiamond.checkContractOwner();
@@ -135,6 +143,8 @@ contract MojoDiamond is IDiamondCut, CheckContract {
         // checkContract(_sMOJOAddress);
         checkContract(_borrowerOperationsAddress);
         // checkContract(_troveManagerAddress);
+        // checkContract(_troveManagerLiquidationsAddress);
+        // checkContract(_troveManagerRedemptionsAddress);
 
         ds.allAddresses.activePoolAddress = _activePoolAddress;
         ds.allAddresses.defaultPoolAddress = _defaultPoolAddress;
@@ -165,6 +175,9 @@ contract MojoDiamond is IDiamondCut, CheckContract {
         ds.whitelist = IWhitelist(_whitelistAddress);
         // ds.collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
         ds.borrowerOperations = IBorrowerOperations(_borrowerOperationsAddress);
+        // ds.troveManager = ITroveManager(_troveManagerAddress);
+        // ds.troveManagerLiquidations = ITroveManagerLiquidations(_troveManagerLiquidationsAddress);
+        // ds.troveManagerRedemptions = ITroveManagerRedemptions(_troveManagerRedemptionsAddress);
 
         // events
         emit ActivePoolAddressChanged(_activePoolAddress);
@@ -179,6 +192,8 @@ contract MojoDiamond is IDiamondCut, CheckContract {
         // emit SMOJOAddressChanged(_sMOJOAddress);
         emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
         // emit TroveManagerAddressChanged(_troveManagerAddress);
+        // emit TroveManagerLiquidationsAddressChanged(_troveManagerLiquidationsAddress);
+        // emit TroveManagerRedemptionsAddressChanged(_troveManagerRedemptionsAddress);
     }
 
     /// @notice Set MojoCustomBase contract

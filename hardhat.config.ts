@@ -133,7 +133,10 @@ const config: HardhatUserConfig = {
   gasReporter: {
     currency: "USD",
     gasPrice: 20,
-    enabled: !!process.env.REPORT_GAS,
+    enabled: Boolean(process.env.REPORT_GAS),
+    outputFile: "gas-report.txt",
+    // noColors: true,
+    // coinmarketcap: process.env.COINMARKETCAP_API_KEY,
   },
   typechain: {
     outDir: "./build/typechain/",
